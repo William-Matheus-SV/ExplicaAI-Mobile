@@ -1,0 +1,349 @@
+import { LinearGradient } from "expo-linear-gradient"
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
+import { colors } from "../../shared/styles/colors"
+
+const aluno = {
+    nome: "aluno_demo",
+    matricula: "aluno_demo",
+    bio: "Gosto de aprender coisas novas e estou sempre buscando evoluir!",
+    fotoUrl: "https://i.pravatar.cc/150?img=12",
+}
+
+const estatisticas = [
+    { icone: "🎓", numero: "8", label: "Aulas Concluídas", destaque: "Continue assim!", cor: "#EDE7F6" },
+    { icone: "⭐", numero: "4.8", label: "Avaliação Média", destaque: "Excelente!", cor: "#FFF3E0" },
+    { icone: "📅", numero: "5", label: "Aulas Agendadas", destaque: "Próximas aulas", cor: "#E3F2FD" },
+]
+
+const materiasProgresso = [
+    { nome: "Matemática", status: "Em progresso", progresso: 0.6, cor: colors.primary },
+    { nome: "Física", status: "Em progresso", progresso: 0.4, cor: colors.success },
+    { nome: "Química", status: "Precisa de ajuda", progresso: 0.2, cor: colors.warning },
+    { nome: "Inglês", status: "Em progresso", progresso: 0.7, cor: colors.info },
+]
+
+const proximasAulas = [
+    { id: "1", materia: "Matemática - Funções", tutor: "Ana Silva", fotoTutor: "https://i.pravatar.cc/150?img=5", data: "18 Mai", hora: "14:00" },
+    { id: "2", materia: "Física - Leis de Newton", tutor: "João Pedro", fotoTutor: "https://i.pravatar.cc/150?img=8", data: "19 Mai", hora: "16:30" },
+    { id: "3", materia: "Inglês - Conversação", tutor: "Clara Martins", fotoTutor: "https://i.pravatar.cc/150?img=9", data: "21 Mai", hora: "15:00" },
+]
+export default function PerfilAluno() {
+    return (
+        <View style={styles.tela}>
+            <LinearGradient
+                colors={["#7C6FE0", "#5B4BC4"]}
+                style={styles.cabecalho}
+            >
+                <Text style={styles.tituloCabecalho}>Perfil</Text>
+                <Text style={styles.iconeSino}>🔔</Text>
+            </LinearGradient>
+
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.cardPerfil}>
+                    <Image source={{ uri: aluno.fotoUrl }} style={styles.foto} />
+
+                    <View style={styles.infoPerfil}>
+                        <Text style={styles.nome}>{aluno.nome}</Text>
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeTexto}>Aluno</Text>
+                        </View>
+                        <Text style={styles.matricula}>Matrícula: {aluno.matricula}</Text>
+                        <Text style={styles.bio}>{aluno.bio}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.linhaEstatisticas}>
+                    {estatisticas.map((item) => (
+                        <View key={item.label} style={[styles.cardEstatistica, { backgroundColor: item.cor }]}>
+                            <Text style={styles.iconeEstatistica}>{item.icone}</Text>
+                            <Text style={styles.numeroEstatistica}>{item.numero}</Text>
+                            <Text style={styles.labelEstatistica}>{item.label}</Text>
+                            <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.secaoCard}>
+                    <View style={styles.cabecalhoSecao}>
+                        <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
+                        <Text style={styles.verTodas}>Ver todas →</Text>
+                    </View>
+
+                    {materiasProgresso.map((materia) => (
+                        <View key={materia.nome} style={styles.linhaMateria}>
+                            <View style={styles.infoMateria}>
+                                <Text style={styles.nomeMateria}>{materia.nome}</Text>
+                                <Text style={styles.statusMateria}>{materia.status}</Text>
+                            </View>
+
+                            <View style={styles.barraFundo}>
+                                <View
+                                    style={[
+                                        styles.barraPreenchida,
+                                        { width: `${materia.progresso * 100}%`, backgroundColor: materia.cor },
+                                    ]}
+                                />
+                            </View>
+                            <Text style={styles.percentualMateria}>{Math.round(materia.progresso * 100)}%</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.secaoCard}>
+                    <View style={styles.cabecalhoSecao}>
+                        <Text style={styles.tituloSecao}>Próximas Aulas</Text>
+                        <Text style={styles.verTodas}>Ver agenda →</Text>
+                    </View>
+
+                    {proximasAulas.map((aula) => (
+                        <View key={aula.id} style={styles.linhaAula}>
+                            <Image source={{ uri: aula.fotoTutor }} style={styles.fotoTutor} />
+
+                            <View style={styles.infoAula}>
+                                <Text style={styles.nomeAula}>{aula.materia}</Text>
+                                <Text style={styles.nomeTutor}>com {aula.tutor}</Text>
+                            </View>
+
+                            <View style={styles.dataAula}>
+                                <Text style={styles.textoData}>{aula.data}</Text>
+                                <Text style={styles.textoHora}>{aula.hora}</Text>
+                            </View>
+
+                            <Pressable style={styles.botaoEntrar}>
+                                <Text style={styles.textoBotaoEntrar}>Entrar</Text>
+                            </Pressable>
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    tela: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
+    cabecalho: {
+        paddingTop: 48,
+        paddingBottom: 40,
+        paddingHorizontal: 20,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+    },
+    tituloCabecalho: {
+        color: colors.white,
+        fontSize: 24,
+        fontWeight: "bold",
+    },
+    iconeSino: {
+        fontSize: 22,
+    },
+    container: {
+        padding: 16,
+        gap: 16,
+        marginTop: -24,
+        paddingBottom: 32,
+    },
+    cardPerfil: {
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 16,
+        flexDirection: "row",
+        gap: 16,
+    },
+    foto: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+    },
+    infoPerfil: {
+        flex: 1,
+        gap: 4,
+    },
+    nome: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: colors.text,
+    },
+    badge: {
+        backgroundColor: colors.primaryLight,
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        alignSelf: "flex-start",
+    },
+    badgeTexto: {
+        color: colors.primary,
+        fontSize: 12,
+        fontWeight: "600",
+    },
+    matricula: {
+        fontSize: 13,
+        color: colors.text,
+        fontWeight: "600",
+    },
+    bio: {
+        fontSize: 13,
+        color: colors.textSecondary,
+    },
+    linhaEstatisticas: {
+        flexDirection: "row",
+        gap: 12,
+    },
+    cardEstatistica: {
+        flex: 1,
+        borderRadius: 16,
+        padding: 12,
+        gap: 4,
+    },
+    iconeEstatistica: {
+        fontSize: 20,
+    },
+    numeroEstatistica: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    labelEstatistica: {
+        fontSize: 12,
+        color: colors.text,
+    },
+    destaqueEstatistica: {
+        fontSize: 11,
+        color: colors.primary,
+        fontWeight: "600",
+    },
+    secaoCard: {
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 16,
+        gap: 12,
+    },
+    cabecalhoSecao: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    tituloSecao: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: colors.text,
+    },
+    verTodas: {
+        fontSize: 13,
+        color: colors.primary,
+        fontWeight: "600",
+    },
+    linhaMateria: {
+        gap: 4,
+    },
+    infoMateria: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    nomeMateria: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: colors.text,
+    },
+    statusMateria: {
+        fontSize: 11,
+        color: colors.textSecondary,
+    },
+    barraFundo: {
+        height: 6,
+        backgroundColor: "#EEE",
+        borderRadius: 3,
+        overflow: "hidden",
+    },
+    barraPreenchida: {
+        height: "100%",
+        borderRadius: 3,
+    },
+    percentualMateria: {
+        fontSize: 11,
+        color: colors.textSecondary,
+        alignSelf: "flex-end",
+    },
+    linhaAula: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+    fotoTutor: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+    },
+    infoAula: {
+        flex: 1,
+    },
+    nomeAula: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: colors.text,
+    },
+    nomeTutor: {
+        fontSize: 12,
+        color: colors.textSecondary,
+    },
+    dataAula: {
+        alignItems: "flex-end",
+    },
+    textoData: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: colors.text,
+    },
+    textoHora: {
+        fontSize: 11,
+        color: colors.textSecondary,
+    },
+    botaoEntrar: {
+        borderWidth: 1,
+        borderColor: colors.primary,
+        borderRadius: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+    },
+    textoBotaoEntrar: {
+        fontSize: 12,
+        color: colors.primary,
+        fontWeight: "600",
+    },
+    gradeConquistas: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 12,
+    },
+    itemConquista: {
+        width: "45%",
+        alignItems: "center",
+        gap: 4,
+    },
+    circuloConquista: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    iconeConquista: {
+        fontSize: 24,
+    },
+    tituloConquista: {
+        fontSize: 13,
+        fontWeight: "bold",
+        textAlign: "center",
+        color: colors.text,
+    },
+    descricaoConquista: {
+        fontSize: 11,
+        color: colors.textSecondary,
+        textAlign: "center",
+    },
+})
