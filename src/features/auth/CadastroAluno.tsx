@@ -3,7 +3,7 @@ import { router } from "expo-router"
 import { useState } from "react"
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native"
 import { Input } from "../../shared/components/Input"
-import { colors } from "../../shared/styles/colors"
+import { themeAluno } from "../../shared/styles/themeAluno"
 
 export default function CadastroAluno() {
     const [nome, setNome] = useState("")
@@ -211,7 +211,7 @@ export default function CadastroAluno() {
 const styles = StyleSheet.create({
     tela: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: themeAluno.background,
     },
     cabecalho: {
         paddingTop: 48,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     iconeVoltar: {
-        color: colors.white,
+        color: themeAluno.white,
         fontSize: 18,
     },
     logoCabecalho: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     tituloCabecalho: {
-        color: colors.white,
+        color: themeAluno.white,
         fontSize: 22,
         fontWeight: "bold",
     },
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
         paddingBottom: 32,
     },
     card: {
-        backgroundColor: colors.white,
+        backgroundColor: themeAluno.white,
         borderRadius: 16,
         padding: 16,
         gap: 12,
@@ -273,14 +273,14 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 8,
-        backgroundColor: colors.primary,
+        backgroundColor: themeAluno.primary,
         justifyContent: "center",
         alignItems: "center",
     },
     tituloSecao: {
         fontSize: 16,
         fontWeight: "bold",
-        color: colors.text,
+        color: themeAluno.text,
     },
     campo: {
         gap: 4,
@@ -288,11 +288,11 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 13,
         fontWeight: "600",
-        color: colors.text,
+        color: themeAluno.text,
     },
     inputEstilizado: {
         borderColor: "#E0DCF0",
-        backgroundColor: colors.white,
+        backgroundColor: themeAluno.white,
     },
     linha: {
         flexDirection: "row",
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     erro: {
-        color: colors.error,
+        color: themeAluno.error,
         fontSize: 12,
         marginTop: -4,
     },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     },
     subLabel: {
         fontSize: 12,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
         marginTop: -4,
     },
     gradeCheckbox: {
@@ -339,8 +339,8 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     checkboxMarcado: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
+        backgroundColor: themeAluno.primary,
+        borderColor: themeAluno.primary,
     },
     checkboxLabel: {
         fontSize: 14,
@@ -359,19 +359,19 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     textoBotaoSecundario: {
-        color: colors.text,
+        color: themeAluno.text,
         fontWeight: "600",
     },
     botaoPrimario: {
         flex: 2,
-        backgroundColor: colors.primary,
+        backgroundColor: themeAluno.primary,
         borderRadius: 8,
         height: 48,
         justifyContent: "center",
         alignItems: "center",
     },
     textoBotaoPrimario: {
-        color: colors.white,
+        color: themeAluno.white,
         fontWeight: "bold",
     },
 })
