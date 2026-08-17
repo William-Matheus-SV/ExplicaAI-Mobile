@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 24,
     },
     tituloCabecalho: {
-        color: themeAluno.black,
+        color: themeAluno.black,                    
         fontSize: 24,
         fontWeight: "bold",
     },
