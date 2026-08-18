@@ -3,6 +3,7 @@ import { router } from "expo-router"
 import { useState } from "react"
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native"
 import { Input } from "../../shared/components/Input"
+import CardMaterias from "../../shared/components/CardMaterias"
 import { themeAluno } from "../../shared/styles/themeAluno"
 
 export default function CadastroAluno() {
@@ -14,18 +15,44 @@ export default function CadastroAluno() {
     const [confirmarSenha, setConfirmarSenha] = useState("")
     const [erroSenha, setErroSenha] = useState("")
 
-    const materias = [
-        "Matemática", "Português", "História", "Geografia",
-        "Ciências", "Física", "Química", "Biologia",
-        "Inglês", "Educação Física", "Artes", "Filosofia",
+    const itinerarios = [
+        {
+            nome: "Linguagens e suas tecnologias",
+            materias: ["Português", "Inglês", "Espanhol", "Artes"],
+        },
+        {
+            nome: "Matemática e suas tecnologias",
+            materias: ["Matemática","Estatística","Geometria"],
+        },
+        {
+            nome: "Ciências da natureza e suas tecnologias",
+            materias: ["Física", "Química", "Biologia"],
+        },
+        {
+            nome: "Ciências humanas e sociais aplicadas",
+            materias: ["História", "Geografia", "Filosofia", "Sociologia"],
+        },
+        {
+            nome: "Formação técnica e profissional",
+            materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"],
+        },
     ]
     const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>([])
+    const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null)
 
     function toggleMateria(materia: string) {
         if (materiasSelecionadas.includes(materia)) {
             setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia))
         } else {
             setMateriasSelecionadas([...materiasSelecionadas, materia])
+        }
+    }
+
+    function toggleItinerario(nomeItinerario: string) {
+        if (itinerarioAberto === nomeItinerario) {
+            setItinerarioAberto(null)
+        } else {
+            setItinerarioAberto(nomeItinerario)
         }
     }
 
@@ -48,6 +75,7 @@ export default function CadastroAluno() {
         }
 
         console.log("Cadastro válido:", { nome, idade, matricula, senha, bio, materiasSelecionadas })
+        router.push("/perfil-aluno")
     }
 
     function handleLimpar() {
@@ -58,13 +86,14 @@ export default function CadastroAluno() {
         setConfirmarSenha("")
         setBio("")
         setMateriasSelecionadas([])
+        setItinerarioAberto(null)
         setErroSenha("")
     }
 
     return (
         <View style={styles.tela}>
             <LinearGradient
-                colors={["#7C6FE0", "#5B4BC4"]}
+                colors={themeAluno.gradient}
                 style={styles.cabecalho}
             >
                 <Pressable style={styles.botaoVoltar} onPress={() => router.back()}>
@@ -72,7 +101,7 @@ export default function CadastroAluno() {
                 </Pressable>
 
                 <Image
-                    source={require("../../../assets/logo.png")}
+                    source={require("../../../assets/logo-alunoCadastro.png")}
                     style={styles.logoCabecalho}
                 />
                 <Text style={styles.tituloCabecalho}>Cadastro de Aluno</Text>
@@ -175,20 +204,35 @@ export default function CadastroAluno() {
                         </View>
                         <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
                     </View>
-                    <Text style={styles.subLabel}>Selecione as matérias em que o aluno possui dificuldade</Text>
+                    <Text style={styles.subLabel}>Selecione o itinerário e depois as matérias em que o aluno possui dificuldade</Text>
 
-                    <View style={styles.gradeCheckbox}>
-                        {materias.map((materia) => {
-                            const selecionada = materiasSelecionadas.includes(materia)
+                    <View style={styles.listaItinerarios}>
+                        {itinerarios.map((itinerario) => {
+                            const aberto = itinerarioAberto === itinerario.nome
+
                             return (
-                                <Pressable
-                                    key={materia}
-                                    style={styles.checkboxItem}
-                                    onPress={() => toggleMateria(materia)}
-                                >
-                                    <View style={[styles.checkbox, selecionada && styles.checkboxMarcado]} />
-                                    <Text style={styles.checkboxLabel}>{materia}</Text>
-                                </Pressable>
+                                <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                                    <Pressable
+                                        style={styles.itinerarioCabecalho}
+                                        onPress={() => toggleItinerario(itinerario.nome)}
+                                    >
+                                        <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
+                                        <Text style={styles.itinerarioSeta}>{aberto ? "▲" : "▼"}</Text>
+                                    </Pressable>
+
+                                    {aberto && (
+                                        <View style={styles.itinerarioMaterias}>
+                                            {itinerario.materias.map((materia) => (
+                                                <CardMaterias
+                                                    key={materia}
+                                                    nome={materia}
+                                                    selecionado={materiasSelecionadas.includes(materia)}
+                                                    onPress={() => toggleMateria(materia)}
+                                                />
+                                            ))}
+                                        </View>
+                                    )}
+                                </View>
                             )
                         })}
                     </View>
@@ -237,10 +281,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     logoCabecalho: {
-        width: 48,
-        height: 48,
+        width: 90,
+        height: 90,
         resizeMode: "contain",
-        marginBottom: 8,
+        marginBottom: 1,
     },
     tituloCabecalho: {
         color: themeAluno.white,
@@ -291,7 +335,7 @@ const styles = StyleSheet.create({
         color: themeAluno.text,
     },
     inputEstilizado: {
-        borderColor: "#E0DCF0",
+        borderColor: themeAluno.border,
         backgroundColor: themeAluno.white,
     },
     linha: {
@@ -309,7 +353,7 @@ const styles = StyleSheet.create({
     },
     textArea: {
         borderWidth: 1,
-        borderColor: "#E0DCF0",
+        borderColor: themeAluno.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
@@ -320,30 +364,37 @@ const styles = StyleSheet.create({
         color: themeAluno.textSecondary,
         marginTop: -4,
     },
-    gradeCheckbox: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 12,
-    },
-    checkboxItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: "45%",
+    listaItinerarios: {
         gap: 8,
     },
-    checkbox: {
-        width: 18,
-        height: 18,
+    itinerarioBloco: {
         borderWidth: 1,
-        borderColor: "#999",
-        borderRadius: 4,
+        borderColor: themeAluno.border,
+        borderRadius: 8,
+        overflow: "hidden",
     },
-    checkboxMarcado: {
-        backgroundColor: themeAluno.primary,
-        borderColor: themeAluno.primary,
+    itinerarioCabecalho: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 12,
+        backgroundColor: themeAluno.primaryLight,
     },
-    checkboxLabel: {
+    itinerarioTexto: {
         fontSize: 14,
+        fontWeight: "600",
+        color: themeAluno.text,
+        flex: 1,
+    },
+    itinerarioSeta: {
+        fontSize: 12,
+        color: themeAluno.textSecondary,
+    },
+    itinerarioMaterias: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        padding: 12,
     },
     linhaBotoes: {
         flexDirection: "row",
