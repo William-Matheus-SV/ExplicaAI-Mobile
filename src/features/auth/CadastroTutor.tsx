@@ -1,13 +1,15 @@
-import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet, Image } from 'react-native';
 import { useState } from 'react';
+import { colors } from "../../shared/styles/colors"
 import InputLabel from '../../shared/components/InputLabel';
 import SectionTitle from '../../shared/components/SectionTitle';
 import CardMaterias from '../../shared/components/CardMaterias';
 
+
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 const MATERIAS_DISPONIVEIS = ["Matemática", "Português", "Física", "Química", "Biologia", "História"];
 
-function CadastroTutor() {
+export default function CadastroTutor() {
   const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>([]);
 
   function toggleMateria(materia: string) {
@@ -20,44 +22,88 @@ function CadastroTutor() {
 
   return (
     <View style={styles.container}>
+
+
+      {/* organiza views dentro do header */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Pressable style={styles.botaoVoltar}>
-            <Text style={styles.textoBotaoVoltar}>Voltar</Text>
+        <Pressable style={styles.botaoVoltar}>
+           <Text style={styles.iconeVoltar}>←</Text>
           </Pressable>
-          <Text style={styles.tituloHeader}>Cadastro de Tutor</Text>
+
+          {/* organiza itens dentro da view */}
+        <View style={styles.headerContent}>
+          
+          <Image
+              source={require("../../../assets/logo.png")}
+              style={styles.logoCabecalho}
+            />
+             <Text style={styles.tituloHeader}>Cadastro de Tutor</Text>
+             <Text style={styles.subtituloHeader}>Preencha os dados abaixo para registrar um novo Tutor</Text>
         </View>
       </View>
+      {/* termina o header */}
 
+
+          {/* __-----____---___-- INFORMAÇOES PESSOAIS __-----____---___-- */}
       <ScrollView style={styles.scrollContainer}>
-        <SectionTitle title="Informações Pessoais" />
+        <View style={styles.card}>
+          <SectionTitle icon="person-sharp" size={20} color={colors.primary} title="Informações Pessoais" />
+          <InputLabel Label="Nome"  placeholder="Digite seu Nome" />
 
-        <InputLabel Label="Nome"  placeholder="Digite seu Nome" />
+          <View style={styles.campos}>
+            <InputLabel Label="Idade" placeholder="Digite sua idade" keyboardType="numeric" />
+            <InputLabel Label="Matrícula" placeholder="Digite sua Matrícula" keyboardType="numeric" />
+          </View>
+          <View style={styles.campos}>
+            <InputLabel Label="Senha"  placeholder="Crie uma Senha" secureTextEntry />
+            <InputLabel Label="Confirme Senha" placeholder="Confirme sua Senha" secureTextEntry />
+          </View>
+        </View>
+        
 
-        <View style={styles.campos}>
-          <InputLabel Label="Idade" placeholder="Digite sua idade" keyboardType="numeric" />
-          <InputLabel Label="Matrícula" placeholder="Digite sua Matrícula" keyboardType="numeric" />
+        {/*__-----____---___-- BIO DESCRIÇAO __-----____---___-- */}
+        <View style={styles.card}>
+          <SectionTitle icon="person-circle-outline" size={20} color={colors.primary} title="Bio/Descrição" />
+          <TextInput style={styles.bio} placeholder="Fale um pouco sobre você" multiline />
+        </View>
+        
+
+        {/*__-----____---___-- MATERIAS __-----____---___-- */}
+        <View style={styles.card}>
+          <SectionTitle icon="school-sharp" size={20} color={colors.primary} title="Matérias Lecionadas" />
+
+          <View style={styles.materiasContainer}>
+            {MATERIAS_DISPONIVEIS.map((materia) => (
+              <CardMaterias
+                key={materia}
+                nome={materia}
+                selecionado={materiasSelecionadas.includes(materia)}
+                onPress={() => toggleMateria(materia)}
+              />
+            ))}
+          </View>
         </View>
 
-        <View style={styles.campos}>
-          <InputLabel Label="Senha"  placeholder="Crie uma Senha" secureTextEntry />
-          <InputLabel Label="Confirme Senha" placeholder="Confirme sua Senha" secureTextEntry />
+        {/* __-----____---___--HORARIOS ----____----____-----____ */}
+        <View style={styles.card}>
+          <SectionTitle icon="calendar" size={20} color={colors.primary} title="Minha Agenda" />
         </View>
 
-        <SectionTitle title="Bio/Descrição" />
-        <TextInput style={styles.bio} placeholder="Fale um pouco sobre você" multiline />
 
-        <SectionTitle title="Matérias Lecionadas" />
-        <View style={styles.materiasContainer}>
-          {MATERIAS_DISPONIVEIS.map((materia) => (
-            <CardMaterias
-              key={materia}
-              nome={materia}
-              selecionado={materiasSelecionadas.includes(materia)}
-              onPress={() => toggleMateria(materia)}
-            />
-          ))}
+
+            {/* View de botoes */}
+        <View style={styles.linhaBotoes}>
+          {/* botao para limpar */}
+          <Pressable style={styles.botaoSecundario} /* onPress={handleLimpar} */>
+            <Text style={styles.textoBotaoSecundario}>Limpar</Text>
+          </Pressable>
+
+            {/* botao cadastrar */}
+          <Pressable style={styles.botaoPrimario} /* onPress={handleCadastro} */>
+            <Text style={styles.textoBotaoPrimario}>Cadastrar Aluno</Text>
+          </Pressable>
         </View>
+        
       </ScrollView>
     </View>
   );
@@ -79,28 +125,42 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  botaoVoltar: {
-    height: 30,
-    width: '30%',
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  textoBotaoVoltar: {
-    color: '#ffffff',
+  botaoVoltar: {
+    height: 36,
+    width: 36,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    position:'absolute'
+  },
+  iconeVoltar: {
+    color: colors.white,
+    fontSize: 18,
   },
   tituloHeader: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: colors.white,
+    fontSize: 22,
+    fontWeight: "bold",
   },
+
+  subtituloHeader: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    textAlign: "center",
+    marginTop: 4,
+  },
+
+logoCabecalho: {
+        width: 48,
+        height: 48,
+        resizeMode: "contain",
+        marginBottom: 8,
+    },
+
   scrollContainer: {
     padding: 16,
     flex: 1,
@@ -127,6 +187,42 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 20,
   },
-});
 
-export default CadastroTutor;
+  card:{
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    marginBottom:10
+  },
+
+  linhaBotoes: {
+        flexDirection: "row",
+        gap: 12,
+    },
+    botaoSecundario: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: "#CCC",
+        borderRadius: 8,
+        height: 48,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textoBotaoSecundario: {
+        color: colors.text,
+        fontWeight: "600",
+    },
+    botaoPrimario: {
+        flex: 2,
+        backgroundColor: colors.primary,
+        borderRadius: 8,
+        height: 48,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textoBotaoPrimario: {
+        color: colors.white,
+        fontWeight: "bold",
+    },
+});
