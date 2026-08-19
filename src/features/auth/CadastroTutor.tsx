@@ -1,15 +1,48 @@
 import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet, Image } from 'react-native';
 import { useState } from 'react';
-import { colors } from "../../shared/styles/colors"
+import { colors } from "../../shared/styles/colors";
+import { Ionicons } from '@expo/vector-icons';
 import InputLabel from '../../shared/components/InputLabel';
 import SectionTitle from '../../shared/components/SectionTitle';
 import CardMaterias from '../../shared/components/CardMaterias';
 
-
+//calculo para ter um margem no header dos usuarios
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
+
+//tipagem TypeScript para os inputs
+interface FormularioTutor {
+  nome: string;
+  idade: string;
+  matricula: string;
+  senha: string;
+  confirmarSenha: string;
+  bio: string;
+}
+
+const formularioVazio: FormularioTutor = {
+  nome: '',
+  idade: '',
+  matricula: '',
+  senha: '',
+  confirmarSenha: '',
+  bio: '',
+}
+
+
 const MATERIAS_DISPONIVEIS = ["Matemática", "Português", "Física", "Química", "Biologia", "História"];
 
+
+
 export default function CadastroTutor() {
+  //useState dos formularios
+  const [formulario, setFormulario] = useState<FormularioTutor>(formularioVazio);
+
+//
+function handleChange(campo: keyof FormularioTutor, valor: string) {
+  setFormulario((atual) => ({ ...atual, [campo]: valor }));
+}
+
+
   const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>([]);
 
   function toggleMateria(materia: string) {
@@ -21,14 +54,15 @@ export default function CadastroTutor() {
   }
 
   return (
+    
     <View style={styles.container}>
 
 
       {/* organiza views dentro do header */}
       <View style={styles.header}>
         <Pressable style={styles.botaoVoltar}>
-           <Text style={styles.iconeVoltar}>←</Text>
-          </Pressable>
+          <Ionicons name={'arrow-back'} size={22} color={colors.primaryLight}/>   
+        </Pressable>
 
           {/* organiza itens dentro da view */}
         <View style={styles.headerContent}>
@@ -48,15 +82,31 @@ export default function CadastroTutor() {
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.card}>
           <SectionTitle icon="person-sharp" size={20} color={colors.primary} title="Informações Pessoais" />
-          <InputLabel Label="Nome"  placeholder="Digite seu Nome" />
+
+          <InputLabel Label="Nome Completo" placeholder="Digite seu Nome"
+            value={formulario.nome}
+            onChangeText={(texto) => handleChange('nome', texto)}
+          />
 
           <View style={styles.campos}>
-            <InputLabel Label="Idade" placeholder="Digite sua idade" keyboardType="numeric" />
-            <InputLabel Label="Matrícula" placeholder="Digite sua Matrícula" keyboardType="numeric" />
+            <InputLabel Label="Idade" placeholder="Digite sua idade" keyboardType="numeric" 
+             value={formulario.idade}
+            onChangeText={(texto) => handleChange('idade', texto)}
+            />
+            <InputLabel Label="Matrícula" placeholder="Digite sua Matrícula" keyboardType="numeric"  
+            value={formulario.matricula}
+            onChangeText={(texto) => handleChange('nome', texto)}
+            />
           </View>
           <View style={styles.campos}>
-            <InputLabel Label="Senha"  placeholder="Crie uma Senha" secureTextEntry />
-            <InputLabel Label="Confirme Senha" placeholder="Confirme sua Senha" secureTextEntry />
+            <InputLabel Label="Senha"  placeholder="Crie uma Senha" secureTextEntry 
+             value={formulario.senha}
+            onChangeText={(texto) => handleChange('senha', texto)}
+            />
+            <InputLabel Label="Confirmar Senha" placeholder="Confirme sua Senha" secureTextEntry 
+             value={formulario.confirmarSenha}
+            onChangeText={(texto) => handleChange('confirmarSenha', texto)}
+            />
           </View>
         </View>
         
@@ -64,7 +114,10 @@ export default function CadastroTutor() {
         {/*__-----____---___-- BIO DESCRIÇAO __-----____---___-- */}
         <View style={styles.card}>
           <SectionTitle icon="person-circle-outline" size={20} color={colors.primary} title="Bio/Descrição" />
-          <TextInput style={styles.bio} placeholder="Fale um pouco sobre você" multiline />
+          <TextInput style={styles.bio} placeholder="Fale um pouco sobre você" multiline 
+           value={formulario.bio}
+            onChangeText={(texto) => handleChange('bio', texto)}
+            />
         </View>
         
 
@@ -94,13 +147,16 @@ export default function CadastroTutor() {
             {/* View de botoes */}
         <View style={styles.linhaBotoes}>
           {/* botao para limpar */}
-          <Pressable style={styles.botaoSecundario} /* onPress={handleLimpar} */>
+          <Pressable style={styles.botaoSecundario} 
+            onPress={() => {setFormulario(formularioVazio);
+                            setMateriasSelecionadas([])
+            }}>
             <Text style={styles.textoBotaoSecundario}>Limpar</Text>
           </Pressable>
 
             {/* botao cadastrar */}
           <Pressable style={styles.botaoPrimario} /* onPress={handleCadastro} */>
-            <Text style={styles.textoBotaoPrimario}>Cadastrar Aluno</Text>
+            <Text style={styles.textoBotaoPrimario}>Cadastrar Tutor</Text>
           </Pressable>
         </View>
         
@@ -137,12 +193,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position:'absolute'
   },
-  iconeVoltar: {
-    color: colors.white,
-    fontSize: 18,
-  },
+  
   tituloHeader: {
-    color: colors.white,
+    color: colors.primaryLight,
     fontSize: 22,
     fontWeight: "bold",
   },
@@ -169,6 +222,7 @@ logoCabecalho: {
     width: '100%',
     flexDirection: 'row',
     gap: 10,
+    
   },
   bio: {
     width: '100%',
