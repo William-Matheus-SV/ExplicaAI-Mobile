@@ -1,13 +1,12 @@
-import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
-} from 'react-native';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 export default function EscolhaCadastro() {
   const router = useRouter();
@@ -22,13 +21,9 @@ export default function EscolhaCadastro() {
           Explica<Text style={styles.logoGreen}>Aí</Text>
         </Text>
 
-        <Text style={styles.title}>
-          Como você quer{'\n'}se cadastrar?
-        </Text>
+        <Text style={styles.title}>Como você quer{"\n"}se cadastrar?</Text>
 
-        <Text style={styles.subtitle}>
-          Escolha uma opção para continuar
-        </Text>
+        <Text style={styles.subtitle}>Escolha uma opção para continuar</Text>
 
         {/* ALUNO */}
         <View style={styles.cardAluno}>
@@ -45,11 +40,9 @@ export default function EscolhaCadastro() {
 
           <TouchableOpacity
             style={styles.buttonAluno}
-            onPress={() => router.push('/cadastro-aluno')}
+            onPress={() => router.push("/cadastro-aluno")}
           >
-            <Text style={styles.buttonTextAluno}>
-              Cadastrar como aluno
-            </Text>
+            <Text style={styles.buttonTextAluno}>Cadastrar como aluno</Text>
 
             <Text style={styles.arrowAluno}>→</Text>
           </TouchableOpacity>
@@ -64,17 +57,15 @@ export default function EscolhaCadastro() {
           <Text style={styles.titleTutor}>Tutor</Text>
 
           <Text style={styles.description}>
-            Compartilhe seus conhecimentos, ajude alunos e ofereça aulas
-            nas matérias que você domina.
+            Compartilhe seus conhecimentos, ajude alunos e ofereça aulas nas
+            matérias que você domina.
           </Text>
 
           <TouchableOpacity
             style={styles.buttonTutor}
-            onPress={() => router.push('/cadastro-tutor')}
+            onPress={() => router.push("/cadastro-tutor")}
           >
-            <Text style={styles.buttonTextTutor}>
-              Cadastrar como tutor
-            </Text>
+            <Text style={styles.buttonTextTutor}>Cadastrar como tutor</Text>
 
             <Text style={styles.arrowTutor}>→</Text>
           </TouchableOpacity>
@@ -83,18 +74,14 @@ export default function EscolhaCadastro() {
         {/* VOLTAR */}
         <TouchableOpacity
           style={styles.loginCard}
-          onPress={() => router.push('/login')}
+          onPress={() => router.push("/login")}
         >
           <Text style={styles.backArrow}>←</Text>
 
           <View>
-            <Text style={styles.loginQuestion}>
-              Já tem uma conta?
-            </Text>
+            <Text style={styles.loginQuestion}>Já tem uma conta?</Text>
 
-            <Text style={styles.loginText}>
-              Voltar para o login
-            </Text>
+            <Text style={styles.loginText}>Voltar para o login</Text>
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -105,7 +92,7 @@ export default function EscolhaCadastro() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAF8',
+    backgroundColor: "#F7FAF8",
   },
 
   scrollContent: {
@@ -115,50 +102,50 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 28,
-    fontWeight: '800',
-    color: '#171717',
+    fontWeight: "800",
+    color: "#171717",
     marginBottom: 35,
   },
 
   logoGreen: {
-    color: '#20B96B',
+    color: "#20B96B",
   },
 
   title: {
     fontSize: 36,
     lineHeight: 42,
-    fontWeight: '800',
-    textAlign: 'center',
-    color: '#17202A',
+    fontWeight: "800",
+    textAlign: "center",
+    color: "#17202A",
     marginBottom: 12,
   },
 
   subtitle: {
     fontSize: 18,
-    textAlign: 'center',
-    color: '#64748B',
+    textAlign: "center",
+    color: "#64748B",
     marginBottom: 35,
   },
 
   cardAluno: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 22,
     marginBottom: 22,
     borderWidth: 1,
-    borderColor: '#E5F1EA',
+    borderColor: "#E5F1EA",
     elevation: 3,
   },
 
   cardTutor: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 22,
     marginBottom: 22,
     borderWidth: 1,
-    borderColor: '#E9E1F7',
+    borderColor: "#E9E1F7",
     elevation: 3,
   },
 
@@ -166,9 +153,9 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 20,
-    backgroundColor: '#E5F7ED',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#E5F7ED",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 18,
   },
 
@@ -176,9 +163,9 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 20,
-    backgroundColor: '#EEE6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#EEE6FF",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 18,
   },
 
@@ -188,95 +175,95 @@ const styles = StyleSheet.create({
 
   titleAluno: {
     fontSize: 30,
-    fontWeight: '800',
-    color: '#087A43',
+    fontWeight: "800",
+    color: "#087A43",
     marginBottom: 10,
   },
 
   titleTutor: {
     fontSize: 30,
-    fontWeight: '800',
-    color: '#4B20B8',
+    fontWeight: "800",
+    color: "#4B20B8",
     marginBottom: 10,
   },
 
   description: {
     fontSize: 16,
     lineHeight: 25,
-    color: '#334155',
+    color: "#334155",
   },
 
   buttonAluno: {
     height: 62,
     borderRadius: 15,
-    backgroundColor: '#E1F5E9',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#E1F5E9",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 25,
   },
 
   buttonTutor: {
     height: 62,
     borderRadius: 15,
-    backgroundColor: '#EEE5FF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#EEE5FF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 25,
   },
 
   buttonTextAluno: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#078442',
+    fontWeight: "700",
+    color: "#078442",
   },
 
   buttonTextTutor: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#4B20B8',
+    fontWeight: "700",
+    color: "#4B20B8",
   },
 
   arrowAluno: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     fontSize: 32,
-    color: '#078442',
+    color: "#078442",
   },
 
   arrowTutor: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     fontSize: 32,
-    color: '#4B20B8',
+    color: "#4B20B8",
   },
 
   loginCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 25,
     padding: 22,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#E8ECEA',
+    borderColor: "#E8ECEA",
   },
 
   backArrow: {
     fontSize: 32,
-    color: '#17202A',
+    color: "#17202A",
     marginRight: 18,
   },
 
   loginQuestion: {
     fontSize: 16,
-    color: '#17202A',
+    color: "#17202A",
     marginBottom: 5,
   },
 
   loginText: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#20B96B',
+    fontWeight: "700",
+    color: "#20B96B",
   },
 });
