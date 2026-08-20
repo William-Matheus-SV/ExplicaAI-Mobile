@@ -1,63 +1,127 @@
-import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet, Image, Alert } from 'react-native';
 import { useState } from 'react';
 import { colors } from "../../shared/styles/colors";
 import { Ionicons } from '@expo/vector-icons';
 import InputLabel from '../../shared/components/InputLabel';
 import SectionTitle from '../../shared/components/SectionTitle';
 import CardMaterias from '../../shared/components/CardMaterias';
+import { themeTutor } from '../../shared/styles/themeTutor';
 
 //calculo para ter um margem no header dos usuarios
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
-//tipagem TypeScript para os inputs
-interface FormularioTutor {
-  nome: string;
-  idade: string;
-  matricula: string;
-  senha: string;
-  confirmarSenha: string;
-  bio: string;
-}
 
-const formularioVazio: FormularioTutor = {
-  nome: '',
-  idade: '',
-  matricula: '',
-  senha: '',
-  confirmarSenha: '',
-  bio: '',
-}
-
-
-const MATERIAS_DISPONIVEIS = ["Matemática", "Português", "Física", "Química", "Biologia", "História"];
 
 
 
 export default function CadastroTutor() {
-  //useState dos formularios
-  const [formulario, setFormulario] = useState<FormularioTutor>(formularioVazio);
+  //hook dos inputs para guardar valores
+  const [nome, setNome] = useState("");
+  const [idade, setIdade] = useState("");
+  const [matricula, setMatricula] = useState("");
+  const [bio, setBio] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [erroSenha, setErroSenha] = useState("");
 
-//
-function handleChange(campo: keyof FormularioTutor, valor: string) {
-  setFormulario((atual) => ({ ...atual, [campo]: valor }));
-}
+  
+  // parte do dropDown
+const itinerarios = [
+    {
+      nome: "Linguagens e suas tecnologias",
+      materias: ["Português", "Inglês", "Espanhol", "Artes"],
+    },
+    {
+      nome: "Matemática e suas tecnologias",
+      materias: ["Matemática", "Estatística", "Geometria"],
+    },
+    {
+      nome: "Ciências da natureza e suas tecnologias",
+      materias: ["Física", "Química", "Biologia"],
+    },
+    {
+      nome: "Ciências humanas e sociais aplicadas",
+      materias: ["História", "Geografia", "Filosofia", "Sociologia"],
+    },
+    {
+      nome: "Formação técnica e profissional",
+      materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"],
+    },
+  ];
 
+    //hook para guardar os valores de Itinerarios
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(
+    [],
+  );
 
-  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>([]);
+    
+  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
 
   function toggleMateria(materia: string) {
-    setMateriasSelecionadas((atual) =>
-      atual.includes(materia)
-        ? atual.filter((m) => m !== materia)
-        : [...atual, materia]
-    );
+    if (materiasSelecionadas.includes(materia)) {
+      setMateriasSelecionadas(
+        materiasSelecionadas.filter((item) => item !== materia),
+      );
+    } else {
+      setMateriasSelecionadas([...materiasSelecionadas, materia]);
+    }
   }
 
+  function toggleItinerario(nomeItinerario: string) {
+    if (itinerarioAberto === nomeItinerario) {
+      setItinerarioAberto(null);
+    } else {
+      setItinerarioAberto(nomeItinerario);
+    }
+  }
+
+  function handleCadastro() {
+    setErroSenha("");
+
+    if (!nome.trim() || !idade.trim() || !matricula.trim()) {
+      Alert.alert("Atenção", "Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      setErroSenha("As senhas não coincidem");
+      return;
+    }
+
+    if (senha.length < 6) {
+      setErroSenha("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
+    console.log("Cadastro válido:", {
+      nome,
+      idade,
+      matricula,
+      senha,
+      bio,
+      materiasSelecionadas,
+    });
+    /* router.push("/perfil-aluno"); -------------------------------------------- */
+  }
+
+  function handleLimpar() {
+    setNome("");
+    setIdade("");
+    setMatricula("");
+    setSenha("");
+    setConfirmarSenha("");
+    setBio("");
+    setMateriasSelecionadas([]);
+    setItinerarioAberto(null);
+    setErroSenha("");
+  }
+
+
+  
+  
   return (
     
     <View style={styles.container}>
-
-
       {/* organiza views dentro do header */}
       <View style={styles.header}>
         <Pressable style={styles.botaoVoltar}>
@@ -84,30 +148,31 @@ function handleChange(campo: keyof FormularioTutor, valor: string) {
           <SectionTitle icon="person-sharp" size={20} color={colors.primary} title="Informações Pessoais" />
 
           <InputLabel Label="Nome Completo" placeholder="Digite seu Nome"
-            value={formulario.nome}
-            onChangeText={(texto) => handleChange('nome', texto)}
+            value={nome}
+            onChangeText={setNome}
           />
 
           <View style={styles.campos}>
             <InputLabel Label="Idade" placeholder="Digite sua idade" keyboardType="numeric" 
-             value={formulario.idade}
-            onChangeText={(texto) => handleChange('idade', texto)}
+             value={idade}
+            onChangeText={setIdade}
             />
             <InputLabel Label="Matrícula" placeholder="Digite sua Matrícula" keyboardType="numeric"  
-            value={formulario.matricula}
-            onChangeText={(texto) => handleChange('nome', texto)}
+            value={matricula}
+            onChangeText={setMatricula}
             />
           </View>
           <View style={styles.campos}>
             <InputLabel Label="Senha"  placeholder="Crie uma Senha" secureTextEntry 
-             value={formulario.senha}
-            onChangeText={(texto) => handleChange('senha', texto)}
+             value={senha}
+            onChangeText={setSenha}
             />
             <InputLabel Label="Confirmar Senha" placeholder="Confirme sua Senha" secureTextEntry 
-             value={formulario.confirmarSenha}
-            onChangeText={(texto) => handleChange('confirmarSenha', texto)}
+             value={confirmarSenha}
+            onChangeText={setConfirmarSenha}
             />
           </View>
+          {/* {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null} */}
         </View>
         
 
@@ -115,8 +180,8 @@ function handleChange(campo: keyof FormularioTutor, valor: string) {
         <View style={styles.card}>
           <SectionTitle icon="person-circle-outline" size={20} color={colors.primary} title="Bio/Descrição" />
           <TextInput style={styles.bio} placeholder="Fale um pouco sobre você" multiline 
-           value={formulario.bio}
-            onChangeText={(texto) => handleChange('bio', texto)}
+           value={bio}
+            onChangeText={setBio}
             />
         </View>
         
@@ -125,37 +190,56 @@ function handleChange(campo: keyof FormularioTutor, valor: string) {
         <View style={styles.card}>
           <SectionTitle icon="school-sharp" size={20} color={colors.primary} title="Matérias Lecionadas" />
 
-          <View style={styles.materiasContainer}>
-            {MATERIAS_DISPONIVEIS.map((materia) => (
-              <CardMaterias
-                key={materia}
-                nome={materia}
-                selecionado={materiasSelecionadas.includes(materia)}
-                onPress={() => toggleMateria(materia)}
-              />
-            ))}
+          <Text style={styles.subLabel}>
+            Selecione o itinerário e depois as matérias que o tutor está apto a lecionar.
+          </Text>
+
+          <View style={styles.listaItinerarios}>
+            {itinerarios.map((itinerario) => {
+              const aberto = itinerarioAberto === itinerario.nome;
+
+              return (
+                <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                  <Pressable
+                    style={styles.itinerarioCabecalho}
+                    onPress={() => toggleItinerario(itinerario.nome)}
+                  >
+                    <Text style={styles.itinerarioTexto}>
+                      {itinerario.nome}
+                    </Text>
+                    <Text style={styles.itinerarioSeta}>
+                      {aberto ? "▲" : "▼"}
+                    </Text>
+                  </Pressable>
+
+                  {aberto && (
+                    <View style={styles.itinerarioMaterias}>
+                      {itinerario.materias.map((materia) => (
+                        <CardMaterias
+                          key={materia}
+                          nome={materia}
+                          selecionado={materiasSelecionadas.includes(materia)}
+                          onPress={() => toggleMateria(materia)}
+                        />
+                      ))}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
           </View>
         </View>
-
-        {/* __-----____---___--HORARIOS ----____----____-----____ */}
-        <View style={styles.card}>
-          <SectionTitle icon="calendar" size={20} color={colors.primary} title="Minha Agenda" />
-        </View>
-
-
 
             {/* View de botoes */}
         <View style={styles.linhaBotoes}>
           {/* botao para limpar */}
           <Pressable style={styles.botaoSecundario} 
-            onPress={() => {setFormulario(formularioVazio);
-                            setMateriasSelecionadas([])
-            }}>
+            onPress={handleLimpar}>
             <Text style={styles.textoBotaoSecundario}>Limpar</Text>
           </Pressable>
 
             {/* botao cadastrar */}
-          <Pressable style={styles.botaoPrimario} /* onPress={handleCadastro} */>
+          <Pressable style={styles.botaoPrimario}  onPress={handleCadastro} >
             <Text style={styles.textoBotaoPrimario}>Cadastrar Tutor</Text>
           </Pressable>
         </View>
@@ -247,7 +331,7 @@ logoCabecalho: {
     borderRadius: 16,
     padding: 16,
     gap: 12,
-    marginBottom:10
+    marginBottom:20,
   },
 
   linhaBotoes: {
@@ -279,4 +363,44 @@ logoCabecalho: {
         color: colors.white,
         fontWeight: "bold",
     },
+
+    /* estilo de itinerarios */
+subLabel: {
+    fontSize: 12,
+    color: themeTutor.textSecondary,
+    marginTop: -20,
+  },
+  listaItinerarios: {
+    gap: 8,
+  },
+  itinerarioBloco: {
+    borderWidth: 1,
+    borderColor: themeTutor.border,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  itinerarioCabecalho: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: themeTutor.primaryLight,
+  },
+  itinerarioTexto: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: themeTutor.text,
+    flex: 1,
+  },
+  itinerarioSeta: {
+    fontSize: 12,
+    color: themeTutor.textSecondary,
+  },
+  itinerarioMaterias: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    padding: 12,
+  },
+  /* aqui termina */
 });
