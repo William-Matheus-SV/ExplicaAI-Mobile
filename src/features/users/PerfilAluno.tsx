@@ -1,123 +1,202 @@
-import { LinearGradient } from "expo-linear-gradient"
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
-import { themeAluno } from "../../shared/styles/themeAluno"
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { themeAluno } from "../../shared/styles/themeAluno";
+import { router } from "expo-router";
+import BottomNavBar from "../../shared/components/BottomNavBar";
 
 const aluno = {
-    nome: "aluno_demo",
-    matricula: "aluno_demo",
-    bio: "Gosto de aprender coisas novas e estou sempre buscando evoluir!",
-    fotoUrl: "https://i.pravatar.cc/150?img=12",
-}
+  nome: "aluno_demo",
+  matricula: "aluno_demo",
+  bio: "Gosto de aprender coisas novas e estou sempre buscando evoluir!",
+  fotoUrl: "https://i.pravatar.cc/150?img=12",
+};
 
 const estatisticas = [
-    { icone: "🎓", numero: "8", label: "Aulas Concluídas", destaque: "Continue assim!", cor: "#EDE7F6" },
-    { icone: "⭐", numero: "4.8", label: "Avaliação Média", destaque: "Excelente!", cor: "#FFF3E0" },
-    { icone: "📅", numero: "5", label: "Aulas Agendadas", destaque: "Próximas aulas", cor: "#E3F2FD" },
-]
+  {
+    icone: "🎓",
+    numero: "8",
+    label: "Aulas Concluídas",
+    destaque: "Continue assim!",
+    cor: "#EDE7F6",
+  },
+  {
+    icone: "⭐",
+    numero: "4.8",
+    label: "Avaliação Média",
+    destaque: "Excelente!",
+    cor: "#FFF3E0",
+  },
+  {
+    icone: "📅",
+    numero: "5",
+    label: "Aulas Agendadas",
+    destaque: "Próximas aulas",
+    cor: "#E3F2FD",
+  },
+];
 
 const materiasProgresso = [
-    { nome: "Matemática", status: "Em progresso", progresso: 0.6, cor: themeAluno.primary },
-    { nome: "Física", status: "Em progresso", progresso: 0.4, cor: themeAluno.success },
-    { nome: "Química", status: "Precisa de ajuda", progresso: 0.2, cor: themeAluno.warning },
-    { nome: "Inglês", status: "Em progresso", progresso: 0.7, cor: themeAluno.info },
-]
+  {
+    nome: "Matemática",
+    status: "Em progresso",
+    progresso: 0.6,
+    cor: themeAluno.primary,
+  },
+  {
+    nome: "Física",
+    status: "Em progresso",
+    progresso: 0.4,
+    cor: themeAluno.success,
+  },
+  {
+    nome: "Química",
+    status: "Precisa de ajuda",
+    progresso: 0.2,
+    cor: themeAluno.warning,
+  },
+  {
+    nome: "Inglês",
+    status: "Em progresso",
+    progresso: 0.7,
+    cor: themeAluno.info,
+  },
+];
 
 const proximasAulas = [
-    { id: "1", materia: "Matemática - Funções", tutor: "Ana Silva", fotoTutor: "https://i.pravatar.cc/150?img=5", data: "18 Mai", hora: "14:00" },
-    { id: "2", materia: "Física - Leis de Newton", tutor: "João Pedro", fotoTutor: "https://i.pravatar.cc/150?img=8", data: "19 Mai", hora: "16:30" },
-    { id: "3", materia: "Inglês - Conversação", tutor: "Clara Martins", fotoTutor: "https://i.pravatar.cc/150?img=9", data: "21 Mai", hora: "15:00" },
-]
+  {
+    id: "1",
+    materia: "Matemática - Funções",
+    tutor: "Ana Silva",
+    fotoTutor: "https://i.pravatar.cc/150?img=5",
+    data: "18 Mai",
+    hora: "14:00",
+  },
+  {
+    id: "2",
+    materia: "Física - Leis de Newton",
+    tutor: "João Pedro",
+    fotoTutor: "https://i.pravatar.cc/150?img=8",
+    data: "19 Mai",
+    hora: "16:30",
+  },
+  {
+    id: "3",
+    materia: "Inglês - Conversação",
+    tutor: "Clara Martins",
+    fotoTutor: "https://i.pravatar.cc/150?img=9",
+    data: "21 Mai",
+    hora: "15:00",
+  },
+];
 export default function PerfilAluno() {
-    return (
-        <View style={styles.tela}>
-            <LinearGradient
-                colors={["#d5f5e3", "#b7e4ca"]}
-                style={styles.cabecalho}
-            >
-                <Text style={styles.tituloCabecalho}>Perfil</Text>
-                <Text style={styles.iconeSino}>🔔</Text>
-            </LinearGradient>
 
-            <ScrollView contentContainerStyle={styles.container}>
-                <View style={styles.cardPerfil}>
-                    <Image source={{ uri: aluno.fotoUrl }} style={styles.foto} />
+  return (
+    <View style={styles.tela}>
+      <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
+        <Text style={styles.tituloCabecalho}>Perfil</Text>
+        <Text style={styles.iconeSino}>🔔</Text>
+      </LinearGradient>
 
-                    <View style={styles.infoPerfil}>
-                        <Text style={styles.nome}>{aluno.nome}</Text>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeTexto}>Aluno</Text>
-                        </View>
-                        <Text style={styles.matricula}>Matrícula: {aluno.matricula}</Text>
-                        <Text style={styles.bio}>{aluno.bio}</Text>
-                    </View>
-                </View>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.cardPerfil}>
+          <Image source={{ uri: aluno.fotoUrl }} style={styles.foto} />
 
-                <View style={styles.linhaEstatisticas}>
-                    {estatisticas.map((item) => (
-                        <View key={item.label} style={[styles.cardEstatistica, { backgroundColor: item.cor }]}>
-                            <Text style={styles.iconeEstatistica}>{item.icone}</Text>
-                            <Text style={styles.numeroEstatistica}>{item.numero}</Text>
-                            <Text style={styles.labelEstatistica}>{item.label}</Text>
-                            <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
-                        </View>
-                    ))}
-                </View>
-
-                <View style={styles.secaoCard}>
-                    <View style={styles.cabecalhoSecao}>
-                        <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
-                        <Text style={styles.verTodas}>Ver todas →</Text>
-                    </View>
-
-                    {materiasProgresso.map((materia) => (
-                        <View key={materia.nome} style={styles.linhaMateria}>
-                            <View style={styles.infoMateria}>
-                                <Text style={styles.nomeMateria}>{materia.nome}</Text>
-                                <Text style={styles.statusMateria}>{materia.status}</Text>
-                            </View>
-
-                            <View style={styles.barraFundo}>
-                                <View
-                                    style={[
-                                        styles.barraPreenchida,
-                                        { width: `${materia.progresso * 100}%`, backgroundColor: materia.cor },
-                                    ]}
-                                />
-                            </View>
-                            <Text style={styles.percentualMateria}>{Math.round(materia.progresso * 100)}%</Text>
-                        </View>
-                    ))}
-                </View>
-
-                <View style={styles.secaoCard}>
-                    <View style={styles.cabecalhoSecao}>
-                        <Text style={styles.tituloSecao}>Próximas Aulas</Text>
-                        <Text style={styles.verTodas}>Ver agenda →</Text>
-                    </View>
-
-                    {proximasAulas.map((aula) => (
-                        <View key={aula.id} style={styles.linhaAula}>
-                            <Image source={{ uri: aula.fotoTutor }} style={styles.fotoTutor} />
-
-                            <View style={styles.infoAula}>
-                                <Text style={styles.nomeAula}>{aula.materia}</Text>
-                                <Text style={styles.nomeTutor}>com {aula.tutor}</Text>
-                            </View>
-
-                            <View style={styles.dataAula}>
-                                <Text style={styles.textoData}>{aula.data}</Text>
-                                <Text style={styles.textoHora}>{aula.hora}</Text>
-                            </View>
-
-                            <Pressable style={styles.botaoEntrar}>
-                                <Text style={styles.textoBotaoEntrar}>Entrar</Text>
-                            </Pressable>
-                        </View>
-                    ))}
-                </View>
-            </ScrollView>
+          <View style={styles.infoPerfil}>
+            <Text style={styles.nome}>{aluno.nome}</Text>
+            <View style={styles.badge}>
+              <Text style={styles.badgeTexto}>Aluno</Text>
+            </View>
+            <Text style={styles.matricula}>Matrícula: {aluno.matricula}</Text>
+            <Text style={styles.bio}>{aluno.bio}</Text>
+          </View>
         </View>
-    )
+
+        <View style={styles.linhaEstatisticas}>
+          {estatisticas.map((item) => (
+            <View
+              key={item.label}
+              style={[styles.cardEstatistica, { backgroundColor: item.cor }]}
+            >
+              <Text style={styles.iconeEstatistica}>{item.icone}</Text>
+              <Text style={styles.numeroEstatistica}>{item.numero}</Text>
+              <Text style={styles.labelEstatistica}>{item.label}</Text>
+              <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.secaoCard}>
+          <View style={styles.cabecalhoSecao}>
+            <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
+          </View>
+
+          {materiasProgresso.map((materia) => (
+            <View key={materia.nome} style={styles.linhaMateria}>
+              <View style={styles.infoMateria}>
+                <Text style={styles.nomeMateria}>{materia.nome}</Text>
+                <Text style={styles.statusMateria}>{materia.status}</Text>
+              </View>
+
+              <View style={styles.barraFundo}>
+                <View
+                  style={[
+                    styles.barraPreenchida,
+                    {
+                      width: `${materia.progresso * 100}%`,
+                      backgroundColor: materia.cor,
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={styles.percentualMateria}>
+                {Math.round(materia.progresso * 100)}%
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.secaoCard}>
+          <View style={styles.cabecalhoSecao}>
+            <Text style={styles.tituloSecao}>Próximas Aulas</Text>
+            <Pressable onPress={() => router.push("/agenda-aluno")}>
+              <Text style={styles.verTodas}>Ver agenda →</Text>
+            </Pressable>
+          </View>
+
+          {proximasAulas.map((aula) => (
+            <View key={aula.id} style={styles.linhaAula}>
+              <Image
+                source={{ uri: aula.fotoTutor }}
+                style={styles.fotoTutor}
+              />
+
+              <View style={styles.infoAula}>
+                <Text style={styles.nomeAula}>{aula.materia}</Text>
+                <Text style={styles.nomeTutor}>com {aula.tutor}</Text>
+              </View>
+
+              <View style={styles.dataAula}>
+                <Text style={styles.textoData}>{aula.data}</Text>
+                <Text style={styles.textoHora}>{aula.hora}</Text>
+              </View>
+
+              <Pressable style={styles.botaoEntrar}>
+                <Text style={styles.textoBotaoEntrar}>Entrar</Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <BottomNavBar theme={themeAluno} perfil="aluno" />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
