@@ -35,6 +35,16 @@ const MATERIAS_LECIONADAS: ItinerarioComMaterias[] = [
 ];
 
 
+// catálogo completo de itinerários/matérias disponíveis pra seleção no MODAL
+const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol", "Artes"] },
+  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
+  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
+  { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
+  { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
+];
+
+
 
 
 const MATCHES = [
@@ -62,10 +72,38 @@ export default function PerfilTutor() {
   //router
   const router = useRouter();
 
-  /* se algo como biografia do DB for vazio o use State pode ter um Toque para adc.... */
+  //useState para edita bio, se for vazio ele vai vai ter uma frase pronta ja.
   const [bioTexto, setBioTexto] = useState('Toque para adcionar uma bio');
-    const [editando, setEditando] = useState(false);
+  //controla se está no modo ediçao ou nao
+  const [editando, setEditando] = useState(false);
 
+
+
+  // ---- estado do modal de edição de matérias ----
+    // controla se o modal tá visivel ou nao
+  const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
+  
+  // guarda qual itinerário tá expandido no momento
+  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
+
+  // guarda as matérias marcadas, já começa com as que o tutor já leciona
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(
+    MATERIAS_LECIONADAS.flatMap((itinerario) => itinerario.materias)
+  );
+
+  // verifica se a matéria já tá selecionada: se tiver, remove; se não tiver, adiciona
+  function toggleMateria(materia: string) {
+    if (materiasSelecionadas.includes(materia)) {
+      setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
+    } else {
+      setMateriasSelecionadas([...materiasSelecionadas, materia]);
+    }
+  }
+
+  // se o itinerário clicado já tá aberto, fecha; se não, abre ele
+  function toggleItinerario(nome: string) {
+    setItinerarioAberto(itinerarioAberto === nome ? null : nome);
+  }
 
     
 
@@ -166,7 +204,7 @@ export default function PerfilTutor() {
         <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
         <Text style={styles.CardTitulo}>Matérias que leciona</Text>
       </View>
-      <Pressable>
+      <Pressable onPress={() => setModalMateriasVisivel(true)}>
         <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
       </Pressable>
     </View>
@@ -184,6 +222,74 @@ export default function PerfilTutor() {
         </View>
       ))}
   </View>
+
+  {/* Modal de edição de matérias */}
+          <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
+            <View style={styles.ModalFundo}>
+              <View style={styles.ModalConteudo}>
+                <Text style={styles.CardTitulo}>Editar matérias</Text>
+
+                <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
+                  {ITINERARIOS_CATALOGO.map((itinerario) => {
+                    const aberto = itinerarioAberto === itinerario.nome;
+                    return (
+                      <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                        <Pressable
+                          style={styles.itinerarioCabecalho}
+                          onPress={() => toggleItinerario(itinerario.nome)}
+                        >
+                          <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
+                          <Text>{aberto ? "▲" : "▼"}</Text>
+                        </Pressable>
+
+                        {aberto && (
+                          <View style={styles.itinerarioMaterias}>
+                            {itinerario.materias.map((materia) => {
+                              const selecionada = materiasSelecionadas.includes(materia);
+                              return (
+                                <Pressable
+                                  key={materia}
+                                  style={[
+                                    styles.MateriaChip,
+                                    selecionada && { backgroundColor: themeTutor.primary },
+                                  ]}
+                                  onPress={() => toggleMateria(materia)}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.MateriaTexto,
+                                      selecionada && { color: "#fff" },
+                                    ]}
+                                  >
+                                    {materia}
+                                  </Text>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+
+                <View style={styles.linhaBotoesModal}>
+                  <Pressable
+                    style={styles.botaoSecundario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoSecundario}>Cancelar</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.botaoPrimario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoPrimario}>Salvar</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
 
 
     
@@ -388,6 +494,11 @@ const styles = StyleSheet.create({
 
 /* fim de bio */
 
+
+
+
+
+/* CARDS */
   Card: {
     backgroundColor: "white",
     borderRadius: 16,
@@ -425,6 +536,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
+
+
+
+
+
+
+
   /* Informaçoes pessoais */
   InfoBox: {
     flexDirection: "row",
@@ -454,6 +572,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#2b2b2b",
   },
+
+
+
+
+
+
+
 
 
   /* materias */
@@ -494,6 +619,92 @@ ItinerarioNome: {
   textTransform: "uppercase",
   letterSpacing: 0.4,
 },
+
+/* modal de edição de matérias */
+  ModalFundo: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+
+  ModalConteudo: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 16,
+    maxHeight: "80%",
+  },
+
+  itinerarioBloco: {
+    borderWidth: 1,
+    borderColor: themeTutor.border,
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+
+  itinerarioCabecalho: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: themeTutor.primaryLight,
+  },
+
+  itinerarioTexto: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: themeTutor.text,
+    flex: 1,
+  },
+
+  itinerarioMaterias: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    padding: 12,
+  },
+
+  linhaBotoesModal: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+
+  botaoSecundario: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 8,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  textoBotaoSecundario: {
+    color: "#2b2b2b",
+    fontWeight: "600",
+  },
+
+  botaoPrimario: {
+    flex: 1,
+    backgroundColor: themeTutor.primary,
+    borderRadius: 8,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  textoBotaoPrimario: {
+    color: "white",
+    fontWeight: "bold",
+  },
+
+
+
+
+
+
 
 /* ------- */
 /* MATCHES */
