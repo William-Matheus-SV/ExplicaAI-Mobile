@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 
@@ -8,16 +9,90 @@ export default function AgendaAluno() {
   const dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
   const [diaSelecionado, setDiaSelecionado] = useState("Segunda");
 
-  const horariosManha = ["08:00 - 10:00", "09:00 - 11:00", "10:00 - 12:00"];
-  const horariosTarde = ["14:00 - 16:00", "15:00 - 17:00"];
+  const aulasPorDia: Record<
+    string,
+    {
+      horario: string;
+      materia: string;
+      professor: string;
+      status: "confirmado" | "pendente";
+    }[]
+  > = {
+    Segunda: [
+      {
+        horario: "08:00 - 10:00",
+        materia: "Matemática",
+        professor: "Prof. João Silva",
+        status: "confirmado",
+      },
+      {
+        horario: "10:00 - 12:00",
+        materia: "Física",
+        professor: "Prof. Carlos Lima",
+        status: "confirmado",
+      },
+      {
+        horario: "14:00 - 16:00",
+        materia: "Química",
+        professor: "Prof. Ana Paula",
+        status: "pendente",
+      },
+    ],
+    Terça: [],
+    Quarta: [],
+    Quinta: [],
+    Sexta: [],
+  };
+
+  const aulasDoDia = aulasPorDia[diaSelecionado] || [];
+  const totalAulas = aulasDoDia.length;
+  const confirmadas = aulasDoDia.filter(
+    (a) => a.status === "confirmado",
+  ).length;
+  const pendentes = aulasDoDia.filter((a) => a.status === "pendente").length;
+  const proximaAula = aulasDoDia[0];
 
   return (
     <View style={styles.tela}>
       <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
-        <Text style={styles.tituloCabecalho}>🗓️ Minha Agenda Semanal</Text>
-      </LinearGradient>
+        <View style={styles.cabecalhoTopo}>
+          <View style={styles.iconeTitulo}>
+            <Text style={styles.iconeTituloTexto}>🗓️</Text>
+          </View>
+          <View>
+            <Text style={styles.tituloCabecalho}>Minha Agenda</Text>
+            <Text style={styles.subtituloCabecalho}>
+              {diaSelecionado}-feira
+            </Text>
+          </View>
+        </View>
 
-      <View style={styles.conteudo}>
+        <View style={styles.resumoContainer}>
+          <View style={styles.resumoCard}>
+            <Text style={styles.resumoIcone}>📖</Text>
+            <View>
+              <Text style={styles.resumoTitulo}>{totalAulas} aulas hoje</Text>
+              <Text style={styles.resumoSubtitulo}>
+                {confirmadas} confirmadas • {pendentes} pendente
+                {pendentes !== 1 ? "s" : ""}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.resumoCard}>
+            <Text style={styles.resumoIcone}>🕐</Text>
+            <View>
+              <Text style={styles.resumoTitulo}>Próxima aula</Text>
+              <Text style={styles.resumoSubtitulo}>
+                {proximaAula
+                  ? `${proximaAula.horario.split(" - ")[0]} • ${proximaAula.materia}`
+                  : "Nenhuma aula"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
+      <ScrollView contentContainerStyle={styles.conteudo}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -27,10 +102,10 @@ export default function AgendaAluno() {
           {dias.map((dia) => {
             const selecionado = dia === diaSelecionado;
             return (
-              <View
+              <Pressable
                 key={dia}
                 style={[styles.aba, selecionado && styles.abaSelecionada]}
-                onTouchEnd={() => setDiaSelecionado(dia)}
+                onPress={() => setDiaSelecionado(dia)}
               >
                 <Text
                   style={[
@@ -38,77 +113,152 @@ export default function AgendaAluno() {
                     selecionado && styles.abaTextoSelecionado,
                   ]}
                 >
-                  {dia}-feira
+                  {dia.slice(0, 3).toUpperCase()}
                 </Text>
-              </View>
+              </Pressable>
             );
           })}
         </ScrollView>
 
-        <ScrollView contentContainerStyle={styles.grade}>
-          <View style={styles.periodo}>
+        <View style={styles.periodo}>
+          <View style={styles.periodoCabecalho}>
             <Text style={styles.periodoTitulo}>☀️ Manhã</Text>
-
-            {horariosManha.map((horario) => (
-              <View key={horario} style={styles.linhaHorario}>
-                <Text style={styles.horarioTexto}>🕐 {horario}</Text>
-
-                <View style={styles.slots}>
-                  <View style={styles.slotVazio}>
-                    <Text style={styles.slotTexto}>Sem agendamento</Text>
-                  </View>
-                  <View style={styles.slotVazio}>
-                    <Text style={styles.slotTexto}>Sem agendamento</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
+            <Text style={styles.periodoContagem}>
+              {aulasDoDia.filter((a) => parseInt(a.horario) < 12).length} aulas
+            </Text>
           </View>
 
-          <View style={styles.periodo}>
-            <Text style={styles.periodoTitulo}>🌙 Tarde</Text>
-
-            {horariosTarde.map((horario) => (
-              <View key={horario} style={styles.linhaHorario}>
-                <Text style={styles.horarioTexto}>🕐 {horario}</Text>
-
-                <View style={styles.slots}>
-                  <View style={styles.slotVazio}>
-                    <Text style={styles.slotTexto}>Sem agendamento</Text>
-                  </View>
-                  <View style={styles.slotVazio}>
-                    <Text style={styles.slotTexto}>Sem agendamento</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.legenda}>
-            <View style={styles.legendaItem}>
+          {aulasDoDia
+            .filter((aula) => parseInt(aula.horario) < 12)
+            .map((aula) => (
               <View
-                style={[styles.legendaCor, { backgroundColor: "#7C6FE0" }]}
-              />
-              <Text style={styles.legendaTexto}>Matéria do Match</Text>
-            </View>
-            <View style={styles.legendaItem}>
-              <View
-                style={[styles.legendaCor, { backgroundColor: "#FFB74D" }]}
-              />
-              <Text style={styles.legendaTexto}>Pendente</Text>
-            </View>
-            <View style={styles.legendaItem}>
-              <View
+                key={aula.horario}
                 style={[
-                  styles.legendaCor,
-                  { backgroundColor: themeAluno.primary },
+                  styles.cardAula,
+                  {
+                    borderLeftColor:
+                      aula.status === "confirmado"
+                        ? themeAluno.primary
+                        : "#FFB74D",
+                  },
                 ]}
-              />
-              <Text style={styles.legendaTexto}>Confirmado</Text>
-            </View>
+              >
+                <View style={styles.cardAulaHorario}>
+                  <Text style={styles.horarioTexto}>
+                    {aula.horario.split(" - ")[0]}
+                  </Text>
+                  <Text style={styles.horarioTexto}>
+                    {aula.horario.split(" - ")[1]}
+                  </Text>
+                </View>
+                <View style={styles.cardAulaInfo}>
+                  <Text style={styles.materiaTexto}>{aula.materia}</Text>
+                  <Text style={styles.professorTexto}>{aula.professor}</Text>
+                </View>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    {
+                      backgroundColor:
+                        aula.status === "confirmado"
+                          ? themeAluno.primaryLight
+                          : "#FFF3E0",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusTexto,
+                      {
+                        color:
+                          aula.status === "confirmado"
+                            ? themeAluno.primary
+                            : "#F57C00",
+                      },
+                    ]}
+                  >
+                    {aula.status === "confirmado" ? "Confirmado" : "Pendente"}
+                  </Text>
+                </View>
+              </View>
+            ))}
+
+          <Pressable
+            style={styles.botaoAgendar}
+            onPress={() => router.push("/busca-aluno")}
+          >
+            <Text style={styles.botaoAgendarTexto}>+ Agendar aula</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.periodo}>
+          <View style={styles.periodoCabecalho}>
+            <Text style={styles.periodoTitulo}>🌙 Tarde</Text>
           </View>
-        </ScrollView>
-      </View>
+
+          {aulasDoDia
+            .filter((aula) => parseInt(aula.horario) >= 12)
+            .map((aula) => (
+              <View
+                key={aula.horario}
+                style={[
+                  styles.cardAula,
+                  {
+                    borderLeftColor:
+                      aula.status === "confirmado"
+                        ? themeAluno.primary
+                        : "#FFB74D",
+                  },
+                ]}
+              >
+                <View style={styles.cardAulaHorario}>
+                  <Text style={styles.horarioTexto}>
+                    {aula.horario.split(" - ")[0]}
+                  </Text>
+                  <Text style={styles.horarioTexto}>
+                    {aula.horario.split(" - ")[1]}
+                  </Text>
+                </View>
+                <View style={styles.cardAulaInfo}>
+                  <Text style={styles.materiaTexto}>{aula.materia}</Text>
+                  <Text style={styles.professorTexto}>{aula.professor}</Text>
+                </View>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    {
+                      backgroundColor:
+                        aula.status === "confirmado"
+                          ? themeAluno.primaryLight
+                          : "#FFF3E0",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusTexto,
+                      {
+                        color:
+                          aula.status === "confirmado"
+                            ? themeAluno.primary
+                            : "#F57C00",
+                      },
+                    ]}
+                  >
+                    {aula.status === "confirmado" ? "Confirmado" : "Pendente"}
+                  </Text>
+                </View>
+              </View>
+            ))}
+
+          <Pressable
+            style={styles.botaoAgendar}
+            onPress={() => router.push("/busca-aluno")}
+          >
+            <Text style={styles.botaoAgendarTexto}>+ Agendar aula</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
 
       <BottomNavBar theme={themeAluno} perfil="aluno" />
     </View>
@@ -122,21 +272,67 @@ const styles = StyleSheet.create({
   },
   cabecalho: {
     paddingTop: 48,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    gap: 16,
+  },
+  cabecalhoTopo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  iconeTitulo: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconeTituloTexto: {
+    fontSize: 22,
   },
   tituloCabecalho: {
     color: themeAluno.white,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
   },
-  conteudo: {
+  subtituloCabecalho: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 13,
+  },
+  resumoContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  resumoCard: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 12,
+    padding: 12,
+  },
+  resumoIcone: {
+    fontSize: 20,
+  },
+  resumoTitulo: {
+    color: themeAluno.white,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  resumoSubtitulo: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 11,
+  },
+  conteudo: {
     padding: 16,
+    gap: 16,
+    paddingBottom: 32,
   },
   abasScroll: {
     flexGrow: 0,
-    marginBottom: 16,
   },
   abasContainer: {
     flexDirection: "row",
@@ -144,83 +340,96 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aba: {
+    width: 64,
     paddingVertical: 10,
-    paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: themeAluno.border,
     backgroundColor: themeAluno.white,
+    alignItems: "center",
   },
   abaSelecionada: {
     backgroundColor: themeAluno.primary,
     borderColor: themeAluno.primary,
   },
   abaTexto: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "bold",
     color: themeAluno.text,
   },
   abaTextoSelecionado: {
     color: themeAluno.white,
   },
-  grade: {
-    gap: 20,
-    paddingBottom: 16,
-  },
   periodo: {
     backgroundColor: themeAluno.white,
-    borderRadius: 12,
-    padding: 12,
-    gap: 12,
+    borderRadius: 16,
+    padding: 16,
+    gap: 10,
+  },
+  periodoCabecalho: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   periodoTitulo: {
     fontSize: 15,
     fontWeight: "bold",
     color: themeAluno.text,
-    textAlign: "center",
   },
-  linhaHorario: {
-    gap: 8,
+  periodoContagem: {
+    fontSize: 12,
+    color: themeAluno.textSecondary,
+  },
+  cardAula: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "#F9F9F9",
+    borderRadius: 10,
+    borderLeftWidth: 4,
+    padding: 12,
+  },
+  cardAulaHorario: {
+    width: 50,
   },
   horarioTexto: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
     color: themeAluno.text,
   },
-  slots: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  slotVazio: {
+  cardAulaInfo: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
   },
-  slotTexto: {
-    fontSize: 11,
+  materiaTexto: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+  professorTexto: {
+    fontSize: 12,
     color: themeAluno.textSecondary,
   },
-  legenda: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: themeAluno.white,
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
-    padding: 12,
   },
-  legendaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  legendaCor: {
-    width: 12,
-    height: 12,
-    borderRadius: 3,
-  },
-  legendaTexto: {
+  statusTexto: {
     fontSize: 11,
-    color: themeAluno.text,
+    fontWeight: "600",
+  },
+  botaoAgendar: {
+    borderWidth: 1.5,
+    borderColor: themeAluno.primary,
+    borderStyle: "dashed",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: themeAluno.primaryLight,
+  },
+  botaoAgendarTexto: {
+    color: themeAluno.primary,
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
