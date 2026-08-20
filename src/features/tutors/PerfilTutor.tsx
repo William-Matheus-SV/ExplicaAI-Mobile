@@ -1,88 +1,786 @@
-import { View, Text, StyleSheet, StatusBar, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  StatusBar,
+  TextInput,
+   Modal,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { themeTutor } from "../../shared/styles/themeTutor";
+import { useState } from "react";
+import { useRouter } from "expo-router";
 
-const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
-function PerfilTutor() {
+//dados MOCKADOS para informaçoes pessoais do TUTOR
+const TUTOR_DADOS = {
+  matricula: "20261234",
+  idade: 24,
+};
+
+
+//tipagem typeScript Para Itinerarios
+interface ItinerarioComMaterias {
+  nome: string;
+  materias: string[];
+}
+
+// dados mockados itinerarios de MATERIAS OQ O TUTOR JA LECIONA
+const MATERIAS_LECIONADAS: ItinerarioComMaterias[] = [
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês"] },
+  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Geometria"] },
+  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", ] },
+];
+
+
+// catálogo completo de itinerários/matérias disponíveis pra seleção no MODAL
+const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol", "Artes"] },
+  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
+  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
+  { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
+  { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
+];
+
+
+
+
+const MATCHES = [
+  { nome: "Ana Clara", materia: "Matemática" },
+  { nome: "Pedro Henrique", materia: "Física" },
+  { nome: "Mariana Costa", materia: "Cálculo" },
+  { nome: "Mariana Costa", materia: "Cálculo" },
+  { nome: "Mariana Costa", materia: "Cálculo" },
+  { nome: "Mariana Costa", materia: "Cálculo" },
+];
+
+
+//dados MOCKADOS para o card de Agenda (horários disponíveis)
+const AGENDA_MOCK = [
+  { dia: "SEG", horario: ["08:00 - 09:00", "10:00 - 12:00", "08:00 - 09:00", "08:00 - 09:00", "08:00 - 09:00"] },
+  { dia: "TER", horario: ["10:00 - 12:00", "08:00 - 09:00", "10:00 - 12:00", ] },
+  { dia: "QUA", horario: ["14:00 - 15:00"] },
+  { dia: "QUI", horario: ["09:00 - 11:00"] },
+  { dia: "SEX", horario: ["16:00 - 17:00"] },
+];
+
+
+
+export default function PerfilTutor() {
+  //router
+  const router = useRouter();
+
+  //useState para edita bio, se for vazio ele vai vai ter uma frase pronta ja.
+  const [bioTexto, setBioTexto] = useState('Toque para adcionar uma bio');
+  //controla se está no modo ediçao ou nao
+  const [editando, setEditando] = useState(false);
+
+
+
+  // ---- estado do modal de edição de matérias ----
+    // controla se o modal tá visivel ou nao
+  const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
+  
+  // guarda qual itinerário tá expandido no momento
+  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
+
+  // guarda as matérias marcadas, já começa com as que o tutor já leciona
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(
+    MATERIAS_LECIONADAS.flatMap((itinerario) => itinerario.materias)
+  );
+
+  // verifica se a matéria já tá selecionada: se tiver, remove; se não tiver, adiciona
+  function toggleMateria(materia: string) {
+    if (materiasSelecionadas.includes(materia)) {
+      setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
+    } else {
+      setMateriasSelecionadas([...materiasSelecionadas, materia]);
+    }
+  }
+
+  // se o itinerário clicado já tá aberto, fecha; se não, abre ele
+  function toggleItinerario(nome: string) {
+    setItinerarioAberto(itinerarioAberto === nome ? null : nome);
+  }
+
+    
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.content}>
-          <Pressable style={styles.botaoVoltar}>
-            <Text style={styles.textoBotaoVoltar}>Voltar</Text>
-          </Pressable>
-          <Text style={styles.tituloHeader}>Perfil do Tutor</Text>
-        </View>
-      </View>
 
-      <View style={styles.conteudoCentral}>
-        <Text style={styles.textoPlaceholder}>ola</Text>
-        <Text style={styles.textoSecundario}>Aqui virão as informações do tutor</Text>
+    <View style={styles.container}>
+      <ScrollView>
+        <View style={styles.Header}>
+          <View style={styles.HeaderContent}>
+            <Pressable style={styles.BotaoVoltar}>
+              <Ionicons name="arrow-back" size={22} color="white" />
+            </Pressable>
+            <Text style={styles.HeaderTitulo}>Perfil do Tutor</Text>
+            <View style={{ width: 44 }} />
+          </View>
+        </View>
+
+        <View style={styles.AvatarWrapper}>
+          <View style={styles.Avatar}>
+            <Ionicons name="person" size={70} color="#d9d9e8" />
+            <View style={styles.CameraBadge}>
+              <Ionicons name="camera" size={16} color="white" />
+            </View>
+          </View>
+        </View>
+        {/* aqui acaba o header e icone do avatar */}
+
+        {/* TODAS AS INFORMAÇOE DE TUTOR */}
+        <View style={styles.Conteudo}>
+          <Text style={styles.Nome}>João da Silva</Text>
+          <View style={styles.SobreMim}>
+            <Ionicons name='person-circle-outline' size={22} color={themeTutor.primary}/>
+            <Text>Sobre mim:</Text>
+          </View>
+
+
+
+           {/* bio */}
+          <View style={styles.Bio}>
+            {editando ? (
+              <TextInput
+                value={bioTexto}
+                onChangeText={setBioTexto}
+                onBlur={() => setEditando(false)}
+                autoFocus
+              />
+            ) : (
+              <Pressable onPress={() => setEditando(true)}>
+                <Text>{bioTexto}</Text>
+              </Pressable>
+            )}
+          </View>
+
+
+
+
+          {/* Informações pessoais */}
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="person-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Informações pessoais</Text>
+              </View>
+            </View>
+            
+            <View style={styles.InfoBox}>
+              <View style={styles.InfoItem}>
+                <Ionicons name="card-outline" size={20} color={themeTutor.primary} />
+                <View style={styles.InfoTextos}>
+                  <Text style={styles.InfoLabel}>Matrícula</Text>
+
+                  {/* DADOS MOCKADOS DE TUTOR_DADOS PARA MATRICULA */}
+
+                  <Text style={styles.InfoValor}>{TUTOR_DADOS.matricula}</Text>
+                </View>
+            </View>
+
+            <View style={styles.InfoItem}>
+              <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+              <View style={styles.InfoTextos}>
+                
+                 {/* DADOS MOCKADOS DE TUTOR_DADOS PARA IDADE */}
+
+                <Text style={styles.InfoLabel}>Idade</Text>
+                <Text style={styles.InfoValor}>{TUTOR_DADOS.idade} anos</Text>
+              </View>
+              </View>
+            </View>
+        </View>
+
+        
+
+
+                     {/* Matérias que leciona  */}
+  <View style={styles.Card}>
+    <View style={styles.CardHeader}>
+      <View style={styles.CardHeaderEsquerda}>
+        <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
+        <Text style={styles.CardTitulo}>Matérias que leciona</Text>
       </View>
+      <Pressable onPress={() => setModalMateriasVisivel(true)}>
+        <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
+      </Pressable>
+    </View>
+
+      {MATERIAS_LECIONADAS.map((itinerario) => (
+        <View key={itinerario.nome} style={styles.ItinerarioSecao}>
+          <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
+          <View style={styles.Materias}>
+            {itinerario.materias.map((materia) => (
+              <View key={materia} style={styles.MateriaChip}>
+                <Text style={styles.MateriaTexto}>{materia}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ))}
+  </View>
+
+  {/* Modal de edição de matérias */}
+          <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
+            <View style={styles.ModalFundo}>
+              <View style={styles.ModalConteudo}>
+                <Text style={styles.CardTitulo}>Editar matérias</Text>
+
+                <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
+                  {ITINERARIOS_CATALOGO.map((itinerario) => {
+                    const aberto = itinerarioAberto === itinerario.nome;
+                    return (
+                      <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                        <Pressable
+                          style={styles.itinerarioCabecalho}
+                          onPress={() => toggleItinerario(itinerario.nome)}
+                        >
+                          <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
+                          <Text>{aberto ? "▲" : "▼"}</Text>
+                        </Pressable>
+
+                        {aberto && (
+                          <View style={styles.itinerarioMaterias}>
+                            {itinerario.materias.map((materia) => {
+                              const selecionada = materiasSelecionadas.includes(materia);
+                              return (
+                                <Pressable
+                                  key={materia}
+                                  style={[
+                                    styles.MateriaChip,
+                                    selecionada && { backgroundColor: themeTutor.primary },
+                                  ]}
+                                  onPress={() => toggleMateria(materia)}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.MateriaTexto,
+                                      selecionada && { color: "#fff" },
+                                    ]}
+                                  >
+                                    {materia}
+                                  </Text>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+
+                <View style={styles.linhaBotoesModal}>
+                  <Pressable
+                    style={styles.botaoSecundario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoSecundario}>Cancelar</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.botaoPrimario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoPrimario}>Salvar</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+
+    
+
+          {/* matches */}
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Matches</Text>
+              </View>
+              
+              <Pressable
+                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
+              >
+
+                <Text style={styles.CardLink}>Ver todos</Text>
+                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+              </Pressable>
+            </View>
+
+
+            {/* dados dinamicos q vao vir do back  */}
+
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.MatchesLista}>
+              {MATCHES.map((match) => (
+                <View key={match.nome} style={styles.MatchCard}>
+                  <Text style={styles.MatchNome}>{match.nome}</Text>
+                  <Text style={styles.MatchMateria}>{match.materia}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+  
+
+          {/* Minha agenda */}
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Minha agenda</Text>
+              </View>
+
+              {/* botao para ir para a AGENDA */}
+              <Pressable
+                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
+                onPress={() => router.push("/agenda")} 
+              >
+                <Text style={styles.CardLink}>Ver agenda completa</Text>
+                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+              </Pressable>
+            </View>
+
+
+                    {/* dados dinamicos q vao vir do back AGENDA */}
+                  <ScrollView horizontal={true} style={styles.Agenda}>
+
+                    {/* percorre o Mock de agenda */}
+                    {AGENDA_MOCK.map((item) => {
+
+                      /* pega só os 3 primeiros horários do dia pra exibir */
+                      const horariosVisiveis = item.horario.slice(0, 3);
+
+                      /*  se esse dia tem mais de 3 horários (TRUE) vai mostrar "..."*/
+                      const temMais = item.horario.length > 3;
+
+                      return (
+                        <View key={item.dia} style={styles.DiaCard}>
+                          <Text style={styles.DiaSemana}>{item.dia}</Text>
+                          {horariosVisiveis.map((hora, index) => (
+                            <Text key={index} style={styles.DiaHora}>{hora}</Text>
+                          ))}
+                          {temMais && <Text style={styles.DiaHora}>...</Text>}
+                        </View>
+                      );
+                    })}
+                  </ScrollView>
+            </View>
+          </View>
+
+          
+      </ScrollView>
     </View>
   );
 }
 
+/* style da tela */
+
+// #764ba2 #667eea #b57aef cores gradients padrao
+const statusBarHeight = StatusBar.currentHeight
+  ? StatusBar.currentHeight + 22
+  : 64;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f2fa",
   },
 
-  header: {
-    backgroundColor: '#764ba2',
+  Header: {
+    backgroundColor: "#764ba2",
     paddingTop: statusBarHeight,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 44,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 60,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
   },
 
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  HeaderContent: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
-  botaoVoltar: {
-    backgroundColor: 'white',
-    width: 88,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  BotaoVoltar: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    width: 44,
+    height: 44,
     borderRadius: 44,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
-  textoBotaoVoltar: {
-    color: '#764ba2',
-    fontWeight: '600',
+  HeaderTitulo: {
+    fontSize: 18,
+    color: "white",
+    fontWeight: "600",
   },
 
-  tituloHeader: {
+  // o avatar agora fica FORA do Header, sobrepondo ele
+  AvatarWrapper: {
+    alignItems: "center",
+    marginTop: -65, // metade da altura do Avatar, pra "cortar" a curva do header
+    zIndex: 2,
+  },
+
+  Avatar: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+  },
+
+  CameraBadge: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    width: 36,
+    height: 36,
+    borderRadius: 36,
+    backgroundColor: "#764ba2",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: "white",
+  },
+
+  Nome: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#2b2b2b",
+    marginTop: 12,
+    marginBottom:5,
+    textAlign: "center",
+  },
+
+  SobreMim:{
+    justifyContent:"center",
+    alignItems:'center',
+    gap:5,
+    width: '100%',
+    marginBottom: 5,
+    flexDirection: "row",
+  },
+
+  Bio: {
+    borderWidth: 1,
+    borderColor: themeTutor.primaryDark,
+    borderRadius: 10,
+    paddingLeft: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    // ou so padding:10
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom:16
+  },
+
+  Conteudo: {
+    paddingHorizontal: 16,
+    paddingBottom: 90, // espaço pro botão fixo não cobrir o último card
+  },
+
+/* fim de bio */
+
+
+
+
+
+/* CARDS */
+  Card: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+
+  CardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+
+  CardHeaderEsquerda: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  CardTitulo: {
     fontSize: 16,
-    color: '#ffffff',
-    fontWeight: 'bold',
+    fontWeight: "600",
+    color: "#2b2b2b",
   },
 
-  conteudoCentral: {
+  CardLink: {
+    color: "#764ba2",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+
+
+
+
+
+
+
+
+  /* Informaçoes pessoais */
+  InfoBox: {
+    flexDirection: "row",
+    backgroundColor: "#f3eefc",
+    borderRadius: 12,
+    padding: 14,
+  },
+
+  InfoItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
   },
 
-  textoPlaceholder: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+  InfoTextos: {
+    gap: 2,
   },
 
-  textoSecundario: {
+  InfoLabel: {
+    fontSize: 12,
+    color: "#7a7a7a",
+  },
+
+  InfoValor: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#2b2b2b",
+  },
+
+
+
+
+
+
+
+
+
+  /* materias */
+  Materias: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+
+  MateriaChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#f3eefc",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+  },
+
+  MateriaTexto: {
+    color: "#764ba2",
+    fontWeight: "500",
+  },
+
+  
+ItinerarioSecao: {
+  marginTop: 16,
+  paddingTop: 12,
+  borderTopWidth: 1,
+  borderTopColor: themeTutor.secondary,
+},
+
+ItinerarioNome: {
+  fontSize: 12,
+  fontWeight: "700",
+  color: "#9A96A3",
+  marginBottom: 10,
+  textTransform: "uppercase",
+  letterSpacing: 0.4,
+},
+
+/* modal de edição de matérias */
+  ModalFundo: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+
+  ModalConteudo: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 16,
+    maxHeight: "80%",
+  },
+
+  itinerarioBloco: {
+    borderWidth: 1,
+    borderColor: themeTutor.border,
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+
+  itinerarioCabecalho: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: themeTutor.primaryLight,
+  },
+
+  itinerarioTexto: {
     fontSize: 14,
-    color: '#666',
-    marginTop: 8,
+    fontWeight: "600",
+    color: themeTutor.text,
+    flex: 1,
   },
-});
 
-export default PerfilTutor;
+  itinerarioMaterias: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    padding: 12,
+  },
+
+  linhaBotoesModal: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+
+  botaoSecundario: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 8,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  textoBotaoSecundario: {
+    color: "#2b2b2b",
+    fontWeight: "600",
+  },
+
+  botaoPrimario: {
+    flex: 1,
+    backgroundColor: themeTutor.primary,
+    borderRadius: 8,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  textoBotaoPrimario: {
+    color: "white",
+    fontWeight: "bold",
+  },
+
+
+
+
+
+
+
+/* ------- */
+/* MATCHES */
+
+  MatchesLista: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  MatchCard: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#eee0fa",
+    borderRadius: 12,
+    padding: 10,
+    alignItems: "center",
+  },
+
+  MatchNome: {
+    fontWeight: "600",
+    fontSize: 13,
+    color: "#2b2b2b",
+    marginTop: 4,
+    textAlign: "center",
+  },
+
+  MatchMateria: {
+    fontSize: 12,
+    color: "#7a7a7a",
+    marginBottom: 4,
+  },
+
+  MatchNota: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  MatchNotaTexto: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#2b2b2b",
+  },
+
+
+  /* AGENDAAA */
+  Agenda: {
+    flexDirection: "row",
+    gap: 10,
+    
+  },
+
+  DiaCard: {
+    flex: 1,
+    backgroundColor: "#f3eefc",
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: "center",
+    width:90,
+    marginRight:5,
+  },
+
+  DiaSemana: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: themeTutor.primary
+  },
+
+  DiaHora: {
+    fontSize: 12,
+    color: "#2b2b2b",
+    marginTop: 4,
+  },
+
+ 
+
+ 
+
+});

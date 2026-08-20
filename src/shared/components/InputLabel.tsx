@@ -1,4 +1,5 @@
 import { Text, TextInput, View, StyleSheet, TextInputProps } from 'react-native';
+import { themeTutor } from '../styles/themeTutor';
 
 interface InputLabelProps extends TextInputProps {
   Label: string;
@@ -40,14 +41,14 @@ const styles = StyleSheet.create({
 
   Input: {
     height: "100%",
-    width: "90%",
+    width: "100%",
     borderRadius: 10,
     paddingHorizontal: 10,
   },
 
   Label: {
     marginBottom: 5,
-    color: "#b57aef",
+    color: themeTutor.text
   }
 });
 

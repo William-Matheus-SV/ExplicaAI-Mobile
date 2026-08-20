@@ -95,8 +95,8 @@ const proximasAulas = [
     hora: "15:00",
   },
 ];
-export default function PerfilAluno() {
 
+export default function PerfilAluno() {
   return (
     <View style={styles.tela}>
       <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
@@ -200,198 +200,199 @@ export default function PerfilAluno() {
 }
 
 const styles = StyleSheet.create({
-    tela: {
-        flex: 1,
-        backgroundColor: themeAluno.background,
-    },
-    cabecalho: {
-        paddingTop: 48,
-        paddingBottom: 40,
-        paddingHorizontal: 20,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    tituloCabecalho: {
-        color: themeAluno.black,                    
-        fontSize: 24,
-        fontWeight: "bold",
-    },
-    iconeSino: {
-        fontSize: 22,
-    },
-    container: {
-        padding: 16,
-        gap: 16,
-        marginTop: -24,
-        paddingBottom: 32,
-    },
-    cardPerfil: {
-        backgroundColor: themeAluno.white,
-        borderRadius: 16,
-        padding: 16,
-        flexDirection: "row",
-        gap: 16,
-    },
-    foto: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-    },
-    infoPerfil: {
-        flex: 1,
-        gap: 4,
-    },
-    nome: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: themeAluno.text,
-    },
-    badge: {
-        backgroundColor: themeAluno.primaryLight,
-        borderRadius: 12,
-        paddingHorizontal: 10,
-        paddingVertical: 2,
-        alignSelf: "flex-start",
-    },
-    badgeTexto: {
-        color: themeAluno.primary,
-        fontSize: 12,
-        fontWeight: "600",
-    },
-    matricula: {
-        fontSize: 13,
-        color: themeAluno.text,
-        fontWeight: "600",
-    },
-    bio: {
-        fontSize: 13,
-        color: themeAluno.textSecondary,
-    },
-    linhaEstatisticas: {
-        flexDirection: "row",
-        gap: 12,
-    },
-    cardEstatistica: {
-        flex: 1,
-        borderRadius: 16,
-        padding: 12,
-        gap: 4,
-    },
-    iconeEstatistica: {
-        fontSize: 20,
-    },
-    numeroEstatistica: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    labelEstatistica: {
-        fontSize: 12,
-        color: themeAluno.text,
-    },
-    destaqueEstatistica: {
-        fontSize: 11,
-        color: themeAluno.primary,
-        fontWeight: "600",
-    },
-    secaoCard: {
-        backgroundColor: themeAluno.white,
-        borderRadius: 16,
-        padding: 16,
-        gap: 12,
-    },
-    cabecalhoSecao: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
-    tituloSecao: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: themeAluno.text,
-    },
-    verTodas: {
-        fontSize: 13,
-        color: themeAluno.primary,
-        fontWeight: "600",
-    },
-    linhaMateria: {
-        gap: 4,
-    },
-    infoMateria: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    nomeMateria: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: themeAluno.text,
-    },
-    statusMateria: {
-        fontSize: 11,
-        color: themeAluno.textSecondary,
-    },
-    barraFundo: {
-        height: 6,
-        backgroundColor: "#EEE",
-        borderRadius: 3,
-        overflow: "hidden",
-    },
-    barraPreenchida: {
-        height: "100%",
-        borderRadius: 3,
-    },
-    percentualMateria: {
-        fontSize: 11,
-        color: themeAluno.textSecondary,
-        alignSelf: "flex-end",
-    },
-    linhaAula: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-    },
-    fotoTutor: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-    },
-    infoAula: {
-        flex: 1,
-    },
-    nomeAula: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: themeAluno.text,
-    },
-    nomeTutor: {
-        fontSize: 12,
-        color: themeAluno.textSecondary,
-    },
-    dataAula: {
-        alignItems: "flex-end",
-    },
-    textoData: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: themeAluno.text,
-    },
-    textoHora: {
-        fontSize: 11,
-        color: themeAluno.textSecondary,
-    },
-    botaoEntrar: {
-        borderWidth: 1,
-        borderColor: themeAluno.primary,
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-    },
-    textoBotaoEntrar: {
-        fontSize: 12,
-        color: themeAluno.primary,
-        fontWeight: "600",
-    },
-})
+
+  tela: {
+    flex: 1,
+    backgroundColor: themeAluno.background,
+  },
+  cabecalho: {
+    paddingTop: 48,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  tituloCabecalho: {
+    color: themeAluno.black,
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  iconeSino: {
+    fontSize: 22,
+  },
+  container: {
+    padding: 16,
+    gap: 16,
+    marginTop: -24,
+    paddingBottom: 32,
+  },
+  cardPerfil: {
+    backgroundColor: themeAluno.white,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: "row",
+    gap: 16,
+  },
+  foto: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  infoPerfil: {
+    flex: 1,
+    gap: 4,
+  },
+  nome: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+  badge: {
+    backgroundColor: themeAluno.primaryLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    alignSelf: "flex-start",
+  },
+  badgeTexto: {
+    color: themeAluno.primary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  matricula: {
+    fontSize: 13,
+    color: themeAluno.text,
+    fontWeight: "600",
+  },
+  bio: {
+    fontSize: 13,
+    color: themeAluno.textSecondary,
+  },
+  linhaEstatisticas: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  cardEstatistica: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 12,
+    gap: 4,
+  },
+  iconeEstatistica: {
+    fontSize: 20,
+  },
+  numeroEstatistica: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  labelEstatistica: {
+    fontSize: 12,
+    color: themeAluno.text,
+  },
+  destaqueEstatistica: {
+    fontSize: 11,
+    color: themeAluno.primary,
+    fontWeight: "600",
+  },
+  secaoCard: {
+    backgroundColor: themeAluno.white,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+  },
+  cabecalhoSecao: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  tituloSecao: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+  verTodas: {
+    fontSize: 13,
+    color: themeAluno.primary,
+    fontWeight: "600",
+  },
+  linhaMateria: {
+    gap: 4,
+  },
+  infoMateria: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  nomeMateria: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: themeAluno.text,
+  },
+  statusMateria: {
+    fontSize: 11,
+    color: themeAluno.textSecondary,
+  },
+  barraFundo: {
+    height: 6,
+    backgroundColor: "#EEE",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  barraPreenchida: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  percentualMateria: {
+    fontSize: 11,
+    color: themeAluno.textSecondary,
+    alignSelf: "flex-end",
+  },
+  linhaAula: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  fotoTutor: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  infoAula: {
+    flex: 1,
+  },
+  nomeAula: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: themeAluno.text,
+  },
+  nomeTutor: {
+    fontSize: 12,
+    color: themeAluno.textSecondary,
+  },
+  dataAula: {
+    alignItems: "flex-end",
+  },
+  textoData: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: themeAluno.text,
+  },
+  textoHora: {
+    fontSize: 11,
+    color: themeAluno.textSecondary,
+  },
+  botaoEntrar: {
+    borderWidth: 1,
+    borderColor: themeAluno.primary,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  textoBotaoEntrar: {
+    fontSize: 12,
+    color: themeAluno.primary,
+    fontWeight: "600",
+  },
+});
