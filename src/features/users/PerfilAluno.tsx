@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient"
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
-import { colors } from "../../shared/styles/colors"
+import { themeAluno } from "../../shared/styles/themeAluno"
 
 const aluno = {
     nome: "aluno_demo",
@@ -16,10 +16,10 @@ const estatisticas = [
 ]
 
 const materiasProgresso = [
-    { nome: "Matemática", status: "Em progresso", progresso: 0.6, cor: colors.primary },
-    { nome: "Física", status: "Em progresso", progresso: 0.4, cor: colors.success },
-    { nome: "Química", status: "Precisa de ajuda", progresso: 0.2, cor: colors.warning },
-    { nome: "Inglês", status: "Em progresso", progresso: 0.7, cor: colors.info },
+    { nome: "Matemática", status: "Em progresso", progresso: 0.6, cor: themeAluno.primary },
+    { nome: "Física", status: "Em progresso", progresso: 0.4, cor: themeAluno.success },
+    { nome: "Química", status: "Precisa de ajuda", progresso: 0.2, cor: themeAluno.warning },
+    { nome: "Inglês", status: "Em progresso", progresso: 0.7, cor: themeAluno.info },
 ]
 
 const proximasAulas = [
@@ -31,7 +31,7 @@ export default function PerfilAluno() {
     return (
         <View style={styles.tela}>
             <LinearGradient
-                colors={["#7C6FE0", "#5B4BC4"]}
+                colors={["#d5f5e3", "#b7e4ca"]}
                 style={styles.cabecalho}
             >
                 <Text style={styles.tituloCabecalho}>Perfil</Text>
@@ -123,7 +123,7 @@ export default function PerfilAluno() {
 const styles = StyleSheet.create({
     tela: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: themeAluno.background,
     },
     cabecalho: {
         paddingTop: 48,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 24,
     },
     tituloCabecalho: {
-        color: colors.white,
+        color: themeAluno.black,                    
         fontSize: 24,
         fontWeight: "bold",
     },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         paddingBottom: 32,
     },
     cardPerfil: {
-        backgroundColor: colors.white,
+        backgroundColor: themeAluno.white,
         borderRadius: 16,
         padding: 16,
         flexDirection: "row",
@@ -168,28 +168,28 @@ const styles = StyleSheet.create({
     nome: {
         fontSize: 18,
         fontWeight: "bold",
-        color: colors.text,
+        color: themeAluno.text,
     },
     badge: {
-        backgroundColor: colors.primaryLight,
+        backgroundColor: themeAluno.primaryLight,
         borderRadius: 12,
         paddingHorizontal: 10,
         paddingVertical: 2,
         alignSelf: "flex-start",
     },
     badgeTexto: {
-        color: colors.primary,
+        color: themeAluno.primary,
         fontSize: 12,
         fontWeight: "600",
     },
     matricula: {
         fontSize: 13,
-        color: colors.text,
+        color: themeAluno.text,
         fontWeight: "600",
     },
     bio: {
         fontSize: 13,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
     },
     linhaEstatisticas: {
         flexDirection: "row",
@@ -210,15 +210,15 @@ const styles = StyleSheet.create({
     },
     labelEstatistica: {
         fontSize: 12,
-        color: colors.text,
+        color: themeAluno.text,
     },
     destaqueEstatistica: {
         fontSize: 11,
-        color: colors.primary,
+        color: themeAluno.primary,
         fontWeight: "600",
     },
     secaoCard: {
-        backgroundColor: colors.white,
+        backgroundColor: themeAluno.white,
         borderRadius: 16,
         padding: 16,
         gap: 12,
@@ -231,11 +231,11 @@ const styles = StyleSheet.create({
     tituloSecao: {
         fontSize: 16,
         fontWeight: "bold",
-        color: colors.text,
+        color: themeAluno.text,
     },
     verTodas: {
         fontSize: 13,
-        color: colors.primary,
+        color: themeAluno.primary,
         fontWeight: "600",
     },
     linhaMateria: {
@@ -248,11 +248,11 @@ const styles = StyleSheet.create({
     nomeMateria: {
         fontSize: 14,
         fontWeight: "600",
-        color: colors.text,
+        color: themeAluno.text,
     },
     statusMateria: {
         fontSize: 11,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
     },
     barraFundo: {
         height: 6,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     },
     percentualMateria: {
         fontSize: 11,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
         alignSelf: "flex-end",
     },
     linhaAula: {
@@ -285,11 +285,11 @@ const styles = StyleSheet.create({
     nomeAula: {
         fontSize: 13,
         fontWeight: "600",
-        color: colors.text,
+        color: themeAluno.text,
     },
     nomeTutor: {
         fontSize: 12,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
     },
     dataAula: {
         alignItems: "flex-end",
@@ -297,53 +297,22 @@ const styles = StyleSheet.create({
     textoData: {
         fontSize: 12,
         fontWeight: "600",
-        color: colors.text,
+        color: themeAluno.text,
     },
     textoHora: {
         fontSize: 11,
-        color: colors.textSecondary,
+        color: themeAluno.textSecondary,
     },
     botaoEntrar: {
         borderWidth: 1,
-        borderColor: colors.primary,
+        borderColor: themeAluno.primary,
         borderRadius: 20,
         paddingVertical: 6,
         paddingHorizontal: 12,
     },
     textoBotaoEntrar: {
         fontSize: 12,
-        color: colors.primary,
+        color: themeAluno.primary,
         fontWeight: "600",
-    },
-    gradeConquistas: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 12,
-    },
-    itemConquista: {
-        width: "45%",
-        alignItems: "center",
-        gap: 4,
-    },
-    circuloConquista: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    iconeConquista: {
-        fontSize: 24,
-    },
-    tituloConquista: {
-        fontSize: 13,
-        fontWeight: "bold",
-        textAlign: "center",
-        color: colors.text,
-    },
-    descricaoConquista: {
-        fontSize: 11,
-        color: colors.textSecondary,
-        textAlign: "center",
     },
 })
