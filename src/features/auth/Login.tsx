@@ -94,10 +94,17 @@ export default function Login() {
                     <View style={styles.linha} />
                 </View>
 
-                <Pressable onPress={() => router.push("/cadastro-aluno")} style={styles.linkContainer}>
-                    <Text style={styles.linkCadastro}>Não possui um cadastro?</Text>
-                    <Text style={styles.linkCadastroDestaque}> Cadastre-se!</Text>
-                </Pressable>
+                <Pressable
+                onPress={() => router.push("/escolha-cadastro")}
+                style={styles.linkContainer}>
+                <Text style={styles.linkCadastro}>
+                Não possui um cadastro?
+                </Text>
+
+              <Text style={styles.linkCadastroDestaque}>
+              {" "}Cadastre-se!
+              </Text>
+             </Pressable>
             </View>
         </ImageBackground>
     );
