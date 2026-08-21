@@ -4,20 +4,20 @@ import { Image, ImageBackground, Pressable, StyleSheet, Text, TextInput, View } 
 import { colors } from "../../shared/styles/colors";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
+    const [matricula, setMatricula] = useState("");
     const [senha, setSenha] = useState("");
-    const [erroEmail, setErroEmail] = useState("");
+    const [erroMatricula, setErroMatricula] = useState("");
     const [erroSenha, setErroSenha] = useState("");
     const [mostrarSenha, setMostrarSenha] = useState(false);
-    
+
     function handleLogin() {
-        setErroEmail("");
+        setErroMatricula("");
         setErroSenha("");
 
         let temErro = false;
 
-        if (!email.trim()) {
-            setErroEmail("Email é obrigatório");
+        if (!matricula.trim()) {
+            setErroMatricula("Matrícula é obrigatória");
             temErro = true;
         }
 
@@ -28,7 +28,7 @@ export default function Login() {
 
         if (temErro) return;
 
-        console.log("Login válido, chamar API com:", email, senha);
+        console.log("Login válido, chamar API com:", matricula, senha);
         // Redirecionar para o perfil do aluno (mock)
         router.push("/perfil-aluno");
     }
@@ -43,23 +43,21 @@ export default function Login() {
             <View style={styles.overlay} />
 
             <View style={styles.card}>
-                <Image
-                    source={require("../../../assets/logo.png")}
-                    style={styles.logo}
-                />
+                <Image source={require("../../../assets/logo.png")} style={styles.logo} />
                 <Text style={styles.subtitulo}>Ensine. Aprenda. Conecte-se.</Text>
                 <Text style={styles.instrucao}>Para continuar faça seu login abaixo</Text>
 
                 <View style={styles.campo}>
-                    <Text style={styles.label}>E-mail / Matrícula</Text>
+                    <Text style={styles.label}>Matrícula</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Digite sua matrícula"
-                        value={email}
-                        onChangeText={setEmail}
+                        value={matricula}
+                        onChangeText={setMatricula}
                         autoCapitalize="none"
+                        keyboardType="numeric"
                     />
-                    {erroEmail ? <Text style={styles.erro}>{erroEmail}</Text> : null}
+                    {erroMatricula ? <Text style={styles.erro}>{erroMatricula}</Text> : null}
                 </View>
 
                 <View style={styles.campo}>
@@ -72,13 +70,8 @@ export default function Login() {
                             onChangeText={setSenha}
                             secureTextEntry={!mostrarSenha}
                         />
-                        <Pressable
-                            style={styles.iconeOlho}
-                            onPress={() => setMostrarSenha(!mostrarSenha)}
-                        >
-                            <Text style={styles.textoIcone}>
-                                {mostrarSenha ? "👁️" : "👁️‍🗨️"}
-                            </Text>
+                        <Pressable style={styles.iconeOlho} onPress={() => setMostrarSenha(!mostrarSenha)}>
+                            <Text style={styles.textoIcone}>{mostrarSenha ? "👁️" : "👁️‍🗨️"}</Text>
                         </Pressable>
                     </View>
                     {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
@@ -94,17 +87,10 @@ export default function Login() {
                     <View style={styles.linha} />
                 </View>
 
-                <Pressable
-                onPress={() => router.push("/escolha-cadastro")}
-                style={styles.linkContainer}>
-                <Text style={styles.linkCadastro}>
-                Não possui um cadastro?
-                </Text>
-
-              <Text style={styles.linkCadastroDestaque}>
-              {" "}Cadastre-se!
-              </Text>
-             </Pressable>
+                <Pressable onPress={() => router.push("/escolha-cadastro")} style={styles.linkContainer}>
+                    <Text style={styles.linkCadastro}>Não possui um cadastro?</Text>
+                    <Text style={styles.linkCadastroDestaque}> Cadastre-se!</Text>
+                </Pressable>
             </View>
         </ImageBackground>
     );
