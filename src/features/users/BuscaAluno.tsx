@@ -36,30 +36,34 @@ export default function BuscaAluno() {
       id: "1",
       nome: "João Silva",
       materia: "Matemática",
-      nota: 4.9,
-      avaliacoes: 128,
+      nota: 4.8,
+      experienciaAnos: 1,
+      totalAlunos: 12,
       formacao: "Eng. Matemática - UFPE",
-      experiencia: "3 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=12",
-      bio: "Apaixonado por ensinar matemática de forma simples e prática. Foco em preparar alunos para o ENEM e vestibulares.",
+      bio: "Ajudo alunos a entender matemática de forma simples e prática, focando no ENEM e vestibulares.",
       horariosLivres: [
-        { dia: "Segunda", horario: "08:00 - 10:00" },
-        { dia: "Quarta", horario: "14:00 - 16:00" },
+        { semana: 1, dia: "Segunda", horario: "08:00 - 10:00" },
+        { semana: 1, dia: "Terça", horario: "09:00 - 11:00" },
+        { semana: 2, dia: "Quarta", horario: "13:00 - 15:00" },
+        { semana: 2, dia: "Segunda", horario: "14:00 - 16:00" },
+        { semana: 3, dia: "Sexta", horario: "10:00 - 12:00" },
       ],
     },
     {
       id: "2",
       nome: "Maria Oliveira",
       materia: "Matemática",
-      nota: 4.8,
-      avaliacoes: 96,
+      nota: 4.7,
+      experienciaAnos: 2,
+      totalAlunos: 20,
       formacao: "Lic. Matemática - UFRPE",
-      experiencia: "3 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=5",
       bio: "Professora com foco em ensino fundamental e médio. Gosto de usar exemplos do dia a dia para facilitar o aprendizado.",
       horariosLivres: [
-        { dia: "Terça", horario: "09:00 - 11:00" },
-        { dia: "Sexta", horario: "15:00 - 17:00" },
+        { semana: 1, dia: "Terça", horario: "09:00 - 11:00" },
+        { semana: 2, dia: "Sexta", horario: "15:00 - 17:00" },
+        { semana: 3, dia: "Quarta", horario: "08:00 - 10:00" },
       ],
     },
     {
@@ -67,14 +71,15 @@ export default function BuscaAluno() {
       nome: "Lucas Santos",
       materia: "Programação",
       nota: 4.7,
-      avaliacoes: 72,
+      experienciaAnos: 4,
+      totalAlunos: 30,
       formacao: "Ciência da Computação - UFPE",
-      experiencia: "4 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=13",
       bio: "Formado em Ciência da Computação, une matemática e lógica de programação nas aulas.",
       horariosLivres: [
-        { dia: "Segunda", horario: "10:00 - 12:00" },
-        { dia: "Quinta", horario: "08:00 - 10:00" },
+        { semana: 1, dia: "Segunda", horario: "10:00 - 12:00" },
+        { semana: 2, dia: "Quinta", horario: "08:00 - 10:00" },
+        { semana: 3, dia: "Segunda", horario: "10:00 - 12:00" },
       ],
     },
     {
@@ -82,14 +87,15 @@ export default function BuscaAluno() {
       nome: "Beatriz Costa",
       materia: "Física",
       nota: 4.9,
-      avaliacoes: 84,
+      experienciaAnos: 5,
+      totalAlunos: 40,
       formacao: "Física - UFPE",
-      experiencia: "5 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=9",
       bio: "Mestre em Física, gosto de explicar conceitos abstratos com experimentos práticos e simulações.",
       horariosLivres: [
-        { dia: "Terça", horario: "08:00 - 10:00" },
-        { dia: "Quinta", horario: "14:00 - 16:00" },
+        { semana: 1, dia: "Terça", horario: "08:00 - 10:00" },
+        { semana: 2, dia: "Quinta", horario: "14:00 - 16:00" },
+        { semana: 3, dia: "Terça", horario: "08:00 - 10:00" },
       ],
     },
     {
@@ -97,14 +103,14 @@ export default function BuscaAluno() {
       nome: "Rafael Almeida",
       materia: "Química",
       nota: 4.6,
-      avaliacoes: 51,
+      experienciaAnos: 2,
+      totalAlunos: 15,
       formacao: "Química - UFRPE",
-      experiencia: "2 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=15",
       bio: "Foco em química orgânica e preparação para o ENEM, com resumos visuais e mapas mentais.",
       horariosLivres: [
-        { dia: "Segunda", horario: "14:00 - 16:00" },
-        { dia: "Sexta", horario: "10:00 - 12:00" },
+        { semana: 1, dia: "Segunda", horario: "14:00 - 16:00" },
+        { semana: 2, dia: "Sexta", horario: "10:00 - 12:00" },
       ],
     },
     {
@@ -112,23 +118,31 @@ export default function BuscaAluno() {
       nome: "Clara Martins",
       materia: "Português",
       nota: 4.8,
-      avaliacoes: 110,
+      experienciaAnos: 6,
+      totalAlunos: 55,
       formacao: "Letras - UFPE",
-      experiencia: "6 anos de experiência",
       fotoUrl: "https://i.pravatar.cc/150?img=20",
       bio: "Especialista em redação e interpretação de texto para o ENEM e vestibulares.",
       horariosLivres: [
-        { dia: "Quarta", horario: "08:00 - 10:00" },
-        { dia: "Sexta", horario: "14:00 - 16:00" },
+        { semana: 1, dia: "Quarta", horario: "08:00 - 10:00" },
+        { semana: 2, dia: "Sexta", horario: "14:00 - 16:00" },
+        { semana: 3, dia: "Quarta", horario: "08:00 - 10:00" },
       ],
     },
   ];
-  const [tutorSelecionado, setTutorSelecionado] = useState<
-    (typeof tutores)[0] | null
-  >(null);
+
   const tutoresFiltrados = materiaSelecionada
     ? tutores.filter((tutor) => tutor.materia === materiaSelecionada)
     : tutores;
+
+  const [tutorSelecionado, setTutorSelecionado] = useState<
+    (typeof tutores)[0] | null
+  >(null);
+  const [semanaAtual, setSemanaAtual] = useState(1);
+  const [horarioSelecionado, setHorarioSelecionado] = useState<{
+    dia: string;
+    horario: string;
+  } | null>(null);
 
   return (
     <View style={styles.tela}>
@@ -196,17 +210,16 @@ export default function BuscaAluno() {
               <View style={styles.infoTutor}>
                 <Text style={styles.nomeTutor}>{tutor.nome}</Text>
                 <Text style={styles.materiaTutor}>{tutor.materia}</Text>
-                <Text style={styles.notaTutor}>
-                  ⭐ {tutor.nota} ({tutor.avaliacoes} avaliações)
-                </Text>
+                <Text style={styles.notaTutor}>⭐ {tutor.nota}</Text>
                 <Text style={styles.formacaoTutor}>🎓 {tutor.formacao}</Text>
-                <Text style={styles.experienciaTutor}>
-                  🕐 {tutor.experiencia}
-                </Text>
 
                 <Pressable
                   style={styles.botaoVerPerfil}
-                  onPress={() => setTutorSelecionado(tutor)}
+                  onPress={() => {
+                    setTutorSelecionado(tutor);
+                    setSemanaAtual(1);
+                    setHorarioSelecionado(null);
+                  }}
                 >
                   <Text style={styles.botaoVerPerfilTexto}>Ver perfil</Text>
                 </Pressable>
@@ -245,40 +258,194 @@ export default function BuscaAluno() {
             onPress={(e) => e.stopPropagation()}
           >
             {tutorSelecionado && (
-              <>
-                <Pressable
-                  style={styles.modalFechar}
-                  onPress={() => setTutorSelecionado(null)}
-                >
-                  <Text style={styles.modalFecharTexto}>✕</Text>
-                </Pressable>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={{ width: "100%" }}
+              >
+                <View style={styles.modalTopo}>
+                  <Pressable
+                    style={styles.modalFechar}
+                    onPress={() => setTutorSelecionado(null)}
+                  >
+                    <Text style={styles.modalFecharTexto}>✕</Text>
+                  </Pressable>
 
-                <Image
-                  source={{ uri: tutorSelecionado.fotoUrl }}
-                  style={styles.modalFoto}
-                />
-                <Text style={styles.modalNome}>{tutorSelecionado.nome}</Text>
-                <Text style={styles.modalMateria}>
-                  {tutorSelecionado.materia}
-                </Text>
+                  <View style={styles.modalCabecalhoLinha}>
+                    <Image
+                      source={{ uri: tutorSelecionado.fotoUrl }}
+                      style={styles.modalFoto}
+                    />
 
-                <Text style={styles.modalBio}>{tutorSelecionado.bio}</Text>
+                    <View style={styles.modalInfoTexto}>
+                      <Text style={styles.modalNome}>
+                        {tutorSelecionado.nome}
+                      </Text>
+                      <Text style={styles.modalMateria}>
+                        🎓 {tutorSelecionado.materia}
+                      </Text>
+                      <Text style={styles.modalBio} numberOfLines={3}>
+                        {tutorSelecionado.bio}
+                      </Text>
+                    </View>
+                  </View>
 
-                <Text style={styles.modalSecaoTitulo}>
-                  Horários disponíveis
-                </Text>
+                  <View style={styles.modalStatsLinha}>
+                    <View style={styles.modalStatItem}>
+                      <Text style={styles.modalStatIcone}>🎓</Text>
+                      <Text style={styles.modalStatNumero}>
+                        {tutorSelecionado.experienciaAnos}
+                      </Text>
+                      <Text style={styles.modalStatLabel}>
+                        {tutorSelecionado.experienciaAnos === 1
+                          ? "ano"
+                          : "anos"}
+                      </Text>
+                    </View>
+                    <View style={styles.modalStatItem}>
+                      <Text style={styles.modalStatIcone}>⭐</Text>
+                      <Text style={styles.modalStatNumero}>
+                        {tutorSelecionado.nota}
+                      </Text>
+                      <Text style={styles.modalStatLabel}>avaliação</Text>
+                    </View>
+                    <View style={styles.modalStatItem}>
+                      <Text style={styles.modalStatIcone}>👤</Text>
+                      <Text style={styles.modalStatNumero}>
+                        +{tutorSelecionado.totalAlunos}
+                      </Text>
+                      <Text style={styles.modalStatLabel}>alunos</Text>
+                    </View>
+                  </View>
+                </View>
 
-                <ScrollView style={styles.modalHorariosLista}>
-                  {tutorSelecionado.horariosLivres.map((slot, index) => (
-                    <Pressable key={index} style={styles.modalHorarioItem}>
-                      <Text style={styles.modalHorarioDia}>{slot.dia}</Text>
-                      <Text style={styles.modalHorarioTexto}>
-                        {slot.horario}
+                <View style={styles.agendaContainer}>
+                  <View style={styles.agendaCabecalho}>
+                    <Pressable
+                      onPress={() =>
+                        setSemanaAtual(Math.max(1, semanaAtual - 1))
+                      }
+                      disabled={semanaAtual === 1}
+                    >
+                      <Text
+                        style={[
+                          styles.agendaSeta,
+                          semanaAtual === 1 && styles.agendaSetaDesabilitada,
+                        ]}
+                      >
+                        ‹
                       </Text>
                     </Pressable>
-                  ))}
-                </ScrollView>
-              </>
+
+                    <Text style={styles.agendaSemanaTexto}>
+                      Semana {semanaAtual}
+                    </Text>
+
+                    <Pressable
+                      onPress={() =>
+                        setSemanaAtual(Math.min(3, semanaAtual + 1))
+                      }
+                      disabled={semanaAtual === 3}
+                    >
+                      <Text
+                        style={[
+                          styles.agendaSeta,
+                          semanaAtual === 3 && styles.agendaSetaDesabilitada,
+                        ]}
+                      >
+                        ›
+                      </Text>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.grade}>
+                    <View style={styles.gradeLinha}>
+                      <View style={styles.gradeCelulaCanto} />
+                      {["SEG", "TER", "QUA", "QUI", "SEX"].map((dia) => (
+                        <View key={dia} style={styles.gradeCelulaCabecalho}>
+                          <Text style={styles.gradeCabecalhoTexto}>{dia}</Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    {[
+                      "08:00 - 10:00",
+                      "09:00 - 11:00",
+                      "10:00 - 12:00",
+                      "13:00 - 15:00",
+                      "14:00 - 16:00",
+                      "15:00 - 17:00",
+                    ].map((horario) => (
+                      <View key={horario} style={styles.gradeLinha}>
+                        <View style={styles.gradeCelulaHorario}>
+                          <Text style={styles.gradeHorarioTexto}>
+                            {horario}
+                          </Text>
+                        </View>
+
+                        {["Segunda", "Terça", "Quarta", "Quinta", "Sexta"].map(
+                          (dia) => {
+                            const livre = tutorSelecionado.horariosLivres.some(
+                              (slot) =>
+                                slot.semana === semanaAtual &&
+                                slot.dia === dia &&
+                                slot.horario === horario,
+                            );
+                            const selecionado =
+                              horarioSelecionado?.dia === dia &&
+                              horarioSelecionado?.horario === horario;
+
+                            return (
+                              <Pressable
+                                key={dia}
+                                style={[
+                                  styles.gradeCelula,
+                                  livre && styles.gradeCelulaLivre,
+                                  selecionado && styles.gradeCelulaSelecionada,
+                                ]}
+                                disabled={!livre}
+                                onPress={() =>
+                                  setHorarioSelecionado({ dia, horario })
+                                }
+                              />
+                            );
+                          },
+                        )}
+                      </View>
+                    ))}
+                  </View>
+
+                  {horarioSelecionado && (
+                    <View style={styles.resumoAgendamento}>
+                      <Text style={styles.resumoTexto}>
+                        📅 Aula com {tutorSelecionado.nome}
+                      </Text>
+                      <Text style={styles.resumoDetalhe}>
+                        {horarioSelecionado.dia}-feira •{" "}
+                        {horarioSelecionado.horario}
+                      </Text>
+                    </View>
+                  )}
+
+                  <Pressable
+                    style={[
+                      styles.botaoConfirmar,
+                      !horarioSelecionado && styles.botaoConfirmarDesabilitado,
+                    ]}
+                    disabled={!horarioSelecionado}
+                    onPress={() => {
+                      console.log(
+                        "Aula confirmada:",
+                        tutorSelecionado.nome,
+                        horarioSelecionado,
+                      );
+                    }}
+                  >
+                    <Text style={styles.botaoConfirmarTexto}>
+                      ✓ Confirmar aula
+                    </Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
             )}
           </Pressable>
         </Pressable>
@@ -416,10 +583,6 @@ const styles = StyleSheet.create({
   formacaoTutor: {
     fontSize: 12,
     color: themeAluno.textSecondary,
-  },
-  experienciaTutor: {
-    fontSize: 12,
-    color: themeAluno.textSecondary,
     marginBottom: 6,
   },
   botaoVerPerfil: {
@@ -474,17 +637,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalConteudo: {
-    width: "88%",
-    maxHeight: "75%",
+    width: "90%",
+    maxHeight: "85%",
     backgroundColor: themeAluno.white,
     borderRadius: 16,
     padding: 20,
-    alignItems: "center",
+  },
+  modalTopo: {
+    marginBottom: 4,
+  },
+  modalCabecalhoLinha: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 12,
   },
   modalFechar: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: -4,
+    right: -4,
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -498,55 +668,168 @@ const styles = StyleSheet.create({
     color: themeAluno.text,
   },
   modalFoto: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    marginTop: 8,
-    marginBottom: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  },
+  modalInfoTexto: {
+    flex: 1,
+    justifyContent: "center",
   },
   modalNome: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: themeAluno.text,
   },
   modalMateria: {
-    fontSize: 13,
+    fontSize: 12,
     color: themeAluno.textSecondary,
-    marginBottom: 12,
+    marginBottom: 4,
   },
   modalBio: {
-    fontSize: 13,
+    fontSize: 11,
     color: themeAluno.text,
-    textAlign: "center",
-    marginBottom: 16,
   },
-  modalSecaoTitulo: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: themeAluno.text,
-    alignSelf: "flex-start",
+  modalStatsLinha: {
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-around",
+    backgroundColor: themeAluno.primaryLight,
+    borderRadius: 10,
+    paddingVertical: 8,
     marginBottom: 8,
   },
-  modalHorariosLista: {
-    width: "100%",
-    maxHeight: 150,
+  modalStatItem: {
+    alignItems: "center",
+    gap: 1,
   },
-  modalHorarioItem: {
+  modalStatIcone: {
+    fontSize: 14,
+  },
+  modalStatNumero: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+  modalStatLabel: {
+    fontSize: 9,
+    color: themeAluno.textSecondary,
+  },
+  agendaContainer: {
+    marginTop: 8,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#EEE",
+  },
+  agendaCabecalho: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: themeAluno.primaryLight,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  modalHorarioDia: {
-    fontSize: 13,
+  agendaSeta: {
+    fontSize: 22,
+    color: themeAluno.primary,
+    fontWeight: "bold",
+    paddingHorizontal: 12,
+  },
+  agendaSetaDesabilitada: {
+    color: "#CCC",
+  },
+  agendaSemanaTexto: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+  grade: {
+    borderWidth: 1,
+    borderColor: themeAluno.border,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  gradeLinha: {
+    flexDirection: "row",
+  },
+  gradeCelulaCanto: {
+    width: 46,
+    backgroundColor: themeAluno.primaryLight,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: themeAluno.border,
+  },
+  gradeCelulaCabecalho: {
+    flex: 1,
+    backgroundColor: themeAluno.primaryLight,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: themeAluno.border,
+    paddingVertical: 6,
+    alignItems: "center",
+  },
+  gradeCabecalhoTexto: {
+    fontSize: 10,
     fontWeight: "bold",
     color: themeAluno.primary,
   },
-  modalHorarioTexto: {
+  gradeCelulaHorario: {
+    width: 46,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: themeAluno.border,
+    paddingVertical: 4,
+  },
+  gradeHorarioTexto: {
+    fontSize: 8,
+    color: themeAluno.textSecondary,
+    textAlign: "center",
+  },
+  gradeCelula: {
+    flex: 1,
+    height: 40,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: themeAluno.border,
+    backgroundColor: themeAluno.white,
+  },
+  gradeCelulaLivre: {
+    backgroundColor: themeAluno.primary,
+  },
+  gradeCelulaSelecionada: {
+    borderWidth: 2,
+    borderColor: themeAluno.accent,
+  },
+  resumoAgendamento: {
+    backgroundColor: themeAluno.primaryLight,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  resumoTexto: {
     fontSize: 13,
+    fontWeight: "bold",
     color: themeAluno.text,
+  },
+  resumoDetalhe: {
+    fontSize: 12,
+    color: themeAluno.textSecondary,
+    marginTop: 2,
+  },
+  botaoConfirmar: {
+    backgroundColor: themeAluno.primary,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  botaoConfirmarDesabilitado: {
+    backgroundColor: "#CCC",
+  },
+  botaoConfirmarTexto: {
+    color: themeAluno.white,
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
