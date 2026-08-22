@@ -1,17 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
+// Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   {
     icone: "🎓",
@@ -35,7 +29,7 @@ const estatisticas = [
     cor: "#E3F2FD",
   },
 ];
-
+// Seguem mockados os dados pois precisa do back-end
 const proximasAulas = [
   {
     id: "1",

@@ -7,7 +7,9 @@ import InputLabel from '../../shared/components/InputLabel';
 import SectionTitle from '../../shared/components/SectionTitle';
 import CardMaterias from '../../shared/components/CardMaterias';
 import { themeTutor } from '../../shared/styles/themeTutor';
+import { useUsuario } from '../../shared/contexts/UsuarioContext';
 
+ 
 // calculo para ter uma margem no header dos usuarios
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
@@ -45,6 +47,7 @@ const HORARIOS_2H = [
 
 export default function CadastroTutor() {
   // hook dos inputs para guardar valores
+  const { salvarUsuario } = useUsuario();
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
@@ -140,14 +143,14 @@ export default function CadastroTutor() {
       return;
     }
 
-    console.log("Cadastro válido:", {
+    salvarUsuario({
+      tipo: "tutor",
       nome,
       idade,
       matricula,
-      senha,
       bio,
-      materiasSelecionadas,
-      horariosSelecionados,
+      materiasLecionadas: materiasSelecionadas,
+      horariosDisponiveis: horariosSelecionados,
     });
     router.push("/perfil-tutor");
   }
