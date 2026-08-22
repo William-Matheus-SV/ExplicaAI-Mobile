@@ -152,8 +152,16 @@ export default function CadastroTutor() {
       materiasLecionadas: materiasSelecionadas,
       horariosDisponiveis: horariosSelecionados,
     });
-    router.push("/perfil-tutor");
+    router.replace("/perfil-tutor");
   }
+  //
+  function handleVoltar() {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/escolha-cadastro");
+  }
+}
 
   function handleLimpar() {
     setNome("");
@@ -172,7 +180,7 @@ export default function CadastroTutor() {
     <View style={styles.container}>
       {/* organiza views dentro do header */}
       <View style={styles.header}>
-        <Pressable style={styles.botaoVoltar} onPress={() => router.back()}>
+        <Pressable style={styles.botaoVoltar} onPress={ handleVoltar}>
           <Ionicons name={'arrow-back'} size={22} color={colors.primaryLight} />
         </Pressable>
 

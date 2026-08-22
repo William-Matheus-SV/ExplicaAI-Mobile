@@ -88,7 +88,7 @@ export default function CadastroAluno() {
       bio,
       materiasDificuldade: materiasSelecionadas,
     });
-    router.push("/perfil-aluno");
+    router.replace("/perfil-aluno");
   }
 
   function handleLimpar() {

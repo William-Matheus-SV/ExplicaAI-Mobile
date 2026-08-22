@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
@@ -9,21 +10,21 @@ import { useUsuario } from "../../shared/contexts/UsuarioContext";
 const estatisticas = [
   {
     icone: "🎓",
-    numero: "8",
+    numero: "0",
     label: "Aulas Concluídas",
-    destaque: "Continue assim!",
+    destaque: "Comece a aprender!",
     cor: "#EDE7F6",
   },
   {
     icone: "⭐",
-    numero: "4.8",
+    numero: "0.0",
     label: "Avaliação Média",
-    destaque: "Excelente!",
+    destaque: "Você ainda não foi avaliado",
     cor: "#FFF3E0",
   },
   {
     icone: "📅",
-    numero: "5",
+    numero: "0",
     label: "Aulas Agendadas",
     destaque: "Próximas aulas",
     cor: "#E3F2FD",
@@ -58,26 +59,36 @@ const proximasAulas = [
 ];
 
 export default function PerfilAluno() {
-  const { usuario } = useUsuario();
-
+  const { usuario, sair } = useUsuario();
+  function handleSair() {
+    sair();
+    router.replace("/login");
+  }
   const aluno = {
     nome: usuario?.tipo === 'aluno' ? usuario.nome : "Aluno",
     matricula: usuario?.tipo === 'aluno' ? usuario.matricula : "-",
-    bio: usuario?.tipo === 'aluno' ? usuario.bio : "",
-    fotoUrl: "https://i.pravatar.cc/150?img=12",
+    bio: usuario?.tipo === 'aluno' ? usuario.bio : ""
   };
+
+  
 
   return (
     <View style={styles.tela}>
       <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
         <Text style={styles.tituloCabecalho}>Perfil</Text>
-        <Text style={styles.iconeSino}>🔔</Text>
+        <View style={styles.acoesCabecalho}>
+          <Text style={styles.iconeSino}>🔔</Text>
+          <Pressable onPress={handleSair}>
+            <Ionicons name="log-out-outline" size={22} color={themeAluno.black} />
+          </Pressable>
+        </View>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.cardPerfil}>
-          <Image source={{ uri: aluno.fotoUrl }} style={styles.foto} />
-
+          <View style={styles.fotoPlaceholder}>
+            <Ionicons name="person" size={40} color="#d9d9e8" />
+          </View>
           <View style={styles.infoPerfil}>
             <Text style={styles.nome}>{aluno.nome}</Text>
             <View style={styles.badge}>
@@ -162,6 +173,11 @@ const styles = StyleSheet.create({
   iconeSino: {
     fontSize: 22,
   },
+  acoesCabecalho: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 12,
+},
   container: {
     padding: 16,
     gap: 16,
@@ -175,11 +191,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
   },
-  foto: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
+  fotoPlaceholder: {
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  backgroundColor: "#f0f0f0",
+  justifyContent: "center",
+  alignItems: "center",
+},
   infoPerfil: {
     flex: 1,
     gap: 4,

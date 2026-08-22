@@ -30,6 +30,7 @@ type DadosUsuario = DadosAluno | DadosTutor;
 interface UsuarioContextType {
   usuario: DadosUsuario | null;
   salvarUsuario: (dados: DadosUsuario) => void;
+  sair: () => void;
 }
 
 const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined);
@@ -41,8 +42,12 @@ export function UsuarioProvider({ children }: { children: ReactNode }) {
     setUsuario(dados);
   }
 
+  function sair() {
+    setUsuario(null);
+  }
+
   return (
-    <UsuarioContext.Provider value={{ usuario, salvarUsuario }}>
+    <UsuarioContext.Provider value={{ usuario, salvarUsuario, sair }}>
       {children}
     </UsuarioContext.Provider>
   );
