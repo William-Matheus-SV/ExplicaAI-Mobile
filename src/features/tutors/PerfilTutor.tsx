@@ -1,46 +1,22 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  StatusBar,
-  TextInput,
-  Modal,
-} from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, TextInput, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
+import BottomNavBar from "../../shared/components/BottomNavBar";
 
 interface ItinerarioComMaterias {
   nome: string;
   materias: string[];
 }
 
-//catálogo de itinerários e matérias disponíveis para seleção
 const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
-  {
-    nome: "Linguagens, Códigos e suas Tecnologias",
-    materias: ["Português", "Inglês", "Espanhol"],
-  },
-  {
-    nome: "Matemática e suas Tecnologias",
-    materias: ["Matemática", "Estatística", "Geometria"],
-  },
-  {
-    nome: "Ciências da Natureza e suas Tecnologias",
-    materias: ["Física", "Química", "Biologia"],
-  },
-  {
-    nome: "Ciências Humanas e Sociais Aplicadas",
-    materias: ["História", "Geografia", "Filosofia", "Sociologia"],
-  },
-  {
-    nome: "Formação Técnica e Profissional",
-    materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"],
-  },
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol"] },
+  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
+  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
+  { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
+  { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
 ];
 
 // Seguem mockados os dados pois precisa do back-end
@@ -48,359 +24,297 @@ const MATCHES = [
   { nome: "Ana Clara", materia: "Matemática" },
   { nome: "Pedro Henrique", materia: "Física" },
   { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
 ];
 
 export default function PerfilTutor() {
-  //router
   const router = useRouter();
-  const { usuario } = useUsuario();
+  const { usuario, sair } = useUsuario();
 
   const tutor = {
-    nome: usuario?.nome === 'tutor' ? usuario.nome : "Tutor",
-    matricula: usuario?.matricula === 'tutor' ? usuario.matricula : "-",
-    idade: usuario?.idade === 'tutor' ? usuario.idade : "-",
-    bio: usuario?.bio === 'tutor' ? usuario.bio : "Sem bio",
+    nome: usuario?.tipo === 'tutor' ? usuario.nome : "Tutor",
+    matricula: usuario?.tipo === 'tutor' ? usuario.matricula : "-",
+    idade: usuario?.tipo === 'tutor' ? usuario.idade : "-",
+    bio: usuario?.tipo === 'tutor' ? usuario.bio : "",
   };
 
-  const materiasLecionadas =
-    usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
-  const horariosDisponiveis =
-    usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
+  const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
+  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
 
-  //agrupa os horários (SlotHorario []) por dia, no formato que a grade de exibição da agenda espera
   const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
   const agenda = DIAS_ORDEM.map((dia) => ({
     dia,
     horario: horariosDisponiveis
       .filter((slot) => slot.dia === dia)
       .map((slot) => slot.horario),
-  })).filter((item) => item.horario.length > 0); // remove dias sem horários
+  })).filter((item) => item.horario.length > 0);
 
-  const [bioTexto, setBioTexto] =
-    useState(tutor.bio || "Toque para adicionar uma bio");
+  const [bioTexto, setBioTexto] = useState(tutor.bio || "Toque para adicionar uma bio");
   const [editando, setEditando] = useState(false);
 
   const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
   const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
-  const [materiasSelecionadas, setMateriasSelecionadas] =
-    useState<string[]>(materiasLecionadas);
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(materiasLecionadas);
 
   function toggleMateria(materia: string) {
     if (materiasSelecionadas.includes(materia)) {
-      setMateriasSelecionadas(
-        materiasSelecionadas.filter((item) => item !== materia),
-      );
+      setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
     } else {
       setMateriasSelecionadas([...materiasSelecionadas, materia]);
     }
   }
+
   function toggleItinerario(nome: string) {
     setItinerarioAberto(itinerarioAberto === nome ? null : nome);
   }
 
-  //agrupa as matérias selecionadas de volta em itinerários para exibição
+  function handleVoltarLogin() {
+  sair(); 
+  router.replace("/login");
+  }
+
+  function handleSair() {
+    sair();
+    router.replace("/login");
+  }
+
   const materiasAgrupadas = ITINERARIOS_CATALOGO.map((itinerario) => ({
     nome: itinerario.nome,
-    materias: itinerario.materias.filter((m) =>
-      materiasSelecionadas.includes(m),
-    ),
-  })).filter((itinerario) => itinerario.materias.length > 0); // remove itinerários sem matérias
+    materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
+  })).filter((itinerario) => itinerario.materias.length > 0);
 
-return (
-  <View style={styles.container}>
-    <ScrollView>
-      <View style={styles.Header}>
-        <View style={styles.HeaderContent}>
-          <Pressable style={styles.BotaoVoltar} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={22} color="white" />
-          </Pressable>
-          <Text style={styles.HeaderTitulo}>Perfil do Tutor</Text>
-          <View style={{ width: 44 }} />
-        </View>
-      </View>
-
-      <View style={styles.AvatarWrapper}>
-        <View style={styles.Avatar}>
-          <Ionicons name="person" size={70} color="#d9d9e8" />
-          <View style={styles.CameraBadge}>
-            <Ionicons name="camera" size={16} color="white" />
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.Conteudo}>
-        <Text style={styles.Nome}>{tutor.nome}</Text>
-        <View style={styles.SobreMim}>
-          <Ionicons
-            name="person-circle-outline"
-            size={22}
-            color={themeTutor.primary}
-          />
-          <Text>Sobre mim:</Text>
-        </View>
-
-        <View style={styles.Bio}>
-          {editando ? (
-            <TextInput
-              value={bioTexto}
-              onChangeText={setBioTexto}
-              onBlur={() => setEditando(false)}
-              autoFocus
-            />
-          ) : (
-            <Pressable onPress={() => setEditando(true)}>
-              <Text>{bioTexto}</Text>
+  return (
+    <View style={styles.container}>
+      <ScrollView>
+        <View style={styles.Header}>
+          <View style={styles.HeaderContent}>
+            <Pressable style={styles.BotaoVoltar} onPress={handleVoltarLogin}>
+              <Ionicons name="arrow-back" size={22} color="white" />
             </Pressable>
-          )}
-        </View>
-
-        {/* Informações pessoais */}
-        <View style={styles.Card}>
-          <View style={styles.CardHeader}>
-            <View style={styles.CardHeaderEsquerda}>
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <Text style={styles.CardTitulo}>Informações pessoais</Text>
-            </View>
-          </View>
-
-          <View style={styles.InfoBox}>
-            <View style={styles.InfoItem}>
-              <Ionicons
-                name="card-outline"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <View style={styles.InfoTextos}>
-                <Text style={styles.InfoLabel}>Matrícula</Text>
-                <Text style={styles.InfoValor}>{tutor.matricula}</Text>
-              </View>
-            </View>
-
-            <View style={styles.InfoItem}>
-              <Ionicons
-                name="calendar-outline"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <View style={styles.InfoTextos}>
-                <Text style={styles.InfoLabel}>Idade</Text>
-                <Text style={styles.InfoValor}>{tutor.idade} anos</Text>
-              </View>
+            <Text style={styles.HeaderTitulo}>Perfil Tutor</Text>
+            <View style={styles.AcoesHeader}>
+              <Ionicons name="notifications-outline" size={22} color="white" />
             </View>
           </View>
         </View>
 
-        {/* Matérias que leciona */}
-        <View style={styles.Card}>
-          <View style={styles.CardHeader}>
-            <View style={styles.CardHeaderEsquerda}>
-              <Ionicons
-                name="book-outline"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <Text style={styles.CardTitulo}>Matérias que leciona</Text>
+        <View style={styles.AvatarWrapper}>
+          <View style={styles.Avatar}>
+            <Ionicons name="person" size={70} color="#d9d9e8" />
+            <View style={styles.CameraBadge}>
+              <Ionicons name="camera" size={16} color="white" />
             </View>
-            <Pressable onPress={() => setModalMateriasVisivel(true)}>
-              <Ionicons
-                name="add-circle-outline"
-                size={24}
-                color={themeTutor.primary}
-              />
-            </Pressable>
           </View>
-
-          {materiasAgrupadas.map((itinerario) => (
-            <View key={itinerario.nome} style={styles.ItinerarioSecao}>
-              <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
-              <View style={styles.Materias}>
-                {itinerario.materias.map((materia) => (
-                  <View key={materia} style={styles.MateriaChip}>
-                    <Text style={styles.MateriaTexto}>{materia}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ))}
         </View>
 
-        {/* Modal de edição de matérias */}
-        <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
-          <View style={styles.ModalFundo}>
-            <View style={styles.ModalConteudo}>
-              <Text style={styles.CardTitulo}>Editar matérias</Text>
+        <View style={styles.Conteudo}>
+          <Text style={styles.Nome}>{tutor.nome}</Text>
+          <View style={styles.SobreMim}>
+            <Ionicons name="person-circle-outline" size={22} color={themeTutor.primary} />
+            <Text>Sobre mim:</Text>
+          </View>
 
-              <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
-                {ITINERARIOS_CATALOGO.map((itinerario) => {
-                  const aberto = itinerarioAberto === itinerario.nome;
-                  return (
-                    <View key={itinerario.nome} style={styles.itinerarioBloco}>
-                      <Pressable
-                        style={styles.itinerarioCabecalho}
-                        onPress={() => toggleItinerario(itinerario.nome)}
-                      >
-                        <Text style={styles.itinerarioTexto}>
-                          {itinerario.nome}
-                        </Text>
-                        <Text>{aberto ? "▲" : "▼"}</Text>
-                      </Pressable>
+          <View style={styles.Bio}>
+            {editando ? (
+              <TextInput
+                value={bioTexto}
+                onChangeText={setBioTexto}
+                onBlur={() => setEditando(false)}
+                autoFocus
+              />
+            ) : (
+              <Pressable onPress={() => setEditando(true)}>
+                <Text>{bioTexto}</Text>
+              </Pressable>
+            )}
+          </View>
 
-                      {aberto && (
-                        <View style={styles.itinerarioMaterias}>
-                          {itinerario.materias.map((materia) => {
-                            const selecionada =
-                              materiasSelecionadas.includes(materia);
-                            return (
-                              <Pressable
-                                key={materia}
-                                style={[
-                                  styles.MateriaChip,
-                                  selecionada && {
-                                    backgroundColor: themeTutor.primary,
-                                  },
-                                ]}
-                                onPress={() => toggleMateria(materia)}
-                              >
-                                <Text
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="person-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Informações pessoais</Text>
+              </View>
+            </View>
+
+            <View style={styles.InfoBox}>
+              <View style={styles.InfoItem}>
+                <Ionicons name="card-outline" size={20} color={themeTutor.primary} />
+                <View style={styles.InfoTextos}>
+                  <Text style={styles.InfoLabel}>Matrícula</Text>
+                  <Text style={styles.InfoValor}>{tutor.matricula}</Text>
+                </View>
+              </View>
+
+              <View style={styles.InfoItem}>
+                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+                <View style={styles.InfoTextos}>
+                  <Text style={styles.InfoLabel}>Idade</Text>
+                  <Text style={styles.InfoValor}>{tutor.idade} anos</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Matérias que leciona</Text>
+              </View>
+              <Pressable onPress={() => setModalMateriasVisivel(true)}>
+                <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
+              </Pressable>
+            </View>
+
+            {materiasAgrupadas.map((itinerario) => (
+              <View key={itinerario.nome} style={styles.ItinerarioSecao}>
+                <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
+                <View style={styles.Materias}>
+                  {itinerario.materias.map((materia) => (
+                    <View key={materia} style={styles.MateriaChip}>
+                      <Text style={styles.MateriaTexto}>{materia}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
+            <View style={styles.ModalFundo}>
+              <View style={styles.ModalConteudo}>
+                <Text style={styles.CardTitulo}>Editar matérias</Text>
+
+                <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
+                  {ITINERARIOS_CATALOGO.map((itinerario) => {
+                    const aberto = itinerarioAberto === itinerario.nome;
+                    return (
+                      <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                        <Pressable
+                          style={styles.itinerarioCabecalho}
+                          onPress={() => toggleItinerario(itinerario.nome)}
+                        >
+                          <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
+                          <Text>{aberto ? "▲" : "▼"}</Text>
+                        </Pressable>
+
+                        {aberto && (
+                          <View style={styles.itinerarioMaterias}>
+                            {itinerario.materias.map((materia) => {
+                              const selecionada = materiasSelecionadas.includes(materia);
+                              return (
+                                <Pressable
+                                  key={materia}
                                   style={[
-                                    styles.MateriaTexto,
-                                    selecionada && { color: "#fff" },
+                                    styles.MateriaChip,
+                                    selecionada && { backgroundColor: themeTutor.primary },
                                   ]}
+                                  onPress={() => toggleMateria(materia)}
                                 >
-                                  {materia}
-                                </Text>
-                              </Pressable>
-                            );
-                          })}
-                        </View>
-                      )}
+                                  <Text
+                                    style={[
+                                      styles.MateriaTexto,
+                                      selecionada && { color: "#fff" },
+                                    ]}
+                                  >
+                                    {materia}
+                                  </Text>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+
+                <View style={styles.linhaBotoesModal}>
+                  <Pressable
+                    style={styles.botaoSecundario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoSecundario}>Cancelar</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.botaoPrimario}
+                    onPress={() => setModalMateriasVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoPrimario}>Salvar</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Matches</Text>
+              </View>
+              <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+                <Text style={styles.CardLink}>Ver todos</Text>
+                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+              </Pressable>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.MatchesLista}>
+              {MATCHES.map((match) => (
+                <View key={match.nome} style={styles.MatchCard}>
+                  <Text style={styles.MatchNome}>{match.nome}</Text>
+                  <Text style={styles.MatchMateria}>{match.materia}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Minha agenda</Text>
+              </View>
+              <Pressable
+                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
+                onPress={() => router.push("/agenda")}
+              >
+                <Text style={styles.CardLink}>Ver agenda completa</Text>
+                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+              </Pressable>
+            </View>
+
+            {agenda.length === 0 ? (
+              <Text style={{ color: "#7a7a7a", fontSize: 13 }}>
+                Nenhum horário cadastrado ainda.
+              </Text>
+            ) : (
+              <ScrollView horizontal style={styles.Agenda}>
+                {agenda.map((item) => {
+                  const horariosVisiveis = item.horario.slice(0, 3);
+                  const temMais = item.horario.length > 3;
+
+                  return (
+                    <View key={item.dia} style={styles.DiaCard}>
+                      <Text style={styles.DiaSemana}>{item.dia}</Text>
+                      {horariosVisiveis.map((hora, index) => (
+                        <Text key={index} style={styles.DiaHora}>{hora}</Text>
+                      ))}
+                      {temMais && <Text style={styles.DiaHora}>...</Text>}
                     </View>
                   );
                 })}
               </ScrollView>
-
-              <View style={styles.linhaBotoesModal}>
-                <Pressable
-                  style={styles.botaoSecundario}
-                  onPress={() => setModalMateriasVisivel(false)}
-                >
-                  <Text style={styles.textoBotaoSecundario}>Cancelar</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.botaoPrimario}
-                  onPress={() => setModalMateriasVisivel(false)}
-                >
-                  <Text style={styles.textoBotaoPrimario}>Salvar</Text>
-                </Pressable>
-              </View>
-            </View>
+            )}
           </View>
-        </Modal>
-
-        {/* matches — segue mockado, depende do backend */}
-        <View style={styles.Card}>
-          <View style={styles.CardHeader}>
-            <View style={styles.CardHeaderEsquerda}>
-              <Ionicons
-                name="school-sharp"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <Text style={styles.CardTitulo}>Matches</Text>
-            </View>
-            <Pressable
-              style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-            >
-              <Text style={styles.CardLink}>Ver todos</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={14}
-                color={themeTutor.primary}
-              />
-            </Pressable>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.MatchesLista}
-          >
-            {MATCHES.map((match) => (
-              <View key={match.nome} style={styles.MatchCard}>
-                <Text style={styles.MatchNome}>{match.nome}</Text>
-                <Text style={styles.MatchMateria}>{match.materia}</Text>
-              </View>
-            ))}
-          </ScrollView>
         </View>
-
-        {/* Minha agenda — agora com os horários reais marcados no cadastro */}
-        <View style={styles.Card}>
-          <View style={styles.CardHeader}>
-            <View style={styles.CardHeaderEsquerda}>
-              <Ionicons
-                name="calendar-outline"
-                size={20}
-                color={themeTutor.primary}
-              />
-              <Text style={styles.CardTitulo}>Minha agenda</Text>
-            </View>
-            <Pressable
-              style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-              onPress={() => router.push("/agenda")}
-            >
-              <Text style={styles.CardLink}>Ver agenda completa</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={14}
-                color={themeTutor.primary}
-              />
-            </Pressable>
-          </View>
-
-          {agenda.length === 0 ? (
-            <Text style={{ color: "#7a7a7a", fontSize: 13 }}>
-              Nenhum horário cadastrado ainda.
-            </Text>
-          ) : (
-            <ScrollView horizontal style={styles.Agenda}>
-              {agenda.map((item) => {
-                const horariosVisiveis = item.horario.slice(0, 3);
-                const temMais = item.horario.length > 3;
-
-                return (
-                  <View key={item.dia} style={styles.DiaCard}>
-                    <Text style={styles.DiaSemana}>{item.dia}</Text>
-                    {horariosVisiveis.map((hora, index) => (
-                      <Text key={index} style={styles.DiaHora}>
-                        {hora}
-                      </Text>
-                    ))}
-                    {temMais && <Text style={styles.DiaHora}>...</Text>}
-                  </View>
-                );
-              })}
-            </ScrollView>
-          )}
-        </View>
-      </View>
-    </ScrollView>
-  </View>
-);
+      </ScrollView>
+      <BottomNavBar theme={themeTutor} perfil="tutor" />
+    </View>
+  );
 }
-/* style da tela */
 
-// #764ba2 #667eea #b57aef cores gradients padrao
-const statusBarHeight = StatusBar.currentHeight
-  ? StatusBar.currentHeight + 22
-  : 64;
+const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
 const styles = StyleSheet.create({
   container: {
@@ -422,6 +336,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+
+  AcoesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
   },
 
   BotaoVoltar: {

@@ -64,6 +64,12 @@ export default function PerfilAluno() {
     sair();
     router.replace("/login");
   }
+
+  function handleVoltarLogin() {
+  sair();
+  router.replace("/login");
+}
+
   const aluno = {
     nome: usuario?.tipo === 'aluno' ? usuario.nome : "Aluno",
     matricula: usuario?.tipo === 'aluno' ? usuario.matricula : "-",
@@ -75,12 +81,12 @@ export default function PerfilAluno() {
   return (
     <View style={styles.tela}>
       <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
-        <Text style={styles.tituloCabecalho}>Perfil</Text>
+        <Pressable onPress={handleVoltarLogin}>
+          <Ionicons name="arrow-back" size={22} color={themeAluno.text} />
+        </Pressable>
+        <Text style={styles.tituloCabecalho}>Perfil Aluno</Text>
         <View style={styles.acoesCabecalho}>
-          <Text style={styles.iconeSino}>🔔</Text>
-          <Pressable onPress={handleSair}>
-            <Ionicons name="log-out-outline" size={22} color={themeAluno.black} />
-          </Pressable>
+          <Ionicons name="notifications-outline" size={22} color={themeAluno.text} />
         </View>
       </LinearGradient>
 
