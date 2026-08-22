@@ -10,13 +10,7 @@ import {
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
-
-const aluno = {
-  nome: "aluno_demo",
-  matricula: "aluno_demo",
-  bio: "Gosto de aprender coisas novas e estou sempre buscando evoluir!",
-  fotoUrl: "https://i.pravatar.cc/150?img=12",
-};
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
 const estatisticas = [
   {
@@ -39,33 +33,6 @@ const estatisticas = [
     label: "Aulas Agendadas",
     destaque: "Próximas aulas",
     cor: "#E3F2FD",
-  },
-];
-
-const materiasProgresso = [
-  {
-    nome: "Matemática",
-    status: "Em progresso",
-    progresso: 0.6,
-    cor: themeAluno.primary,
-  },
-  {
-    nome: "Física",
-    status: "Em progresso",
-    progresso: 0.4,
-    cor: themeAluno.success,
-  },
-  {
-    nome: "Química",
-    status: "Precisa de ajuda",
-    progresso: 0.2,
-    cor: themeAluno.warning,
-  },
-  {
-    nome: "Inglês",
-    status: "Em progresso",
-    progresso: 0.7,
-    cor: themeAluno.info,
   },
 ];
 
@@ -97,6 +64,15 @@ const proximasAulas = [
 ];
 
 export default function PerfilAluno() {
+  const { usuario } = useUsuario();
+
+  const aluno = {
+    nome: usuario?.tipo === 'aluno' ? usuario.nome : "Aluno",
+    matricula: usuario?.tipo === 'aluno' ? usuario.matricula : "-",
+    bio: usuario?.tipo === 'aluno' ? usuario.bio : "",
+    fotoUrl: "https://i.pravatar.cc/150?img=12",
+  };
+
   return (
     <View style={styles.tela}>
       <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
@@ -128,36 +104,6 @@ export default function PerfilAluno() {
               <Text style={styles.numeroEstatistica}>{item.numero}</Text>
               <Text style={styles.labelEstatistica}>{item.label}</Text>
               <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.secaoCard}>
-          <View style={styles.cabecalhoSecao}>
-            <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
-          </View>
-
-          {materiasProgresso.map((materia) => (
-            <View key={materia.nome} style={styles.linhaMateria}>
-              <View style={styles.infoMateria}>
-                <Text style={styles.nomeMateria}>{materia.nome}</Text>
-                <Text style={styles.statusMateria}>{materia.status}</Text>
-              </View>
-
-              <View style={styles.barraFundo}>
-                <View
-                  style={[
-                    styles.barraPreenchida,
-                    {
-                      width: `${materia.progresso * 100}%`,
-                      backgroundColor: materia.cor,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.percentualMateria}>
-                {Math.round(materia.progresso * 100)}%
-              </Text>
             </View>
           ))}
         </View>
@@ -316,37 +262,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: themeAluno.primary,
     fontWeight: "600",
-  },
-  linhaMateria: {
-    gap: 4,
-  },
-  infoMateria: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  nomeMateria: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: themeAluno.text,
-  },
-  statusMateria: {
-    fontSize: 11,
-    color: themeAluno.textSecondary,
-  },
-  barraFundo: {
-    height: 6,
-    backgroundColor: "#EEE",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  barraPreenchida: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  percentualMateria: {
-    fontSize: 11,
-    color: themeAluno.textSecondary,
-    alignSelf: "flex-end",
   },
   linhaAula: {
     flexDirection: "row",

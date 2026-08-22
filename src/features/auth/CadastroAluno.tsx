@@ -14,20 +14,22 @@ import {
 import { Input } from "../../shared/components/Input";
 import CardMaterias from "../../shared/components/CardMaterias";
 import { themeAluno } from "../../shared/styles/themeAluno";
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
 export default function CadastroAluno() {
+  const { salvarUsuario } = useUsuario();
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
-  const [bio, setBio] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erroSenha, setErroSenha] = useState("");
-
+  const [bio, setBio] = useState("");
+  
   const itinerarios = [
     {
       nome: "Linguagens e suas tecnologias",
-      materias: ["Português", "Inglês", "Espanhol", "Artes"],
+      materias: ["Português", "Inglês", "Espanhol"],
     },
     {
       nome: "Matemática e suas tecnologias",
@@ -87,13 +89,13 @@ export default function CadastroAluno() {
       return;
     }
 
-    console.log("Cadastro válido:", {
+    salvarUsuario({
+      tipo: "aluno",
       nome,
       idade,
       matricula,
-      senha,
       bio,
-      materiasSelecionadas,
+      materiasDificuldade: materiasSelecionadas,
     });
     router.push("/perfil-aluno");
   }
