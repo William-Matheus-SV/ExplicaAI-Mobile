@@ -5,7 +5,7 @@ import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
-
+import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   {
@@ -150,6 +150,7 @@ export default function PerfilAluno() {
             </View>
           ))}
         </View>
+        <SecaoAvaliacoes theme={themeAluno} />
       </ScrollView>
       <BottomNavBar theme={themeAluno} perfil="aluno" />
     </View>

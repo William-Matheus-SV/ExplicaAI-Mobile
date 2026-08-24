@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import BottomNavBar from "../../shared/components/BottomNavBar";
-
+import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
 interface ItinerarioComMaterias {
   nome: string;
   materias: string[];
@@ -307,6 +307,7 @@ export default function PerfilTutor() {
               </ScrollView>
             )}
           </View>
+          <SecaoAvaliacoes theme={themeTutor} />
         </View>
       </ScrollView>
       <BottomNavBar theme={themeTutor} perfil="tutor" />

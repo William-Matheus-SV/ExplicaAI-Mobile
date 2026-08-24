@@ -1,21 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState } from "react";
-<<<<<<< HEAD
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-=======
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
->>>>>>> 027a708681fda0799a00946280defb69fc9bcdf9
 import { Input } from "../../shared/components/Input";
 import CardMaterias from "../../shared/components/CardMaterias";
 import { themeAluno } from "../../shared/styles/themeAluno";
@@ -28,7 +14,6 @@ export default function CadastroAluno() {
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erroSenha, setErroSenha] = useState("");
   const [bio, setBio] = useState("");
   
@@ -177,41 +162,28 @@ export default function CadastroAluno() {
             </View>
           </View>
 
-          <View style={styles.metade}>
-  <Text style={styles.label}>Senha *</Text>
-
-  <View style={styles.containerSenha}>
-    <Input
-      placeholder="Digite a senha"
-      value={senha}
-      onChangeText={setSenha}
-      secureTextEntry={!mostrarSenha}
-      style={styles.inputSenha}
-    />
-
-    <Pressable
-      style={styles.botaoOlho}
-      onPress={() => setMostrarSenha(!mostrarSenha)}
-    >
-      <Ionicons
-        name={mostrarSenha ? "eye-outline" : "eye-off-outline"}
-        size={21}
-        color="#333"
-      />
-    </Pressable>
-  </View>
+          <View style={styles.linha}>
+            <View style={styles.metade}>
+              <Text style={styles.label}>Senha *</Text>
+              <Input
+                placeholder="Digite a senha"
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry
+                style={styles.inputEstilizado}
+              />
+            </View>
 
             <View style={styles.metade}>
-  <Text style={styles.label}>Confirmar Senha *</Text>
-
-  <Input
-    placeholder="Confirme sua senha"
-    value={confirmarSenha}
-    onChangeText={setConfirmarSenha}
-    secureTextEntry
-    style={styles.inputEstilizado}
-  />
-</View>
+              <Text style={styles.label}>Confirmar Senha *</Text>
+              <Input
+                placeholder="Confirme sua senha"
+                value={confirmarSenha}
+                onChangeText={setConfirmarSenha}
+                secureTextEntry
+                style={styles.inputEstilizado}
+              />
+            </View>
           </View>
           {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
         </View>
@@ -383,25 +355,6 @@ const styles = StyleSheet.create({
     borderColor: themeAluno.border,
     backgroundColor: themeAluno.white,
   },
-  containerSenha: {
-  position: "relative",
-},
-
-inputSenha: {
-  borderColor: themeAluno.border,
-  backgroundColor: themeAluno.white,
-  paddingRight: 45,
-},
-
-botaoOlho: {
-  position: "absolute",
-  right: 12,
-  top: 0,
-  height: 48,
-  width: 30,
-  justifyContent: "center",
-  alignItems: "center",
-},
   linha: {
     flexDirection: "row",
     gap: 12,
