@@ -1,74 +1,36 @@
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
-const aluno = {
-  nome: "aluno_demo",
-  matricula: "aluno_demo",
-  bio: "Gosto de aprender coisas novas e estou sempre buscando evoluir!",
-  fotoUrl: "https://i.pravatar.cc/150?img=12",
-};
-
+// Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   {
     icone: "🎓",
-    numero: "8",
+    numero: "0",
     label: "Aulas Concluídas",
-    destaque: "Continue assim!",
+    destaque: "Comece a aprender!",
     cor: "#EDE7F6",
   },
   {
     icone: "⭐",
-    numero: "4.8",
+    numero: "0.0",
     label: "Avaliação Média",
-    destaque: "Excelente!",
+    destaque: "Você ainda não foi avaliado",
     cor: "#FFF3E0",
   },
   {
     icone: "📅",
-    numero: "5",
+    numero: "0",
     label: "Aulas Agendadas",
     destaque: "Próximas aulas",
     cor: "#E3F2FD",
   },
 ];
-
-const materiasProgresso = [
-  {
-    nome: "Matemática",
-    status: "Em progresso",
-    progresso: 0.6,
-    cor: themeAluno.primary,
-  },
-  {
-    nome: "Física",
-    status: "Em progresso",
-    progresso: 0.4,
-    cor: themeAluno.success,
-  },
-  {
-    nome: "Química",
-    status: "Precisa de ajuda",
-    progresso: 0.2,
-    cor: themeAluno.warning,
-  },
-  {
-    nome: "Inglês",
-    status: "Em progresso",
-    progresso: 0.7,
-    cor: themeAluno.info,
-  },
-];
-
+// Seguem mockados os dados pois precisa do back-end
 const proximasAulas = [
   {
     id: "1",
@@ -97,17 +59,42 @@ const proximasAulas = [
 ];
 
 export default function PerfilAluno() {
+  const { usuario, sair } = useUsuario();
+  function handleSair() {
+    sair();
+    router.replace("/login");
+  }
+
+  function handleVoltarLogin() {
+  sair();
+  router.replace("/login");
+}
+
+  const aluno = {
+    nome: usuario?.tipo === 'aluno' ? usuario.nome : "Aluno",
+    matricula: usuario?.tipo === 'aluno' ? usuario.matricula : "-",
+    bio: usuario?.tipo === 'aluno' ? usuario.bio : ""
+  };
+
+  
+
   return (
     <View style={styles.tela}>
       <LinearGradient colors={["#d5f5e3", "#b7e4ca"]} style={styles.cabecalho}>
-        <Text style={styles.tituloCabecalho}>Perfil</Text>
-        <Text style={styles.iconeSino}>🔔</Text>
+        <Pressable onPress={handleVoltarLogin}>
+          <Ionicons name="arrow-back" size={22} color={themeAluno.text} />
+        </Pressable>
+        <Text style={styles.tituloCabecalho}>Perfil Aluno</Text>
+        <View style={styles.acoesCabecalho}>
+          <Ionicons name="notifications-outline" size={22} color={themeAluno.text} />
+        </View>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.cardPerfil}>
-          <Image source={{ uri: aluno.fotoUrl }} style={styles.foto} />
-
+          <View style={styles.fotoPlaceholder}>
+            <Ionicons name="person" size={40} color="#d9d9e8" />
+          </View>
           <View style={styles.infoPerfil}>
             <Text style={styles.nome}>{aluno.nome}</Text>
             <View style={styles.badge}>
@@ -128,36 +115,6 @@ export default function PerfilAluno() {
               <Text style={styles.numeroEstatistica}>{item.numero}</Text>
               <Text style={styles.labelEstatistica}>{item.label}</Text>
               <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.secaoCard}>
-          <View style={styles.cabecalhoSecao}>
-            <Text style={styles.tituloSecao}>Matérias com Dificuldade</Text>
-          </View>
-
-          {materiasProgresso.map((materia) => (
-            <View key={materia.nome} style={styles.linhaMateria}>
-              <View style={styles.infoMateria}>
-                <Text style={styles.nomeMateria}>{materia.nome}</Text>
-                <Text style={styles.statusMateria}>{materia.status}</Text>
-              </View>
-
-              <View style={styles.barraFundo}>
-                <View
-                  style={[
-                    styles.barraPreenchida,
-                    {
-                      width: `${materia.progresso * 100}%`,
-                      backgroundColor: materia.cor,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.percentualMateria}>
-                {Math.round(materia.progresso * 100)}%
-              </Text>
             </View>
           ))}
         </View>
@@ -223,6 +180,11 @@ const styles = StyleSheet.create({
   iconeSino: {
     fontSize: 22,
   },
+  acoesCabecalho: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 12,
+},
   container: {
     padding: 16,
     gap: 16,
@@ -236,11 +198,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
   },
-  foto: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
+  fotoPlaceholder: {
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  backgroundColor: "#f0f0f0",
+  justifyContent: "center",
+  alignItems: "center",
+},
   infoPerfil: {
     flex: 1,
     gap: 4,
@@ -317,37 +282,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: themeAluno.primary,
     fontWeight: "600",
-  },
-  linhaMateria: {
-    gap: 4,
-  },
-  infoMateria: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  nomeMateria: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: themeAluno.text,
-  },
-  statusMateria: {
-    fontSize: 11,
-    color: themeAluno.textSecondary,
-  },
-  barraFundo: {
-    height: 6,
-    backgroundColor: "#EEE",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  barraPreenchida: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  percentualMateria: {
-    fontSize: 11,
-    color: themeAluno.textSecondary,
-    alignSelf: "flex-end",
   },
   linhaAula: {
     flexDirection: "row",

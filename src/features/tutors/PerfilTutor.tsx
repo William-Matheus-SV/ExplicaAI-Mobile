@@ -1,97 +1,60 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  StatusBar,
-  TextInput,
-   Modal,
-} from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, TextInput, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
+import BottomNavBar from "../../shared/components/BottomNavBar";
 
-
-//dados MOCKADOS para informaçoes pessoais do TUTOR
-const TUTOR_DADOS = {
-  matricula: "20261234",
-  idade: 24,
-};
-
-
-//tipagem typeScript Para Itinerarios
 interface ItinerarioComMaterias {
   nome: string;
   materias: string[];
 }
 
-// dados mockados itinerarios de MATERIAS OQ O TUTOR JA LECIONA
-const MATERIAS_LECIONADAS: ItinerarioComMaterias[] = [
-  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês"] },
-  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Geometria"] },
-  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", ] },
-];
-
-
-// catálogo completo de itinerários/matérias disponíveis pra seleção no MODAL
 const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
-  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol", "Artes"] },
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol"] },
   { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
   { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
   { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
   { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
 ];
 
-
-
-
+// Seguem mockados os dados pois precisa do back-end
 const MATCHES = [
   { nome: "Ana Clara", materia: "Matemática" },
   { nome: "Pedro Henrique", materia: "Física" },
   { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
-  { nome: "Mariana Costa", materia: "Cálculo" },
 ];
-
-
-//dados MOCKADOS para o card de Agenda (horários disponíveis)
-const AGENDA_MOCK = [
-  { dia: "SEG", horario: ["08:00 - 09:00", "10:00 - 12:00", "08:00 - 09:00", "08:00 - 09:00", "08:00 - 09:00"] },
-  { dia: "TER", horario: ["10:00 - 12:00", "08:00 - 09:00", "10:00 - 12:00", ] },
-  { dia: "QUA", horario: ["14:00 - 15:00"] },
-  { dia: "QUI", horario: ["09:00 - 11:00"] },
-  { dia: "SEX", horario: ["16:00 - 17:00"] },
-];
-
-
 
 export default function PerfilTutor() {
-  //router
   const router = useRouter();
+  const { usuario, sair } = useUsuario();
 
-  //useState para edita bio, se for vazio ele vai vai ter uma frase pronta ja.
-  const [bioTexto, setBioTexto] = useState('Toque para adcionar uma bio');
-  //controla se está no modo ediçao ou nao
+  const tutor = {
+    nome: usuario?.tipo === 'tutor' ? usuario.nome : "Tutor",
+    matricula: usuario?.tipo === 'tutor' ? usuario.matricula : "-",
+    idade: usuario?.tipo === 'tutor' ? usuario.idade : "-",
+    bio: usuario?.tipo === 'tutor' ? usuario.bio : "",
+  };
+
+  const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
+  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
+
+  const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
+  const agenda = DIAS_ORDEM.map((dia) => ({
+    dia,
+    horario: horariosDisponiveis
+      .filter((slot) => slot.dia === dia)
+      .map((slot) => slot.horario),
+  })).filter((item) => item.horario.length > 0);
+
+  const [bioTexto, setBioTexto] = useState(tutor.bio || "Toque para adicionar uma bio");
   const [editando, setEditando] = useState(false);
 
-
-
-  // ---- estado do modal de edição de matérias ----
-    // controla se o modal tá visivel ou nao
   const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
-  
-  // guarda qual itinerário tá expandido no momento
   const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(materiasLecionadas);
 
-  // guarda as matérias marcadas, já começa com as que o tutor já leciona
-  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(
-    MATERIAS_LECIONADAS.flatMap((itinerario) => itinerario.materias)
-  );
-
-  // verifica se a matéria já tá selecionada: se tiver, remove; se não tiver, adiciona
   function toggleMateria(materia: string) {
     if (materiasSelecionadas.includes(materia)) {
       setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
@@ -100,24 +63,37 @@ export default function PerfilTutor() {
     }
   }
 
-  // se o itinerário clicado já tá aberto, fecha; se não, abre ele
   function toggleItinerario(nome: string) {
     setItinerarioAberto(itinerarioAberto === nome ? null : nome);
   }
 
-    
+  function handleVoltarLogin() {
+  sair(); 
+  router.replace("/login");
+  }
+
+  function handleSair() {
+    sair();
+    router.replace("/login");
+  }
+
+  const materiasAgrupadas = ITINERARIOS_CATALOGO.map((itinerario) => ({
+    nome: itinerario.nome,
+    materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
+  })).filter((itinerario) => itinerario.materias.length > 0);
 
   return (
-
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.Header}>
           <View style={styles.HeaderContent}>
-            <Pressable style={styles.BotaoVoltar}>
+            <Pressable style={styles.BotaoVoltar} onPress={handleVoltarLogin}>
               <Ionicons name="arrow-back" size={22} color="white" />
             </Pressable>
-            <Text style={styles.HeaderTitulo}>Perfil do Tutor</Text>
-            <View style={{ width: 44 }} />
+            <Text style={styles.HeaderTitulo}>Perfil Tutor</Text>
+            <View style={styles.AcoesHeader}>
+              <Ionicons name="notifications-outline" size={22} color="white" />
+            </View>
           </View>
         </View>
 
@@ -129,19 +105,14 @@ export default function PerfilTutor() {
             </View>
           </View>
         </View>
-        {/* aqui acaba o header e icone do avatar */}
 
-        {/* TODAS AS INFORMAÇOE DE TUTOR */}
         <View style={styles.Conteudo}>
-          <Text style={styles.Nome}>João da Silva</Text>
+          <Text style={styles.Nome}>{tutor.nome}</Text>
           <View style={styles.SobreMim}>
-            <Ionicons name='person-circle-outline' size={22} color={themeTutor.primary}/>
+            <Ionicons name="person-circle-outline" size={22} color={themeTutor.primary} />
             <Text>Sobre mim:</Text>
           </View>
 
-
-
-           {/* bio */}
           <View style={styles.Bio}>
             {editando ? (
               <TextInput
@@ -157,10 +128,6 @@ export default function PerfilTutor() {
             )}
           </View>
 
-
-
-
-          {/* Informações pessoais */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
@@ -168,62 +135,51 @@ export default function PerfilTutor() {
                 <Text style={styles.CardTitulo}>Informações pessoais</Text>
               </View>
             </View>
-            
+
             <View style={styles.InfoBox}>
               <View style={styles.InfoItem}>
                 <Ionicons name="card-outline" size={20} color={themeTutor.primary} />
                 <View style={styles.InfoTextos}>
                   <Text style={styles.InfoLabel}>Matrícula</Text>
-
-                  {/* DADOS MOCKADOS DE TUTOR_DADOS PARA MATRICULA */}
-
-                  <Text style={styles.InfoValor}>{TUTOR_DADOS.matricula}</Text>
+                  <Text style={styles.InfoValor}>{tutor.matricula}</Text>
                 </View>
-            </View>
-
-            <View style={styles.InfoItem}>
-              <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
-              <View style={styles.InfoTextos}>
-                
-                 {/* DADOS MOCKADOS DE TUTOR_DADOS PARA IDADE */}
-
-                <Text style={styles.InfoLabel}>Idade</Text>
-                <Text style={styles.InfoValor}>{TUTOR_DADOS.idade} anos</Text>
               </View>
+
+              <View style={styles.InfoItem}>
+                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+                <View style={styles.InfoTextos}>
+                  <Text style={styles.InfoLabel}>Idade</Text>
+                  <Text style={styles.InfoValor}>{tutor.idade} anos</Text>
+                </View>
               </View>
             </View>
-        </View>
+          </View>
 
-        
+          <View style={styles.Card}>
+            <View style={styles.CardHeader}>
+              <View style={styles.CardHeaderEsquerda}>
+                <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
+                <Text style={styles.CardTitulo}>Matérias que leciona</Text>
+              </View>
+              <Pressable onPress={() => setModalMateriasVisivel(true)}>
+                <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
+              </Pressable>
+            </View>
 
-
-                     {/* Matérias que leciona  */}
-  <View style={styles.Card}>
-    <View style={styles.CardHeader}>
-      <View style={styles.CardHeaderEsquerda}>
-        <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
-        <Text style={styles.CardTitulo}>Matérias que leciona</Text>
-      </View>
-      <Pressable onPress={() => setModalMateriasVisivel(true)}>
-        <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
-      </Pressable>
-    </View>
-
-      {MATERIAS_LECIONADAS.map((itinerario) => (
-        <View key={itinerario.nome} style={styles.ItinerarioSecao}>
-          <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
-          <View style={styles.Materias}>
-            {itinerario.materias.map((materia) => (
-              <View key={materia} style={styles.MateriaChip}>
-                <Text style={styles.MateriaTexto}>{materia}</Text>
+            {materiasAgrupadas.map((itinerario) => (
+              <View key={itinerario.nome} style={styles.ItinerarioSecao}>
+                <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
+                <View style={styles.Materias}>
+                  {itinerario.materias.map((materia) => (
+                    <View key={materia} style={styles.MateriaChip}>
+                      <Text style={styles.MateriaTexto}>{materia}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             ))}
           </View>
-        </View>
-      ))}
-  </View>
 
-  {/* Modal de edição de matérias */}
           <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
             <View style={styles.ModalFundo}>
               <View style={styles.ModalConteudo}>
@@ -291,30 +247,19 @@ export default function PerfilTutor() {
             </View>
           </Modal>
 
-
-    
-
-          {/* matches */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
                 <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
                 <Text style={styles.CardTitulo}>Matches</Text>
               </View>
-              
-              <Pressable
-                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-              >
-
+              <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
                 <Text style={styles.CardLink}>Ver todos</Text>
                 <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
               </Pressable>
             </View>
 
-
-            {/* dados dinamicos q vao vir do back  */}
-
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.MatchesLista}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.MatchesLista}>
               {MATCHES.map((match) => (
                 <View key={match.nome} style={styles.MatchCard}>
                   <Text style={styles.MatchNome}>{match.nome}</Text>
@@ -324,65 +269,52 @@ export default function PerfilTutor() {
             </ScrollView>
           </View>
 
-  
-
-          {/* Minha agenda */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
                 <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
                 <Text style={styles.CardTitulo}>Minha agenda</Text>
               </View>
-
-              {/* botao para ir para a AGENDA */}
               <Pressable
                 style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-                onPress={() => router.push("/agenda")} 
+                onPress={() => router.push("/agenda")}
               >
                 <Text style={styles.CardLink}>Ver agenda completa</Text>
                 <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
               </Pressable>
             </View>
 
+            {agenda.length === 0 ? (
+              <Text style={{ color: "#7a7a7a", fontSize: 13 }}>
+                Nenhum horário cadastrado ainda.
+              </Text>
+            ) : (
+              <ScrollView horizontal style={styles.Agenda}>
+                {agenda.map((item) => {
+                  const horariosVisiveis = item.horario.slice(0, 3);
+                  const temMais = item.horario.length > 3;
 
-                    {/* dados dinamicos q vao vir do back AGENDA */}
-                  <ScrollView horizontal={true} style={styles.Agenda}>
-
-                    {/* percorre o Mock de agenda */}
-                    {AGENDA_MOCK.map((item) => {
-
-                      /* pega só os 3 primeiros horários do dia pra exibir */
-                      const horariosVisiveis = item.horario.slice(0, 3);
-
-                      /*  se esse dia tem mais de 3 horários (TRUE) vai mostrar "..."*/
-                      const temMais = item.horario.length > 3;
-
-                      return (
-                        <View key={item.dia} style={styles.DiaCard}>
-                          <Text style={styles.DiaSemana}>{item.dia}</Text>
-                          {horariosVisiveis.map((hora, index) => (
-                            <Text key={index} style={styles.DiaHora}>{hora}</Text>
-                          ))}
-                          {temMais && <Text style={styles.DiaHora}>...</Text>}
-                        </View>
-                      );
-                    })}
-                  </ScrollView>
-            </View>
+                  return (
+                    <View key={item.dia} style={styles.DiaCard}>
+                      <Text style={styles.DiaSemana}>{item.dia}</Text>
+                      {horariosVisiveis.map((hora, index) => (
+                        <Text key={index} style={styles.DiaHora}>{hora}</Text>
+                      ))}
+                      {temMais && <Text style={styles.DiaHora}>...</Text>}
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
           </View>
-
-          
+        </View>
       </ScrollView>
+      <BottomNavBar theme={themeTutor} perfil="tutor" />
     </View>
   );
 }
 
-/* style da tela */
-
-// #764ba2 #667eea #b57aef cores gradients padrao
-const statusBarHeight = StatusBar.currentHeight
-  ? StatusBar.currentHeight + 22
-  : 64;
+const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
 const styles = StyleSheet.create({
   container: {
@@ -404,6 +336,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+
+  AcoesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
   },
 
   BotaoVoltar: {
@@ -461,15 +399,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2b2b2b",
     marginTop: 12,
-    marginBottom:5,
+    marginBottom: 5,
     textAlign: "center",
   },
 
-  SobreMim:{
-    justifyContent:"center",
-    alignItems:'center',
-    gap:5,
-    width: '100%',
+  SobreMim: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 5,
+    width: "100%",
     marginBottom: 5,
     flexDirection: "row",
   },
@@ -484,7 +422,7 @@ const styles = StyleSheet.create({
     // ou so padding:10
     marginLeft: 10,
     marginRight: 10,
-    marginBottom:16
+    marginBottom: 16,
   },
 
   Conteudo: {
@@ -492,13 +430,9 @@ const styles = StyleSheet.create({
     paddingBottom: 90, // espaço pro botão fixo não cobrir o último card
   },
 
-/* fim de bio */
+  /* fim de bio */
 
-
-
-
-
-/* CARDS */
+  /* CARDS */
   Card: {
     backgroundColor: "white",
     borderRadius: 16,
@@ -536,13 +470,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-
-
-
-
-
-
-
   /* Informaçoes pessoais */
   InfoBox: {
     flexDirection: "row",
@@ -573,14 +500,6 @@ const styles = StyleSheet.create({
     color: "#2b2b2b",
   },
 
-
-
-
-
-
-
-
-
   /* materias */
   Materias: {
     flexDirection: "row",
@@ -603,24 +522,23 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  
-ItinerarioSecao: {
-  marginTop: 16,
-  paddingTop: 12,
-  borderTopWidth: 1,
-  borderTopColor: themeTutor.secondary,
-},
+  ItinerarioSecao: {
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: themeTutor.secondary,
+  },
 
-ItinerarioNome: {
-  fontSize: 12,
-  fontWeight: "700",
-  color: "#9A96A3",
-  marginBottom: 10,
-  textTransform: "uppercase",
-  letterSpacing: 0.4,
-},
+  ItinerarioNome: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#9A96A3",
+    marginBottom: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
 
-/* modal de edição de matérias */
+  /* modal de edição de matérias */
   ModalFundo: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -700,14 +618,8 @@ ItinerarioNome: {
     fontWeight: "bold",
   },
 
-
-
-
-
-
-
-/* ------- */
-/* MATCHES */
+  /* ------- */
+  /* MATCHES */
 
   MatchesLista: {
     flexDirection: "row",
@@ -749,12 +661,10 @@ ItinerarioNome: {
     color: "#2b2b2b",
   },
 
-
   /* AGENDAAA */
   Agenda: {
     flexDirection: "row",
     gap: 10,
-    
   },
 
   DiaCard: {
@@ -763,14 +673,14 @@ ItinerarioNome: {
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: "center",
-    width:90,
-    marginRight:5,
+    width: 90,
+    marginRight: 5,
   },
 
   DiaSemana: {
     fontSize: 16,
     fontWeight: "bold",
-    color: themeTutor.primary
+    color: themeTutor.primary,
   },
 
   DiaHora: {
@@ -778,9 +688,4 @@ ItinerarioNome: {
     color: "#2b2b2b",
     marginTop: 4,
   },
-
- 
-
- 
-
 });

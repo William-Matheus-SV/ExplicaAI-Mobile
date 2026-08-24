@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState } from "react";
+<<<<<<< HEAD
 import {
   Alert,
   Image,
@@ -12,24 +13,29 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+=======
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+>>>>>>> 027a708681fda0799a00946280defb69fc9bcdf9
 import { Input } from "../../shared/components/Input";
 import CardMaterias from "../../shared/components/CardMaterias";
 import { themeAluno } from "../../shared/styles/themeAluno";
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
 export default function CadastroAluno() {
+  const { salvarUsuario } = useUsuario();
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
-  const [bio, setBio] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erroSenha, setErroSenha] = useState("");
-
+  const [bio, setBio] = useState("");
+  
   const itinerarios = [
     {
       nome: "Linguagens e suas tecnologias",
-      materias: ["Português", "Inglês", "Espanhol", "Artes"],
+      materias: ["Português", "Inglês", "Espanhol"],
     },
     {
       nome: "Matemática e suas tecnologias",
@@ -89,15 +95,15 @@ export default function CadastroAluno() {
       return;
     }
 
-    console.log("Cadastro válido:", {
+    salvarUsuario({
+      tipo: "aluno",
       nome,
       idade,
       matricula,
-      senha,
       bio,
-      materiasSelecionadas,
+      materiasDificuldade: materiasSelecionadas,
     });
-    router.push("/perfil-aluno");
+    router.replace("/perfil-aluno");
   }
 
   function handleLimpar() {
