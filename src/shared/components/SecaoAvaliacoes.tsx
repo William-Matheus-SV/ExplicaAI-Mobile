@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 interface SecaoAvaliacoesProps {
   theme: any;
@@ -60,6 +68,7 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
     (typeof pendentes)[0] | null
   >(null);
   const [notaEscolhida, setNotaEscolhida] = useState(0);
+  const [observacao, setObservacao] = useState("");
 
   return (
     <View style={styles.card}>
@@ -138,6 +147,7 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                 onPress={() => {
                   setItemParaAvaliar(item);
                   setNotaEscolhida(0);
+                  setObservacao("");
                 }}
               >
                 <Text style={styles.botaoAvaliarTexto}>Avaliar agora</Text>
@@ -207,6 +217,16 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                   ))}
                 </View>
 
+                <TextInput
+                  style={styles.campoObservacao}
+                  placeholder="Deixe uma observação (opcional)"
+                  value={observacao}
+                  onChangeText={setObservacao}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                />
+
                 <Pressable
                   style={[
                     styles.botaoEnviar,
@@ -221,6 +241,7 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                       "Avaliação enviada:",
                       itemParaAvaliar.nome,
                       notaEscolhida,
+                      observacao,
                     );
                     setItemParaAvaliar(null);
                   }}
@@ -365,10 +386,20 @@ const styles = StyleSheet.create({
   estrelasContainer: {
     flexDirection: "row",
     gap: 6,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   estrela: {
     fontSize: 32,
+  },
+  campoObservacao: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#DDD",
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 13,
+    minHeight: 70,
+    marginBottom: 16,
   },
   botaoEnviar: {
     width: "100%",
