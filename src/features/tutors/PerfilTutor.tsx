@@ -21,8 +21,8 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
 
 // Seguem mockados os dados pois precisa do back-end
 const MATCHES = [
-  { nome: "Ana Clara", materia: "Matemática" },
-  { nome: "Pedro Henrique", materia: "Física" },
+  { nome: "Aryelle Oliveira", materia: "Matemática" },
+  { nome: "Lucas Henrique", materia: "Física" },
   { nome: "Mariana Costa", materia: "Cálculo" },
 ];
 

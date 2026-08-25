@@ -128,7 +128,7 @@ export default function BuscaAluno() {
   >(null);
   const tutoresFiltrados = materiaSelecionada
     ? tutores.filter((tutor) => tutor.materia === materiaSelecionada)
-    : tutores;
+    : [];
 
   return (
     <View style={styles.tela}>

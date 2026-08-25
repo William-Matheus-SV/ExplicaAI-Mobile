@@ -29,8 +29,8 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
     },
     {
       id: "2",
-      nome: "Maria Oliveira",
-      materia: "Física",
+      nome: "Thailanny Cristina",
+      materia: "Estatística",
       data: "18/05/2024",
       hora: "10:00",
       fotoUrl: "https://i.pravatar.cc/150?img=5",

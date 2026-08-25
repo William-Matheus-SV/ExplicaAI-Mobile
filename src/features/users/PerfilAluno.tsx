@@ -1,11 +1,27 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
+
+
+interface ItinerarioComMaterias {
+  nome: string;
+  materias: string[];
+}
+
+const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
+  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol"] },
+  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
+  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
+  { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
+  { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
+];
+
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   {
@@ -34,32 +50,33 @@ const estatisticas = [
 const proximasAulas = [
   {
     id: "1",
-    materia: "Matemática - Funções",
-    tutor: "Ana Silva",
+    materia: " Matemática ",
+    tutor: "Thailanny Cristina",
     fotoTutor: "https://i.pravatar.cc/150?img=5",
-    data: "18 Mai",
-    hora: "14:00",
+    data: "27 Ago",
+    hora: "15:00 - 17:00",
   },
   {
     id: "2",
-    materia: "Física - Leis de Newton",
-    tutor: "João Pedro",
+    materia: " Física ",
+    tutor: "Ricardo Sanchez",
     fotoTutor: "https://i.pravatar.cc/150?img=8",
-    data: "19 Mai",
-    hora: "16:30",
+    data: "28 Ago",
+    hora: "10:00 - 12:00",
   },
   {
     id: "3",
-    materia: "Inglês - Conversação",
-    tutor: "Clara Martins",
+    materia: " Inglês ",
+    tutor: "Júlia Oliveira",
     fotoTutor: "https://i.pravatar.cc/150?img=9",
-    data: "21 Mai",
-    hora: "15:00",
+    data: "28 Ago",
+    hora: "15:00 - 16:00",
   },
 ];
 
 export default function PerfilAluno() {
   const { usuario, sair } = useUsuario();
+  
   function handleSair() {
     sair();
     router.replace("/login");
@@ -76,6 +93,28 @@ export default function PerfilAluno() {
     bio: usuario?.tipo === 'aluno' ? usuario.bio : ""
   };
 
+  const materiasDificuldade = usuario?.tipo === 'aluno' ? usuario.materiasDificuldade : [];
+
+  const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
+  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(materiasDificuldade);
+
+  function toggleMateria(materia: string) {
+    if (materiasSelecionadas.includes(materia)) {
+      setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
+    } else {
+      setMateriasSelecionadas([...materiasSelecionadas, materia]);
+    }
+  }
+
+  function toggleItinerario(nome: string) {
+    setItinerarioAberto(itinerarioAberto === nome ? null : nome);
+  }
+
+  const materiasAgrupadas = ITINERARIOS_CATALOGO.map((itinerario) => ({
+    nome: itinerario.nome,
+    materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
+  })).filter((itinerario) => itinerario.materias.length > 0);
   
 
   return (
@@ -104,6 +143,90 @@ export default function PerfilAluno() {
             <Text style={styles.bio}>{aluno.bio}</Text>
           </View>
         </View>
+
+        <View style={styles.secaoCard}>
+          <View style={styles.cabecalhoSecao}>
+            <Text style={styles.tituloSecao}>Matérias com dificuldade</Text>
+            <Pressable onPress={() => setModalMateriasVisivel(true)}>
+              <Ionicons name="add-circle-outline" size={24} color={themeAluno.primary} />
+            </Pressable>
+          </View>
+
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {materiasSelecionadas.map((materia) => (
+              <View key={materia} style={styles.badge}>
+                <Text style={styles.badgeTexto}>{materia}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
+          <View style={styles.modalFundo}>
+            <View style={styles.modalConteudo}>
+              <Text style={styles.tituloSecao}>Editar matérias</Text>
+
+      <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
+        {ITINERARIOS_CATALOGO.map((itinerario) => {
+          const aberto = itinerarioAberto === itinerario.nome;
+          return (
+            <View key={itinerario.nome} style={styles.itinerarioBloco}>
+              <Pressable
+                style={styles.itinerarioCabecalho}
+                onPress={() => toggleItinerario(itinerario.nome)}
+              >
+                <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
+                <Text>{aberto ? "▲" : "▼"}</Text>
+              </Pressable>
+
+              {aberto && (
+                <View style={styles.itinerarioMaterias}>
+                  {itinerario.materias.map((materia) => {
+                    const selecionada = materiasSelecionadas.includes(materia);
+                    return (
+                      <Pressable
+                        key={materia}
+                        style={[
+                          styles.badge,
+                          selecionada && { backgroundColor: themeAluno.primary },
+                        ]}
+                        onPress={() => toggleMateria(materia)}
+                      >
+                        <Text
+                          style={[
+                            styles.badgeTexto,
+                            selecionada && { color: "#fff" },
+                          ]}
+                        >
+                          {materia}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
+        <Pressable
+          style={styles.botaoEntrar}
+          onPress={() => setModalMateriasVisivel(false)}
+        >
+          <Text style={styles.textoBotaoEntrar}>Cancelar</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.botaoEntrar, { backgroundColor: themeAluno.primary }]}
+          onPress={() => setModalMateriasVisivel(false)}
+        >
+          <Text style={[styles.textoBotaoEntrar, { color: "white" }]}>Salvar</Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
 
         <View style={styles.linhaEstatisticas}>
           {estatisticas.map((item) => (
@@ -329,5 +452,43 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: themeAluno.primary,
     fontWeight: "600",
+  },
+  modalFundo: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.4)",
+  justifyContent: "flex-end",
+  },
+  modalConteudo: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 16,
+    maxHeight: "80%",
+  },
+  itinerarioBloco: {
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  itinerarioCabecalho: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: themeAluno.primaryLight,
+  },
+  itinerarioTexto: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: themeAluno.text,
+    flex: 1,
+  },
+  itinerarioMaterias: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    padding: 12,
   },
 });
