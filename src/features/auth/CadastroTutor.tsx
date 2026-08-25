@@ -8,42 +8,12 @@ import SectionTitle from '../../shared/components/SectionTitle';
 import CardMaterias from '../../shared/components/CardMaterias';
 import { themeTutor } from '../../shared/styles/themeTutor';
 import { useUsuario } from '../../shared/contexts/UsuarioContext';
-
+import { useSelecaoHorarios, DIAS } from '../../shared/hooks/useSelecaoHorarios';
  
 // calculo para ter uma margem no header dos usuarios
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
-// ---- tipos e constantes fixas ----
-type Dia = 'SEG' | 'TER' | 'QUA' | 'QUI' | 'SEX';
-type Duracao = 1 | 2;
 
-interface SlotHorario {
-  dia: Dia;
-  horario: string;
-  duracao: Duracao;
-}
-
-const DIAS: Dia[] = ['SEG', 'TER', 'QUA', 'QUI', 'SEX'];
-
-const HORARIOS_1H = [
-  "08:00 - 09:00",
-  "09:00 - 10:00",
-  "10:00 - 11:00",
-  "11:00 - 12:00",
-  "13:00 - 14:00",
-  "14:00 - 15:00",
-  "15:00 - 16:00",
-  "16:00 - 17:00",
-];
-
-const HORARIOS_2H = [
-  "08:00 - 10:00",
-  "09:00 - 11:00",
-  "10:00 - 12:00",
-  "13:00 - 15:00",
-  "14:00 - 16:00",
-  "15:00 - 17:00",
-];
 
 export default function CadastroTutor() {
   // hook dos inputs para guardar valores
@@ -100,30 +70,16 @@ export default function CadastroTutor() {
     }
   }
 
-  // ---- estado de horários ----
-  const [horariosSelecionados, setHorariosSelecionados] = useState<SlotHorario[]>([]);
-  const [duracaoAtiva, setDuracaoAtiva] = useState<Duracao>(1);
-
-  const horariosGrade = duracaoAtiva === 1 ? HORARIOS_1H : HORARIOS_2H;
-
-  function estaSelecionado(dia: Dia, horario: string) {
-    return horariosSelecionados.some(
-      (slot) => slot.dia === dia && slot.horario === horario && slot.duracao === duracaoAtiva
-    );
-  }
-
-  function toggleHorario(dia: Dia, horario: string) {
-    const existente = horariosSelecionados.find(
-      (slot) => slot.dia === dia && slot.horario === horario && slot.duracao === duracaoAtiva
-    );
-
-    if (existente) {
-      setHorariosSelecionados(horariosSelecionados.filter((slot) => slot !== existente));
-      return;
-    }
-
-    setHorariosSelecionados([...horariosSelecionados, { dia, horario, duracao: duracaoAtiva }]);
-  }
+  const {
+  horariosSelecionados,
+  setHorariosSelecionados,
+  duracaoAtiva,
+  setDuracaoAtiva,
+  horariosGrade,
+  estaSelecionado,
+  toggleHorario,
+  } = useSelecaoHorarios();
+  
 
   function handleCadastro() {
     setErroSenha("");

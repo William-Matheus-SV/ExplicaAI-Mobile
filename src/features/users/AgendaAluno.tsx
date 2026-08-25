@@ -15,7 +15,7 @@ export default function AgendaAluno() {
       horario: string;
       materia: string;
       professor: string;
-      status: "confirmado" | "pendente";
+      status: "confirmado" | "realizado" | "cancelado";
     }[]
   > = {
     Segunda: [
@@ -29,13 +29,13 @@ export default function AgendaAluno() {
         horario: "10:00 - 12:00",
         materia: "Física",
         professor: "Prof. Carlos Lima",
-        status: "confirmado",
+        status: "realizado",
       },
       {
         horario: "14:00 - 16:00",
         materia: "Química",
         professor: "Prof. Ana Paula",
-        status: "pendente",
+        status: "realizado",
       },
     ],
     Terça: [],
@@ -49,7 +49,7 @@ export default function AgendaAluno() {
   const confirmadas = aulasDoDia.filter(
     (a) => a.status === "confirmado",
   ).length;
-  const pendentes = aulasDoDia.filter((a) => a.status === "pendente").length;
+  const cancelado = aulasDoDia.filter((a) => a.status === "cancelado").length;
   const proximaAula = aulasDoDia[0];
 
   return (
@@ -73,8 +73,10 @@ export default function AgendaAluno() {
             <View>
               <Text style={styles.resumoTitulo}>{totalAulas} aulas hoje</Text>
               <Text style={styles.resumoSubtitulo}>
-                {confirmadas} confirmadas • {pendentes} pendente
-                {pendentes !== 1 ? "s" : ""}
+                {confirmadas} confirmadas • {cancelado
+            } pendente
+                {cancelado
+             !== 1 ? "s" : ""}
               </Text>
             </View>
           </View>
@@ -177,7 +179,7 @@ export default function AgendaAluno() {
                       },
                     ]}
                   >
-                    {aula.status === "confirmado" ? "Confirmado" : "Pendente"}
+                    {aula.status === "confirmado" ? "Confirmado" : "Cancelado"}
                   </Text>
                 </View>
               </View>
@@ -245,7 +247,7 @@ export default function AgendaAluno() {
                       },
                     ]}
                   >
-                    {aula.status === "confirmado" ? "Confirmado" : "Pendente"}
+                    {aula.status === "confirmado" ? "Confirmado" : "Cancelado"}
                   </Text>
                 </View>
               </View>

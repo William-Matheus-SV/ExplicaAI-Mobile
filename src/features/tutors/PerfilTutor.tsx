@@ -251,7 +251,7 @@ export default function PerfilTutor() {
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
                 <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Matches</Text>
+                <Text style={styles.CardTitulo}>Tutorias</Text>
               </View>
               <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
                 <Text style={styles.CardLink}>Ver todos</Text>
@@ -277,7 +277,7 @@ export default function PerfilTutor() {
               </View>
               <Pressable
                 style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-                onPress={() => router.push("/agenda")}
+                onPress={() => router.push("/editar-agenda-tutor")}
               >
                 <Text style={styles.CardLink}>Ver agenda completa</Text>
                 <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
