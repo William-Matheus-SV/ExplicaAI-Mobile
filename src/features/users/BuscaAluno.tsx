@@ -43,11 +43,9 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=12",
       bio: "Ajudo alunos a entender matemática de forma simples e prática, focando no ENEM e vestibulares.",
       horariosLivres: [
-        { semana: 1, dia: "Segunda", horario: "08:00 - 10:00" },
-        { semana: 1, dia: "Terça", horario: "09:00 - 11:00" },
-        { semana: 2, dia: "Quarta", horario: "13:00 - 15:00" },
-        { semana: 2, dia: "Segunda", horario: "14:00 - 16:00" },
-        { semana: 3, dia: "Sexta", horario: "10:00 - 12:00" },
+        { dia: "Segunda", horario: "08:00 - 10:00" },
+        { dia: "Terça", horario: "09:00 - 11:00" },
+        { dia: "Quarta", horario: "13:00 - 15:00" },
       ],
     },
     {
@@ -61,9 +59,9 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=5",
       bio: "Professora com foco em ensino fundamental e médio. Gosto de usar exemplos do dia a dia para facilitar o aprendizado.",
       horariosLivres: [
-        { semana: 1, dia: "Terça", horario: "09:00 - 11:00" },
-        { semana: 2, dia: "Sexta", horario: "15:00 - 17:00" },
-        { semana: 3, dia: "Quarta", horario: "08:00 - 10:00" },
+        { dia: "Terça", horario: "09:00 - 11:00" },
+        { dia: "Sexta", horario: "15:00 - 17:00" },
+        { dia: "Quarta", horario: "08:00 - 10:00" },
       ],
     },
     {
@@ -77,9 +75,8 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=13",
       bio: "Formado em Ciência da Computação, une matemática e lógica de programação nas aulas.",
       horariosLivres: [
-        { semana: 1, dia: "Segunda", horario: "10:00 - 12:00" },
-        { semana: 2, dia: "Quinta", horario: "08:00 - 10:00" },
-        { semana: 3, dia: "Segunda", horario: "10:00 - 12:00" },
+        { dia: "Segunda", horario: "10:00 - 12:00" },
+        { dia: "Quinta", horario: "08:00 - 10:00" },
       ],
     },
     {
@@ -93,9 +90,8 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=9",
       bio: "Mestre em Física, gosto de explicar conceitos abstratos com experimentos práticos e simulações.",
       horariosLivres: [
-        { semana: 1, dia: "Terça", horario: "08:00 - 10:00" },
-        { semana: 2, dia: "Quinta", horario: "14:00 - 16:00" },
-        { semana: 3, dia: "Terça", horario: "08:00 - 10:00" },
+        { dia: "Terça", horario: "08:00 - 10:00" },
+        { dia: "Quinta", horario: "14:00 - 16:00" },
       ],
     },
     {
@@ -109,8 +105,8 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=15",
       bio: "Foco em química orgânica e preparação para o ENEM, com resumos visuais e mapas mentais.",
       horariosLivres: [
-        { semana: 1, dia: "Segunda", horario: "14:00 - 16:00" },
-        { semana: 2, dia: "Sexta", horario: "10:00 - 12:00" },
+        { dia: "Segunda", horario: "14:00 - 16:00" },
+        { dia: "Sexta", horario: "10:00 - 12:00" },
       ],
     },
     {
@@ -124,9 +120,8 @@ export default function BuscaAluno() {
       fotoUrl: "https://i.pravatar.cc/150?img=20",
       bio: "Especialista em redação e interpretação de texto para o ENEM e vestibulares.",
       horariosLivres: [
-        { semana: 1, dia: "Quarta", horario: "08:00 - 10:00" },
-        { semana: 2, dia: "Sexta", horario: "14:00 - 16:00" },
-        { semana: 3, dia: "Quarta", horario: "08:00 - 10:00" },
+        { dia: "Quarta", horario: "08:00 - 10:00" },
+        { dia: "Sexta", horario: "14:00 - 16:00" },
       ],
     },
   ];
@@ -138,7 +133,6 @@ export default function BuscaAluno() {
   const [tutorSelecionado, setTutorSelecionado] = useState<
     (typeof tutores)[0] | null
   >(null);
-  const [semanaAtual, setSemanaAtual] = useState(1);
   const [horarioSelecionado, setHorarioSelecionado] = useState<{
     dia: string;
     horario: string;
@@ -217,7 +211,6 @@ export default function BuscaAluno() {
                   style={styles.botaoVerPerfil}
                   onPress={() => {
                     setTutorSelecionado(tutor);
-                    setSemanaAtual(1);
                     setHorarioSelecionado(null);
                   }}
                 >
@@ -319,43 +312,9 @@ export default function BuscaAluno() {
                 </View>
 
                 <View style={styles.agendaContainer}>
-                  <View style={styles.agendaCabecalho}>
-                    <Pressable
-                      onPress={() =>
-                        setSemanaAtual(Math.max(1, semanaAtual - 1))
-                      }
-                      disabled={semanaAtual === 1}
-                    >
-                      <Text
-                        style={[
-                          styles.agendaSeta,
-                          semanaAtual === 1 && styles.agendaSetaDesabilitada,
-                        ]}
-                      >
-                        ‹
-                      </Text>
-                    </Pressable>
-
-                    <Text style={styles.agendaSemanaTexto}>
-                      Semana {semanaAtual}
-                    </Text>
-
-                    <Pressable
-                      onPress={() =>
-                        setSemanaAtual(Math.min(3, semanaAtual + 1))
-                      }
-                      disabled={semanaAtual === 3}
-                    >
-                      <Text
-                        style={[
-                          styles.agendaSeta,
-                          semanaAtual === 3 && styles.agendaSetaDesabilitada,
-                        ]}
-                      >
-                        ›
-                      </Text>
-                    </Pressable>
-                  </View>
+                  <Text style={styles.agendaTituloSimples}>
+                    Horários disponíveis
+                  </Text>
 
                   <View style={styles.grade}>
                     <View style={styles.gradeLinha}>
@@ -386,9 +345,7 @@ export default function BuscaAluno() {
                           (dia) => {
                             const livre = tutorSelecionado.horariosLivres.some(
                               (slot) =>
-                                slot.semana === semanaAtual &&
-                                slot.dia === dia &&
-                                slot.horario === horario,
+                                slot.dia === dia && slot.horario === horario,
                             );
                             const selecionado =
                               horarioSelecionado?.dia === dia &&
@@ -425,7 +382,35 @@ export default function BuscaAluno() {
                       </Text>
                     </View>
                   )}
-
+                  <View style={styles.legendaContainer}>
+                    <View style={styles.legendaItem}>
+                      <View
+                        style={[
+                          styles.legendaQuadrado,
+                          { backgroundColor: themeAluno.primary },
+                        ]}
+                      />
+                      <Text style={styles.legendaTexto}>Livre</Text>
+                    </View>
+                    <View style={styles.legendaItem}>
+                      <View
+                        style={[
+                          styles.legendaQuadrado,
+                          { backgroundColor: themeAluno.accent },
+                        ]}
+                      />
+                      <Text style={styles.legendaTexto}>Selecionado</Text>
+                    </View>
+                    <View style={styles.legendaItem}>
+                      <View
+                        style={[
+                          styles.legendaQuadrado,
+                          styles.legendaQuadradoBranco,
+                        ]}
+                      />
+                      <Text style={styles.legendaTexto}>Indisponível</Text>
+                    </View>
+                  </View>
                   <Pressable
                     style={[
                       styles.botaoConfirmar,
@@ -438,6 +423,7 @@ export default function BuscaAluno() {
                         tutorSelecionado.nome,
                         horarioSelecionado,
                       );
+                      setTutorSelecionado(null);
                     }}
                   >
                     <Text style={styles.botaoConfirmarTexto}>
@@ -721,25 +707,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#EEE",
   },
-  agendaCabecalho: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  agendaSeta: {
-    fontSize: 22,
-    color: themeAluno.primary,
-    fontWeight: "bold",
-    paddingHorizontal: 12,
-  },
-  agendaSetaDesabilitada: {
-    color: "#CCC",
-  },
-  agendaSemanaTexto: {
+  agendaTituloSimples: {
     fontSize: 14,
     fontWeight: "bold",
     color: themeAluno.text,
+    marginBottom: 12,
+    textAlign: "center",
   },
   grade: {
     borderWidth: 1,
@@ -797,8 +770,7 @@ const styles = StyleSheet.create({
     backgroundColor: themeAluno.primary,
   },
   gradeCelulaSelecionada: {
-    borderWidth: 2,
-    borderColor: themeAluno.accent,
+    backgroundColor: themeAluno.accent,
   },
   resumoAgendamento: {
     backgroundColor: themeAluno.primaryLight,
@@ -831,5 +803,29 @@ const styles = StyleSheet.create({
     color: themeAluno.white,
     fontWeight: "bold",
     fontSize: 14,
+  },
+  legendaContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 12,
+  },
+  legendaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  legendaQuadrado: {
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+  },
+  legendaQuadradoBranco: {
+    backgroundColor: themeAluno.white,
+    borderWidth: 1,
+    borderColor: themeAluno.border,
+  },
+  legendaTexto: {
+    fontSize: 11,
+    color: themeAluno.textSecondary,
   },
 });
