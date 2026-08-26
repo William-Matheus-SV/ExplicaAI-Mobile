@@ -1,3 +1,5 @@
+import { ActivityIndicator } from "react-native"; // adiciona ao import existente de react-native
+import { cadastrarAluno } from "../../shared/services/cadastroService";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -7,9 +9,11 @@ import CardMaterias from "../../shared/components/CardMaterias";
 import { themeAluno } from "../../shared/styles/themeAluno";
 
 export default function CadastroAluno() {
+  const [carregando, setCarregando] = useState(false);
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
+  const [erroMatricula, setErroMatricula] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erroSenha, setErroSenha] = useState("");
@@ -60,11 +64,17 @@ export default function CadastroAluno() {
     }
   }
 
-  function handleCadastro() {
+  async function handleCadastro() {
     setErroSenha("");
+    setErroMatricula("");
 
     if (!nome.trim() || !idade.trim() || !matricula.trim()) {
       Alert.alert("Atenção", "Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(matricula)) {
+      setErroMatricula("A matrícula deve conter exatamente 6 dígitos numéricos");
       return;
     }
 
@@ -73,12 +83,30 @@ export default function CadastroAluno() {
       return;
     }
 
-    if (senha.length < 6) {
-      setErroSenha("A senha deve ter no mínimo 6 caracteres");
+    if (!/^\d{6}$/.test(senha)) {
+      setErroSenha("A senha deve ser um PIN de exatamente 6 dígitos numéricos");
       return;
     }
 
-    router.replace("/login");
+    setCarregando(true);
+
+    try {
+      await cadastrarAluno({
+        nome,
+        matricula,
+        idade,
+        bio,
+        materias: materiasSelecionadas,
+        senha,
+      });
+
+      Alert.alert("Sucesso", "Cadastro realizado! Faça login para continuar.");
+      router.replace("/login");
+    } catch (erro: any) {
+      Alert.alert("Erro", erro.message || "Não foi possível concluir o cadastro.");
+    } finally {
+      setCarregando(false);
+    }
   }
 
   function handleLimpar() {
@@ -144,11 +172,13 @@ export default function CadastroAluno() {
             <View style={styles.metade}>
               <Text style={styles.label}>Matrícula *</Text>
               <Input
-                placeholder="Ex: aluno_demo"
+                placeholder="Ex: 123456"
                 value={matricula}
                 onChangeText={setMatricula}
+                keyboardType="numeric"
                 style={styles.inputEstilizado}
               />
+              {erroMatricula ? <Text style={styles.erro}>{erroMatricula}</Text> : null}
             </View>
           </View>
 
@@ -156,7 +186,7 @@ export default function CadastroAluno() {
             <View style={styles.metade}>
               <Text style={styles.label}>Senha *</Text>
               <Input
-                placeholder="Digite a senha"
+                placeholder="PIN de 6 dígitos"
                 value={senha}
                 onChangeText={setSenha}
                 secureTextEntry
@@ -167,7 +197,7 @@ export default function CadastroAluno() {
             <View style={styles.metade}>
               <Text style={styles.label}>Confirmar Senha *</Text>
               <Input
-                placeholder="Confirme sua senha"
+                placeholder="PIN de 6 dígitos"
                 value={confirmarSenha}
                 onChangeText={setConfirmarSenha}
                 secureTextEntry
@@ -250,8 +280,12 @@ export default function CadastroAluno() {
             <Text style={styles.textoBotaoSecundario}>Limpar</Text>
           </Pressable>
 
-          <Pressable style={styles.botaoPrimario} onPress={handleCadastro}>
+          <Pressable style={styles.botaoPrimario} onPress={handleCadastro} disabled={carregando}>
+            {carregando ? (
+              <ActivityIndicator color ={themeAluno.white} />
+            ) : (
             <Text style={styles.textoBotaoPrimario}>Cadastrar Aluno</Text>
+            )}
           </Pressable>
         </View>
       </ScrollView>

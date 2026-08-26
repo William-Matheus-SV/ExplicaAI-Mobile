@@ -9,9 +9,9 @@ const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 :
 
 export default function EditarAgendaTutor() {
   const router = useRouter();
-  const { usuario, salvarUsuario } = useUsuario();
+  const { usuario, salvarUsuario, token } = useUsuario();
 
-  const horariosIniciais = usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
+  const horariosIniciais = usuario?.tipo === 'tutor' ? usuario.agendaDisponivel : [];
 
   const {
     horariosSelecionados,
@@ -35,8 +35,8 @@ export default function EditarAgendaTutor() {
 
     salvarUsuario({
       ...usuario,
-      horariosDisponiveis: horariosSelecionados,
-    });
+      agendaDisponivel: horariosSelecionados,
+    }, token || "");;
 
     Alert.alert("Sucesso", "Sua agenda foi atualizada.");
     router.back();

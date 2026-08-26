@@ -93,7 +93,7 @@ export default function PerfilAluno() {
     bio: usuario?.tipo === 'aluno' ? usuario.bio : ""
   };
 
-  const materiasDificuldade = usuario?.tipo === 'aluno' ? usuario.materiasDificuldade : [];
+  const materiasDificuldade = usuario?.tipo === 'aluno' ? usuario.materias : [];
 
   const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
   const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);

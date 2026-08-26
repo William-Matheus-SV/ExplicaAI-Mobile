@@ -1,3 +1,5 @@
+import { ActivityIndicator } from "react-native";
+import { cadastrarTutor } from "../../shared/services/cadastroService";
 import { View, Text, ScrollView, TextInput, Pressable, StatusBar, StyleSheet, Image, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
@@ -16,9 +18,11 @@ const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 :
 
 export default function CadastroTutor() {
   // hook dos inputs para guardar valores
+  const [carregando, setCarregando] = useState(false);
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
+  const [erroMatricula, setErroMatricula] = useState("");
   const [bio, setBio] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -79,11 +83,17 @@ export default function CadastroTutor() {
   } = useSelecaoHorarios();
   
 
-  function handleCadastro() {
+  async function handleCadastro() {
     setErroSenha("");
+    setErroMatricula("");
 
     if (!nome.trim() || !idade.trim() || !matricula.trim()) {
       Alert.alert("Atenção", "Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(matricula)) {
+      setErroMatricula("A matrícula deve conter exatamente 6 dígitos numéricos");
       return;
     }
 
@@ -92,12 +102,31 @@ export default function CadastroTutor() {
       return;
     }
 
-    if (senha.length < 6) {
-      setErroSenha("A senha deve ter no mínimo 6 caracteres");
+    if (!/^\d{6}$/.test(senha)) {
+      setErroSenha("A senha deve ser um PIN de exatamente 6 dígitos numéricos");
       return;
     }
 
-    router.replace("/login");
+    setCarregando(true);
+
+    try {
+      await cadastrarTutor({
+        nome,
+        matricula,
+        idade,
+        bio,
+        materiasLecionadas: materiasSelecionadas,
+        agendaDisponivel: horariosSelecionados,
+        senha,
+      });
+
+      Alert.alert("Sucesso", "Cadastro realizado! Faça login para continuar.");
+      router.replace("/login");
+    } catch (erro: any) {
+      Alert.alert("Erro", erro.message || "Não foi possível concluir o cadastro.");
+    } finally {
+      setCarregando(false);
+    }
   }
   //
   function handleVoltar() {
@@ -169,10 +198,11 @@ export default function CadastroTutor() {
               onChangeText={setMatricula}
             />
           </View>
+          {erroMatricula ? <Text style={styles.erro}>{erroMatricula}</Text> : null}
           <View style={styles.campos}>
             <InputLabel
               Label="Senha"
-              placeholder="Crie uma Senha"
+              placeholder="PIN de 6 dígitos"
               secureTextEntry
               value={senha}
               onChangeText={setSenha}
@@ -183,7 +213,7 @@ export default function CadastroTutor() {
               secureTextEntry
               value={confirmarSenha}
               onChangeText={setConfirmarSenha}
-            />
+            />  
           </View>
           {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
         </View>
@@ -303,8 +333,12 @@ export default function CadastroTutor() {
             <Text style={styles.textoBotaoSecundario}>Limpar</Text>
           </Pressable>
 
-          <Pressable style={styles.botaoPrimario} onPress={handleCadastro}>
+          <Pressable style={styles.botaoPrimario} onPress={handleCadastro} disabled={carregando}>
+            {carregando ? (
+              <ActivityIndicator color="white" />
+            ): (
             <Text style={styles.textoBotaoPrimario}>Cadastrar Tutor</Text>
+            )}
           </Pressable>
         </View>
       </ScrollView>

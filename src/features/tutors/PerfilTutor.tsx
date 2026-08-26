@@ -38,7 +38,7 @@ export default function PerfilTutor() {
   };
 
   const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
-  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
+  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.agendaDisponivel : [];
 
   const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
   const agenda = DIAS_ORDEM.map((dia) => ({

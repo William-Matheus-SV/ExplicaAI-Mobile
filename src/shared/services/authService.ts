@@ -33,7 +33,7 @@ export async function loginAluno(matricula: string, senha: string) {
       matricula, // usa o que a pessoa digitou, já que a API não devolve
       idade: "",
       bio: "",
-      materiasDificuldade: [],
+      materias: [],
     },
   };
 }
@@ -60,7 +60,7 @@ export async function loginTutor(matricula: string, senha: string) {
       idade: "",
       bio: "",
       materiasLecionadas: [],
-      horariosDisponiveis: [],
+      agendaDisponivel: [],
     },
   };
 }
