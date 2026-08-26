@@ -5,10 +5,8 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View 
 import { Input } from "../../shared/components/Input";
 import CardMaterias from "../../shared/components/CardMaterias";
 import { themeAluno } from "../../shared/styles/themeAluno";
-import { useUsuario } from "../../shared/contexts/UsuarioContext";
 
 export default function CadastroAluno() {
-  const { salvarUsuario } = useUsuario();
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
   const [matricula, setMatricula] = useState("");
@@ -80,15 +78,7 @@ export default function CadastroAluno() {
       return;
     }
 
-    salvarUsuario({
-      tipo: "aluno",
-      nome,
-      idade,
-      matricula,
-      bio,
-      materiasDificuldade: materiasSelecionadas,
-    });
-    router.replace("/perfil-aluno");
+    router.replace("/login");
   }
 
   function handleLimpar() {

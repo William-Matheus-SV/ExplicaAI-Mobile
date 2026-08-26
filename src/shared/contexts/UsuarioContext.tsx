@@ -12,7 +12,7 @@ interface DadosAluno {
   idade: string;
   matricula: string;
   bio: string;
-  materiasDificuldade: string[];
+  materias: string[];
 }
 
 interface DadosTutor {
@@ -22,14 +22,15 @@ interface DadosTutor {
   matricula: string;
   bio: string;
   materiasLecionadas: string[];
-  horariosDisponiveis: SlotHorario[];
+  agendaDisponivel: SlotHorario[];
 }
 
 type DadosUsuario = DadosAluno | DadosTutor;
 
 interface UsuarioContextType {
   usuario: DadosUsuario | null;
-  salvarUsuario: (dados: DadosUsuario) => void;
+  token: string | null;
+  salvarUsuario: (dados: DadosUsuario, token: string) => void;
   sair: () => void;
 }
 
@@ -37,17 +38,20 @@ const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined);
 
 export function UsuarioProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<DadosUsuario | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  function salvarUsuario(dados: DadosUsuario) {
+  function salvarUsuario(dados: DadosUsuario, novoToken: string) {
     setUsuario(dados);
+    setToken(novoToken);
   }
 
   function sair() {
     setUsuario(null);
+    setToken(null);
   }
 
   return (
-    <UsuarioContext.Provider value={{ usuario, salvarUsuario, sair }}>
+    <UsuarioContext.Provider value={{ usuario, token, salvarUsuario, sair }}>
       {children}
     </UsuarioContext.Provider>
   );

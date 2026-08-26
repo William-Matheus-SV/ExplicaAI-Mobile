@@ -14,7 +14,7 @@ const NOMES_DIAS: Record<Dia, string> = {
 
 export default function AgendaTutor() {
   const { usuario } = useUsuario();
-  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.horariosDisponiveis : [];
+  const agendaDisponivel = usuario?.tipo === 'tutor' ? usuario.agendaDisponivel : [];
 
   return (
     <View style={styles.tela}>
@@ -26,7 +26,7 @@ export default function AgendaTutor() {
           <View>
             <Text style={styles.tituloCabecalho}>Minha Agenda</Text>
             <Text style={styles.subtituloCabecalho}>
-              {horariosDisponiveis.length} horários disponíveis
+              {agendaDisponivel.length} horários disponíveis
             </Text>
           </View>
         </View>
@@ -34,7 +34,7 @@ export default function AgendaTutor() {
 
       <ScrollView contentContainerStyle={styles.conteudo}>
         {DIAS.map((dia) => {
-          const horariosDoDia = horariosDisponiveis.filter((slot) => slot.dia === dia);
+          const horariosDoDia = agendaDisponivel.filter((slot) => slot.dia === dia);
 
           if (horariosDoDia.length === 0) return null;
 
@@ -55,7 +55,7 @@ export default function AgendaTutor() {
           );
         })}
 
-        {horariosDisponiveis.length === 0 && (
+        {agendaDisponivel.length === 0 && (
           <Text style={styles.mensagemVazia}>
             Você ainda não cadastrou horários disponíveis.
           </Text>
