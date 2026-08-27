@@ -1,18 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator,  Modal,  Pressable,  ScrollView,  StyleSheet,  Text,  View,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { listarTutores } from "../../shared/services/tutorService";
+import { listarSlotsDoTutor, SlotAgendaReal } from "../../shared/services/agendaService";
 
 interface SlotAgenda {
   dia: string;
@@ -43,7 +36,24 @@ export default function BuscaAluno() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [tutorSelecionado, setTutorSelecionado] = useState<Tutor | null>(null);
+  const [slotsDoTutor, setSlotsDoTutor] = useState<SlotAgendaReal[]>([]);
+  const [carregandoSlots, setCarregandoSlots] = useState(false);
 
+  async function abrirPerfilTutor(tutor: Tutor) {
+    setTutorSelecionado(tutor);
+    setCarregandoSlots(true);
+    setSlotsDoTutor([]);
+
+    try {
+      const slots = await listarSlotsDoTutor(tutor._id);
+      setSlotsDoTutor(slots);
+    } catch (e) {
+      setSlotsDoTutor([]);
+    } finally {
+      setCarregandoSlots(false);
+    }
+  }
+  
   useEffect(() => {
     async function carregarTutores() {
       try {
@@ -153,7 +163,7 @@ export default function BuscaAluno() {
 
                   <Pressable
                     style={styles.botaoVerPerfil}
-                    onPress={() => setTutorSelecionado(tutor)}
+                    onPress={() => abrirPerfilTutor(tutor)}
                   >
                     <Text style={styles.botaoVerPerfilTexto}>Ver perfil</Text>
                   </Pressable>
@@ -211,25 +221,26 @@ export default function BuscaAluno() {
                 <Text style={styles.modalSecaoTitulo}>Horários disponíveis</Text>
 
                 <ScrollView style={styles.modalHorariosLista}>
-                  {(tutorSelecionado.agendaDisponivel || []).length === 0 ? (
+                  {carregandoSlots ? (
+                    <ActivityIndicator color={themeAluno.primary} />
+                  ) : slotsDoTutor.length === 0 ? (
                     <Text style={{ color: themeAluno.textSecondary, fontSize: 13 }}>
-                      Nenhum horário disponível no momento.
+                      Este tutor não possui horários disponíveis no momento.
                     </Text>
                   ) : (
-                    tutorSelecionado.agendaDisponivel.map((slot, index) => (
-                      <Pressable
-                        key={index}
-                        style={styles.modalHorarioItem}
-                        onPress={() => {
-                          // próximo passo: iniciar reserva/Match aqui
-                        }}
-                      >
-                        <Text style={styles.modalHorarioDia}>{slot.dia}</Text>
-                        <Text style={styles.modalHorarioTexto}>
-                          {slot.horario} ({slot.duracao}h)
-                        </Text>
-                      </Pressable>
-                    ))
+                    slotsDoTutor.map((slot) => {
+                      const data = new Date(slot.dataHorarioInicio);
+                      const dataFormatada = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+                      const horaFormatada = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+                      return (
+                        <Pressable key={slot._id} style={styles.modalHorarioItem}>
+                          <Text style={styles.modalHorarioDia}>{dataFormatada}</Text>
+                          <Text style={styles.modalHorarioTexto}>
+                            {horaFormatada} ({slot.duracao}h)
+                          </Text>
+                        </Pressable>
+                      );
+                    })
                   )}
                 </ScrollView>
               </>
