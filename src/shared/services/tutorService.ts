@@ -10,3 +10,13 @@ export async function buscarTutorPorMatricula(matricula: string) {
 
   return dados;
 }
+export async function listarTutores() {
+  const resposta = await fetch(`${API_BASE_URL}/api/tutores`);
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.mensagem || "Erro ao listar tutores");
+  }
+
+  return dados;
+}
