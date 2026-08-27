@@ -251,7 +251,7 @@ export default function PerfilTutor() {
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
                 <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Tutorias</Text>
+                <Text style={styles.CardTitulo}>Tutorias Realizadas</Text>
               </View>
               <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
                 <Text style={styles.CardLink}>Ver todos</Text>

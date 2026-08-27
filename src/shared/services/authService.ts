@@ -3,13 +3,28 @@ import { API_BASE_URL } from "../../config/api";
 interface RespostaLoginAluno {
   message: string;
   token: string;
-  usuario: { id: string; nome: string };
+  usuario: { 
+    id: string; 
+    nome: string;
+    matricula: string;
+    idade: number;
+    bio: string;
+    materias: string[];
+  };
 }
 
 interface RespostaLoginTutor {
   message: string;
   token: string;
-  tutor: { id: string; nome: string };
+  tutor: { 
+    id: string; 
+    nome: string;
+    matricula: string;
+    idade: number;
+    bio: string;
+    materiasLecionadas: string[];
+    agendaDisponivel: any[];
+  };
 }
 
 export async function loginAluno(matricula: string, senha: string) {
@@ -29,11 +44,12 @@ export async function loginAluno(matricula: string, senha: string) {
     token: dados.token,
     usuario: {
       tipo: 'aluno' as const,
+      id: dados.usuario.id,
       nome: dados.usuario.nome,
-      matricula, // usa o que a pessoa digitou, já que a API não devolve
-      idade: "",
-      bio: "",
-      materias: [],
+      matricula: dados.usuario.matricula,
+      idade: dados.usuario.idade,
+      bio: dados.usuario.bio,
+      materias: dados.usuario.materias || [],
     },
   };
 }
@@ -55,12 +71,13 @@ export async function loginTutor(matricula: string, senha: string) {
     token: dados.token,
     usuario: {
       tipo: 'tutor' as const,
+      id: dados.tutor.id,
       nome: dados.tutor.nome,
-      matricula,
-      idade: "",
-      bio: "",
-      materiasLecionadas: [],
-      agendaDisponivel: [],
+      matricula: dados.tutor.matricula,
+      idade: dados.tutor.idade,
+      bio: dados.tutor.bio,
+      materiasLecionadas: dados.tutor.materiasLecionadas || [],
+      agendaDisponivel: dados.tutor.agendaDisponivel || [],
     },
   };
 }
