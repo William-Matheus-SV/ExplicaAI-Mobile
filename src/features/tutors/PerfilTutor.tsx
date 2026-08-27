@@ -18,7 +18,12 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
   { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
   { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
 ];
-
+// Seguem mockados os dados pois precisa do back-end
+const estatisticas = [
+  { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a ensinar!" },
+  { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
+  { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
+];
 // Seguem mockados os dados pois precisa do back-end
 const MATCHES = [
   { nome: "Aryelle Oliveira", materia: "Matemática" },
@@ -154,7 +159,17 @@ export default function PerfilTutor() {
               </View>
             </View>
           </View>
-
+            {/* Estatísticas */}
+          <View style={styles.linhaEstatisticas}>
+            {estatisticas.map((item) => (
+              <View key={item.label} style={styles.cardEstatistica}>
+                <Text style={styles.iconeEstatistica}>{item.icone}</Text>
+                <Text style={styles.numeroEstatistica}>{item.numero}</Text>
+                <Text style={styles.labelEstatistica}>{item.label}</Text>
+                <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
+              </View>
+            ))}
+          </View>
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
@@ -452,7 +467,35 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
-
+  linhaEstatisticas: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  cardEstatistica: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 12,
+    gap: 4,
+    backgroundColor: "white",
+  },
+  iconeEstatistica: {
+    fontSize: 20,
+  },
+  numeroEstatistica: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#2b2b2b",
+  },
+  labelEstatistica: {
+    fontSize: 12,
+    color: "#2b2b2b",
+  },
+  destaqueEstatistica: {
+    fontSize: 11,
+    color: themeTutor.primary,
+    fontWeight: "600",
+  },
   CardHeaderEsquerda: {
     flexDirection: "row",
     alignItems: "center",

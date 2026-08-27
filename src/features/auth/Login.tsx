@@ -4,6 +4,8 @@ import { ActivityIndicator, Image, ImageBackground, Pressable, StyleSheet, Text,
 import { colors } from "../../shared/styles/colors";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import { loginAluno, loginTutor } from "../../shared/services/authService";
+import { buscarTutorPorMatricula } from "../../shared/services/tutorService";
+import { buscarUsuarioPorMatricula } from "../../shared/services/usuarioService";
 
 export default function Login() {
     const { salvarUsuario } = useUsuario();
@@ -43,7 +45,29 @@ export default function Login() {
                 ? await loginAluno(matricula, senha)
                 : await loginTutor(matricula, senha);
 
-            salvarUsuario(resposta.usuario, resposta.token);
+            if (tipoSelecionado === 'tutor') {
+                const tutorCompleto = await buscarTutorPorMatricula(matricula);
+                salvarUsuario({
+                    tipo: 'tutor',
+                    nome: tutorCompleto.nome,
+                    idade: String(tutorCompleto.idade),
+                    matricula: tutorCompleto.matricula,
+                    bio: tutorCompleto.bio || "",
+                    materiasLecionadas: tutorCompleto.materiasLecionadas || [],
+                    agendaDisponivel: tutorCompleto.agendaDisponivel || [],
+                }, resposta.token);
+            } else {
+                const usuarioCompleto = await buscarUsuarioPorMatricula(matricula);
+                salvarUsuario({
+                    tipo: 'aluno',
+                    nome: usuarioCompleto.nome,
+                    idade: String(usuarioCompleto.idade),
+                    matricula: usuarioCompleto.matricula,
+                    bio: usuarioCompleto.bio || "",
+                    materias: usuarioCompleto.materias || [],
+                }, resposta.token);
+            }
+
             router.replace(tipoSelecionado === 'aluno' ? "/perfil-aluno" : "/perfil-tutor");
         } catch (erro: any) {
             setErroGeral(erro.message || "Matrícula ou senha inválidos. Tente novamente.");

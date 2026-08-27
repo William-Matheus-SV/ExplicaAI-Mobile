@@ -9,7 +9,7 @@ interface SlotHorario {
 interface DadosAluno {
   tipo: 'aluno';
   nome: string;
-  idade: number;
+  idade: string;
   matricula: string;
   bio: string;
   materias: string[];
@@ -18,7 +18,7 @@ interface DadosAluno {
 interface DadosTutor {
   tipo: 'tutor';
   nome: string;
-  idade: number;
+  idade: string;
   matricula: string;
   bio: string;
   materiasLecionadas: string[];
