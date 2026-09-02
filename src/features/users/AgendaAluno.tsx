@@ -1,12 +1,15 @@
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 
 export default function AgendaAluno() {
   const dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+
   const [diaSelecionado, setDiaSelecionado] = useState("Segunda");
 
   const aulasPorDia: Record<
@@ -38,6 +41,7 @@ export default function AgendaAluno() {
         status: "realizado",
       },
     ],
+
     Terça: [],
     Quarta: [],
     Quinta: [],
@@ -45,46 +49,76 @@ export default function AgendaAluno() {
   };
 
   const aulasDoDia = aulasPorDia[diaSelecionado] || [];
+
   const totalAulas = aulasDoDia.length;
+
   const confirmadas = aulasDoDia.filter(
-    (a) => a.status === "confirmado",
+    (a) => a.status === "confirmado"
   ).length;
-  const cancelado = aulasDoDia.filter((a) => a.status === "cancelado").length;
+
+  const cancelado = aulasDoDia.filter(
+    (a) => a.status === "cancelado"
+  ).length;
+
   const proximaAula = aulasDoDia[0];
 
   return (
     <View style={styles.tela}>
-      <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
+      <LinearGradient
+        colors={themeAluno.gradient}
+        style={styles.cabecalho}
+      >
         <View style={styles.cabecalhoTopo}>
-          <View style={styles.iconeTitulo}>
-            <Text style={styles.iconeTituloTexto}>🗓️</Text>
-          </View>
-          <View>
-            <Text style={styles.tituloCabecalho}>Minha Agenda</Text>
-            <Text style={styles.subtituloCabecalho}>
-              {diaSelecionado}-feira
-            </Text>
+          <Pressable
+            style={styles.botaoVoltar}
+            onPress={() => router.back()}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color="white"
+            />
+          </Pressable>
+          <View style={styles.tituloContainer}>
+            <View style={styles.iconeTitulo}>
+              <Text style={styles.iconeTituloTexto}>🗓️</Text>
+            </View>
+
+            <View>
+              <Text style={styles.tituloCabecalho}>
+                Minha Agenda
+              </Text>
+
+              <Text style={styles.subtituloCabecalho}>
+                {diaSelecionado}-feira
+              </Text>
+            </View>
           </View>
         </View>
-
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
             <Text style={styles.resumoIcone}>📖</Text>
+
             <View>
-              <Text style={styles.resumoTitulo}>{totalAulas} aulas hoje</Text>
+              <Text style={styles.resumoTitulo}>
+                {totalAulas} aulas hoje
+              </Text>
+
               <Text style={styles.resumoSubtitulo}>
-                {confirmadas} confirmadas • {cancelado
-            } pendente
-                {cancelado
-             !== 1 ? "s" : ""}
+                {confirmadas} confirmadas • {cancelado} pendente
+                {cancelado !== 1 ? "s" : ""}
               </Text>
             </View>
           </View>
 
           <View style={styles.resumoCard}>
             <Text style={styles.resumoIcone}>🕐</Text>
+
             <View>
-              <Text style={styles.resumoTitulo}>Próxima aula</Text>
+              <Text style={styles.resumoTitulo}>
+                Próxima aula
+              </Text>
+
               <Text style={styles.resumoSubtitulo}>
                 {proximaAula
                   ? `${proximaAula.horario.split(" - ")[0]} • ${proximaAula.materia}`
@@ -94,7 +128,12 @@ export default function AgendaAluno() {
           </View>
         </View>
       </LinearGradient>
-      <ScrollView contentContainerStyle={styles.conteudo}>
+
+      {/* CONTEÚDO */}
+      <ScrollView
+        contentContainerStyle={styles.conteudo}
+      >
+        {/* ABAS DOS DIAS */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -103,10 +142,14 @@ export default function AgendaAluno() {
         >
           {dias.map((dia) => {
             const selecionado = dia === diaSelecionado;
+
             return (
               <Pressable
                 key={dia}
-                style={[styles.aba, selecionado && styles.abaSelecionada]}
+                style={[
+                  styles.aba,
+                  selecionado && styles.abaSelecionada,
+                ]}
                 onPress={() => setDiaSelecionado(dia)}
               >
                 <Text
@@ -122,11 +165,20 @@ export default function AgendaAluno() {
           })}
         </ScrollView>
 
+        {/* MANHÃ */}
         <View style={styles.periodo}>
           <View style={styles.periodoCabecalho}>
-            <Text style={styles.periodoTitulo}>☀️ Manhã</Text>
+            <Text style={styles.periodoTitulo}>
+              ☀️ Manhã
+            </Text>
+
             <Text style={styles.periodoContagem}>
-              {aulasDoDia.filter((a) => parseInt(a.horario) < 12).length} aulas
+              {
+                aulasDoDia.filter(
+                  (a) => parseInt(a.horario) < 12
+                ).length
+              }{" "}
+              aulas
             </Text>
           </View>
 
@@ -149,14 +201,22 @@ export default function AgendaAluno() {
                   <Text style={styles.horarioTexto}>
                     {aula.horario.split(" - ")[0]}
                   </Text>
+
                   <Text style={styles.horarioTexto}>
                     {aula.horario.split(" - ")[1]}
                   </Text>
                 </View>
+
                 <View style={styles.cardAulaInfo}>
-                  <Text style={styles.materiaTexto}>{aula.materia}</Text>
-                  <Text style={styles.professorTexto}>{aula.professor}</Text>
+                  <Text style={styles.materiaTexto}>
+                    {aula.materia}
+                  </Text>
+
+                  <Text style={styles.professorTexto}>
+                    {aula.professor}
+                  </Text>
                 </View>
+
                 <View
                   style={[
                     styles.statusBadge,
@@ -179,7 +239,9 @@ export default function AgendaAluno() {
                       },
                     ]}
                   >
-                    {aula.status === "confirmado" ? "Confirmado" : "Cancelado"}
+                    {aula.status === "confirmado"
+                      ? "Confirmado"
+                      : "Cancelado"}
                   </Text>
                 </View>
               </View>
@@ -189,13 +251,18 @@ export default function AgendaAluno() {
             style={styles.botaoAgendar}
             onPress={() => router.push("/busca-aluno")}
           >
-            <Text style={styles.botaoAgendarTexto}>+ Agendar aula</Text>
+            <Text style={styles.botaoAgendarTexto}>
+              + Agendar aula
+            </Text>
           </Pressable>
         </View>
 
+        {/* TARDE */}
         <View style={styles.periodo}>
           <View style={styles.periodoCabecalho}>
-            <Text style={styles.periodoTitulo}>🌙 Tarde</Text>
+            <Text style={styles.periodoTitulo}>
+              🌙 Tarde
+            </Text>
           </View>
 
           {aulasDoDia
@@ -217,14 +284,22 @@ export default function AgendaAluno() {
                   <Text style={styles.horarioTexto}>
                     {aula.horario.split(" - ")[0]}
                   </Text>
+
                   <Text style={styles.horarioTexto}>
                     {aula.horario.split(" - ")[1]}
                   </Text>
                 </View>
+
                 <View style={styles.cardAulaInfo}>
-                  <Text style={styles.materiaTexto}>{aula.materia}</Text>
-                  <Text style={styles.professorTexto}>{aula.professor}</Text>
+                  <Text style={styles.materiaTexto}>
+                    {aula.materia}
+                  </Text>
+
+                  <Text style={styles.professorTexto}>
+                    {aula.professor}
+                  </Text>
                 </View>
+
                 <View
                   style={[
                     styles.statusBadge,
@@ -247,7 +322,9 @@ export default function AgendaAluno() {
                       },
                     ]}
                   >
-                    {aula.status === "confirmado" ? "Confirmado" : "Cancelado"}
+                    {aula.status === "confirmado"
+                      ? "Confirmado"
+                      : "Cancelado"}
                   </Text>
                 </View>
               </View>
@@ -257,12 +334,17 @@ export default function AgendaAluno() {
             style={styles.botaoAgendar}
             onPress={() => router.push("/busca-aluno")}
           >
-            <Text style={styles.botaoAgendarTexto}>+ Agendar aula</Text>
+            <Text style={styles.botaoAgendarTexto}>
+              + Agendar aula
+            </Text>
           </Pressable>
         </View>
       </ScrollView>
 
-      <BottomNavBar theme={themeAluno} perfil="aluno" />
+      <BottomNavBar
+        theme={themeAluno}
+        perfil="aluno"
+      />
     </View>
   );
 }
@@ -281,7 +363,20 @@ const styles = StyleSheet.create({
   cabecalhoTopo: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  tituloContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
+  },
+  botaoVoltar: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
   },
   iconeTitulo: {
     width: 44,
