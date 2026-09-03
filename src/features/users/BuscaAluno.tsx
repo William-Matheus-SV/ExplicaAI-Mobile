@@ -25,8 +25,8 @@ interface Tutor {
 }
 
 const materias = [
-  "Matemática", "Física", "Química", "Português", "Programação",
-  "Biologia", "História", "Geografia", "Inglês", "Filosofia",
+  "Matemática", "Física", "Química", "Português", "Lógica de Programação", "HTML, CSS e JavaScript", 
+  "Banco de Dados","Biologia", "História", "Geografia", "Inglês", "Filosofia",
 ];
 
 export default function BuscaAluno() {
