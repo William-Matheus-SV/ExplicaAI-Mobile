@@ -1,27 +1,50 @@
 import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
-import { useSelecaoHorarios, DIAS } from "../../shared/hooks/useSelecaoHorarios";
+import { useSelecaoHorarios, DIAS, SlotHorario } from "../../shared/hooks/useSelecaoHorarios";
+import { listarMeusSlots, criarSlot, proximaData, slotRealParaGrade, SlotAgendaReal,  } from "../../shared/services/agendaService";
+
 
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
 
 export default function EditarAgendaTutor() {
   const router = useRouter();
-  const { usuario, salvarUsuario, token } = useUsuario();
+  const { usuario, token } = useUsuario();
 
-  const horariosIniciais = usuario?.tipo === 'tutor' ? usuario.agendaDisponivel : [];
 
-  const {
-    horariosSelecionados,
-    duracaoAtiva,
-    setDuracaoAtiva,
-    horariosGrade,
-    estaSelecionado,
-    toggleHorario,
-  } = useSelecaoHorarios(horariosIniciais);
+  const [horariosIniciais, setHorariosIniciais] = useState<SlotHorario[]>([]);
 
+const {
+  horariosSelecionados,
+  setHorariosSelecionados,
+  duracaoAtiva,
+  setDuracaoAtiva,
+  horariosGrade,
+  estaSelecionado,
+  toggleHorario,
+} = useSelecaoHorarios([]); // começa vazio, é preenchido depois que a busca terminar
+
+useEffect(() => {
+  async function carregarAgendaAtual() {
+    if (!token) return;
+    try {
+      const slots = await listarMeusSlots(token);
+      const convertidos = slots
+        .map(slotRealParaGrade)
+        .filter((s): s is SlotHorario => s !== null);
+
+      setHorariosIniciais(convertidos);
+      setHorariosSelecionados(convertidos); // já marca na grade o que já existe de verdade
+    } catch (e) {
+      console.error("Erro ao carregar agenda atual:", e);
+    }
+  }
+  carregarAgendaAtual();
+}, [token]);
+  
   function handleVoltar() {
     if (router.canGoBack()) {
       router.back();
@@ -29,18 +52,49 @@ export default function EditarAgendaTutor() {
       router.replace("/perfil-tutor");
     }
   }
+  
+  async function handleSalvar() {
+  if (usuario?.tipo !== 'tutor' || !token) return;
 
-  function handleSalvar() {
-    if (usuario?.tipo !== 'tutor') return;
+  // Só envia pro backend os horários que são NOVOS (não estavam na seleção inicial) —
+  // evita tentar recriar slots que já existem (o backend rejeitaria com 409 de sobreposição)
+  const novosSlots = horariosSelecionados.filter(
+    (slot) =>
+      !horariosIniciais.some(
+        (inicial) =>
+          inicial.dia === slot.dia &&
+          inicial.horario === slot.horario &&
+          inicial.duracao === slot.duracao
+      )
+  );
 
-    salvarUsuario({
-      ...usuario,
-      agendaDisponivel: horariosSelecionados,
-    }, token || "");;
-
-    Alert.alert("Sucesso", "Sua agenda foi atualizada.");
+  if (novosSlots.length === 0) {
+    Alert.alert("Nada para salvar", "Nenhum horário novo foi adicionado.");
     router.back();
+    return;
   }
+
+  const resultados = await Promise.allSettled(
+    novosSlots.map((slot) => {
+      const horaInicio = slot.horario.split(" - ")[0]; // "08:00 - 09:00" -> "08:00"
+      const data = proximaData(slot.dia, horaInicio);
+      return criarSlot(data.toISOString(), slot.duracao, token);
+    })
+  );
+
+  const falhas = resultados.filter((r) => r.status === "rejected");
+
+  if (falhas.length > 0) {
+    Alert.alert(
+      "Alguns horários não foram salvos",
+      `${resultados.length - falhas.length} de ${resultados.length} horários novos foram salvos com sucesso.`
+    );
+  } else {
+    Alert.alert("Sucesso", "Sua agenda foi atualizada.");
+  }
+
+  router.back();
+}
 
   return (
     <View style={styles.container}>

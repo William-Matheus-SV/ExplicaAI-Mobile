@@ -1,11 +1,13 @@
 import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, TextInput, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
+import { listarMeusSlots, SlotAgendaReal } from "../../shared/services/agendaService";
+
 interface ItinerarioComMaterias {
   nome: string;
   materias: string[];
@@ -33,7 +35,7 @@ const MATCHES = [
 
 export default function PerfilTutor() {
   const router = useRouter();
-  const { usuario, sair } = useUsuario();
+  const { usuario, sair, token } = useUsuario();
 
   const tutor = {
     nome: usuario?.tipo === 'tutor' ? usuario.nome : "Tutor",
@@ -43,15 +45,44 @@ export default function PerfilTutor() {
   };
 
   const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
-  const horariosDisponiveis = usuario?.tipo === 'tutor' ? usuario.agendaDisponivel : [];
+  const [slotsReais, setSlotsReais] = useState<SlotAgendaReal[]>([]);
+  const [carregandoAgenda, setCarregandoAgenda] = useState(true);
 
-  const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
-  const agenda = DIAS_ORDEM.map((dia) => ({
-    dia,
-    horario: horariosDisponiveis
-      .filter((slot) => slot.dia === dia)
-      .map((slot) => slot.horario),
-  })).filter((item) => item.horario.length > 0);
+  useEffect(() => {
+  async function carregarAgenda() {
+    if (!token) {
+      setCarregandoAgenda(false);
+      return;
+    }
+    try {
+      const slots = await listarMeusSlots(token);
+      setSlotsReais(slots);
+    } catch (e) {
+      setSlotsReais([]);
+    } finally {
+      setCarregandoAgenda(false);
+    }
+  }
+  carregarAgenda();
+}, [token]);
+
+ const DIAS_LABEL: Record<number, "SEG" | "TER" | "QUA" | "QUI" | "SEX" | "SAB" | "DOM"> = {
+  0: "DOM", 1: "SEG", 2: "TER", 3: "QUA", 4: "QUI", 5: "SEX", 6: "SAB",
+};
+
+const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
+
+const agenda = DIAS_ORDEM.map((dia) => ({
+  dia,
+  horario: slotsReais
+    .filter((slot) => DIAS_LABEL[new Date(slot.dataHorarioInicio).getDay()] === dia)
+    .map((slot) =>
+      new Date(slot.dataHorarioInicio).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    ),
+})).filter((item) => item.horario.length > 0);
 
   const [bioTexto, setBioTexto] = useState(tutor.bio || "Toque para adicionar uma bio");
   const [editando, setEditando] = useState(false);
@@ -299,10 +330,10 @@ export default function PerfilTutor() {
               </Pressable>
             </View>
 
-            {agenda.length === 0 ? (
-              <Text style={{ color: "#7a7a7a", fontSize: 13 }}>
-                Nenhum horário cadastrado ainda.
-              </Text>
+            {carregandoAgenda ? (
+              <Text style={{ color: "#7a7a7a", fontSize: 13 }}> Carregando horários...</Text>
+            ) : agenda.length === 0 ? (
+              <Text style={{ color: "#7a7a7a", fontSize: 13 }}> Nenhum horário cadastrado ainda.</Text>
             ) : (
               <ScrollView horizontal style={styles.Agenda}>
                 {agenda.map((item) => {

@@ -1,11 +1,13 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
-import { ActivityIndicator,  Modal,  Pressable,  ScrollView,  StyleSheet,  Text,  View,} from "react-native";
+import { ActivityIndicator,  Modal,  Pressable,  ScrollView,  StyleSheet,  Text,  View, Alert, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { listarTutores } from "../../shared/services/tutorService";
 import { listarSlotsDoTutor, SlotAgendaReal } from "../../shared/services/agendaService";
+import { useUsuario } from "../../shared/contexts/UsuarioContext";
+import { criarMatch } from "../../shared/services/matchService";
 
 interface SlotAgenda {
   dia: string;
@@ -26,7 +28,7 @@ interface Tutor {
 
 const materias = [
   "Matemática", "Física", "Química", "Português", "Lógica de Programação", "HTML, CSS e JavaScript", 
-  "Banco de Dados","Biologia", "História", "Geografia", "Inglês", "Filosofia",
+  "Banco de Dados","Biologia", "História", "Geografia", "Inglês", "Espanhol", "Filosofia",
 ];
 
 export default function BuscaAluno() {
@@ -38,6 +40,9 @@ export default function BuscaAluno() {
   const [tutorSelecionado, setTutorSelecionado] = useState<Tutor | null>(null);
   const [slotsDoTutor, setSlotsDoTutor] = useState<SlotAgendaReal[]>([]);
   const [carregandoSlots, setCarregandoSlots] = useState(false);
+  const { token } = useUsuario();
+  const [agendando, setAgendando] = useState(false);
+
 
   async function abrirPerfilTutor(tutor: Tutor) {
     setTutorSelecionado(tutor);
@@ -77,6 +82,24 @@ export default function BuscaAluno() {
     ? tutores.filter((tutor) => tutor.materiasLecionadas?.includes(materiaSelecionada))
     : [];
 
+  async function selecionarHorario(slot: SlotAgendaReal) {
+    if (!tutorSelecionado || !token) return;
+
+    setAgendando(true);
+    try {
+      await criarMatch(tutorSelecionado._id, slot._id, token);
+
+      Alert.alert("Tutoria agendada!", "Seu horário foi reservado com sucesso.");
+
+      // Remove o slot da lista local, já que ele acabou de ser reservado
+      setSlotsDoTutor((atuais) => atuais.filter((s) => s._id !== slot._id));
+      setTutorSelecionado(null);
+    } catch (e: any) {
+      Alert.alert("Não foi possível agendar", e.message || "Tente novamente.");
+    } finally {
+      setAgendando(false);
+    }
+  }
   return (
     <View style={styles.tela}>
       <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
@@ -233,7 +256,7 @@ export default function BuscaAluno() {
                       const dataFormatada = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
                       const horaFormatada = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
                       return (
-                        <Pressable key={slot._id} style={styles.modalHorarioItem}>
+                        <Pressable key={slot._id} style={styles.modalHorarioItem} onPress={() => selecionarHorario(slot)} disabled={agendando}>
                           <Text style={styles.modalHorarioDia}>{dataFormatada}</Text>
                           <Text style={styles.modalHorarioTexto}>
                             {horaFormatada} ({slot.duracao}h)
