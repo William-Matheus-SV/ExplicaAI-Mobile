@@ -79,21 +79,17 @@ export default function AgendaAluno() {
               color="white"
             />
           </Pressable>
-          <View style={styles.tituloContainer}>
-            <View style={styles.iconeTitulo}>
-              <Text style={styles.iconeTituloTexto}>🗓️</Text>
-            </View>
-
-            <View>
+         <View style={styles.tituloContainer}>
+           <View>
               <Text style={styles.tituloCabecalho}>
                 Minha Agenda
-              </Text>
-
-              <Text style={styles.subtituloCabecalho}>
-                {diaSelecionado}-feira
-              </Text>
-            </View>
+             </Text>
           </View>
+
+          <View style={styles.iconeTitulo}>
+         <Text style={styles.iconeTituloTexto}>🗓️</Text>
+          </View>
+         </View>
         </View>
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
