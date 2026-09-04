@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { ActivityIndicator,  Modal,  Pressable,  ScrollView,  StyleSheet,  Text,  View, Alert, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
@@ -59,11 +60,11 @@ export default function BuscaAluno() {
     }
   }
   
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     async function carregarTutores() {
       try {
         const dados = await listarTutores();
-        // filtra só tutores aprovados e ativos — regra de negócio aplicada no front por ora
         const tutoresAprovados = dados.filter(
           (t: Tutor) => t.status_aprovacao === "aprovado" && t.ativo === true
         );
@@ -76,7 +77,8 @@ export default function BuscaAluno() {
     }
 
     carregarTutores();
-  }, []);
+  }, [])
+);
 
   const tutoresFiltrados = materiaSelecionada
     ? tutores.filter((tutor) => tutor.materiasLecionadas?.includes(materiaSelecionada))

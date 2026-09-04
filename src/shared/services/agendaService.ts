@@ -80,6 +80,20 @@ export async function criarSlot(
   return dados.slot;
 }
 
+export async function removerSlot(id: string, token: string): Promise<void> {
+  const resposta = await fetch(`${API_BASE_URL}/api/agenda/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+ 
+  if (!resposta.ok) {
+    const dados = await resposta.json();
+    throw new Error(dados.message || "Erro ao remover horário");
+  }
+}
+
 // A grade da UI trabalha com "dia da semana" (SEG, TER...), mas o backend
 // espera uma data completa (Agenda não tem recorrência — decisão de vocês
 // de que a agenda reseta toda semana). Essa função traduz um dos dois pro outro:

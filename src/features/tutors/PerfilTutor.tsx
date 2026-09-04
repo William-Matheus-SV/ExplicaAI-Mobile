@@ -1,8 +1,8 @@
 import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, TextInput, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
-import { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
+import { useState, useCallback } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
@@ -48,23 +48,25 @@ export default function PerfilTutor() {
   const [slotsReais, setSlotsReais] = useState<SlotAgendaReal[]>([]);
   const [carregandoAgenda, setCarregandoAgenda] = useState(true);
 
-  useEffect(() => {
-  async function carregarAgenda() {
-    if (!token) {
-      setCarregandoAgenda(false);
-      return;
+  useFocusEffect(
+  useCallback(() => {
+    async function carregarAgenda() {
+      if (!token) {
+        setCarregandoAgenda(false);
+        return;
+      }
+      try {
+        const slots = await listarMeusSlots(token);
+        setSlotsReais(slots);
+      } catch (e) {
+        setSlotsReais([]);
+      } finally {
+        setCarregandoAgenda(false);
+      }
     }
-    try {
-      const slots = await listarMeusSlots(token);
-      setSlotsReais(slots);
-    } catch (e) {
-      setSlotsReais([]);
-    } finally {
-      setCarregandoAgenda(false);
-    }
-  }
-  carregarAgenda();
-}, [token]);
+    carregarAgenda();
+  }, [token])
+);
 
  const DIAS_LABEL: Record<number, "SEG" | "TER" | "QUA" | "QUI" | "SEX" | "SAB" | "DOM"> = {
   0: "DOM", 1: "SEG", 2: "TER", 3: "QUA", 4: "QUI", 5: "SEX", 6: "SAB",

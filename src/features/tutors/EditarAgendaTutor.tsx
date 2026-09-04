@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import { useSelecaoHorarios, DIAS, SlotHorario } from "../../shared/hooks/useSelecaoHorarios";
-import { listarMeusSlots, criarSlot, proximaData, slotRealParaGrade, SlotAgendaReal,  } from "../../shared/services/agendaService";
+import { listarMeusSlots, criarSlot, removerSlot, proximaData, slotRealParaGrade, SlotAgendaReal,  } from "../../shared/services/agendaService";
 
 
 const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
@@ -16,7 +16,11 @@ export default function EditarAgendaTutor() {
 
 
   const [horariosIniciais, setHorariosIniciais] = useState<SlotHorario[]>([]);
+  const [mapaSlotId, setMapaSlotId] = useState<Record<string, string>>({});
 
+  function chaveDoSlot(dia: string, horario: string, duracao: number) {
+    return `${dia}|${horario}|${duracao}`;
+  }
 const {
   horariosSelecionados,
   setHorariosSelecionados,
@@ -32,12 +36,20 @@ useEffect(() => {
     if (!token) return;
     try {
       const slots = await listarMeusSlots(token);
-      const convertidos = slots
-        .map(slotRealParaGrade)
-        .filter((s): s is SlotHorario => s !== null);
+      const convertidos: SlotHorario[] = [];
+      const mapa: Record<string, string> = {};
+
+      slots.forEach((slot) => {
+        const grade = slotRealParaGrade(slot);
+        if (grade) {
+          convertidos.push(grade);
+          mapa[chaveDoSlot(grade.dia, grade.horario, grade.duracao)] = slot._id;
+        }
+      });
 
       setHorariosIniciais(convertidos);
-      setHorariosSelecionados(convertidos); // já marca na grade o que já existe de verdade
+      setHorariosSelecionados(convertidos);
+      setMapaSlotId(mapa);
     } catch (e) {
       console.error("Erro ao carregar agenda atual:", e);
     }
@@ -53,11 +65,9 @@ useEffect(() => {
     }
   }
   
-  async function handleSalvar() {
+ async function handleSalvar() {
   if (usuario?.tipo !== 'tutor' || !token) return;
 
-  // Só envia pro backend os horários que são NOVOS (não estavam na seleção inicial) —
-  // evita tentar recriar slots que já existem (o backend rejeitaria com 409 de sobreposição)
   const novosSlots = horariosSelecionados.filter(
     (slot) =>
       !horariosIniciais.some(
@@ -68,26 +78,53 @@ useEffect(() => {
       )
   );
 
-  if (novosSlots.length === 0) {
-    Alert.alert("Nada para salvar", "Nenhum horário novo foi adicionado.");
+  // Removidos: estavam na seleção inicial, mas não estão mais na seleção atual
+  const slotsRemovidos = horariosIniciais.filter(
+    (inicial) =>
+      !horariosSelecionados.some(
+        (slot) =>
+          slot.dia === inicial.dia &&
+          slot.horario === inicial.horario &&
+          slot.duracao === inicial.duracao
+      )
+  );
+
+  if (novosSlots.length === 0 && slotsRemovidos.length === 0) {
+    Alert.alert("Nada para salvar", "Nenhuma alteração foi feita.");
     router.back();
     return;
   }
 
-  const resultados = await Promise.allSettled(
+  const resultadosCriacao = await Promise.allSettled(
     novosSlots.map((slot) => {
-      const horaInicio = slot.horario.split(" - ")[0]; // "08:00 - 09:00" -> "08:00"
+      const horaInicio = slot.horario.split(" - ")[0];
       const data = proximaData(slot.dia, horaInicio);
       return criarSlot(data.toISOString(), slot.duracao, token);
     })
   );
 
-  const falhas = resultados.filter((r) => r.status === "rejected");
+  const resultadosRemocao = await Promise.allSettled(
+    slotsRemovidos.map((slot) => {
+      const id = mapaSlotId[chaveDoSlot(slot.dia, slot.horario, slot.duracao)];
+      if (!id) return Promise.reject(new Error("Horário não encontrado para remoção"));
+      return removerSlot(id, token);
+    })
+  );
 
-  if (falhas.length > 0) {
+  const falhasCriacao = resultadosCriacao.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
+  const falhasRemocao = resultadosRemocao.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
+
+  falhasCriacao.forEach((f) => console.error("Erro ao criar slot:", f.reason));
+  falhasRemocao.forEach((f) => console.error("Erro ao remover slot:", f.reason));
+
+  const totalFalhas = falhasCriacao.length + falhasRemocao.length;
+
+  if (totalFalhas > 0) {
+    const primeiraMensagem =
+      falhasCriacao[0]?.reason?.message || falhasRemocao[0]?.reason?.message || "Erro desconhecido";
     Alert.alert(
-      "Alguns horários não foram salvos",
-      `${resultados.length - falhas.length} de ${resultados.length} horários novos foram salvos com sucesso.`
+      "Algumas alterações não foram salvas",
+      `Criados: ${novosSlots.length - falhasCriacao.length}/${novosSlots.length}. Removidos: ${slotsRemovidos.length - falhasRemocao.length}/${slotsRemovidos.length}.\n\nMotivo: ${primeiraMensagem}`
     );
   } else {
     Alert.alert("Sucesso", "Sua agenda foi atualizada.");
