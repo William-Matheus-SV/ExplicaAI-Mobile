@@ -1,11 +1,12 @@
 import { Pressable, ScrollView, StyleSheet, Text, View, Modal, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes";
+import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -23,7 +24,6 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a aprender!" },
-  { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
   { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
 ];
 
@@ -34,7 +34,23 @@ const proximasAulas = [
 ];
 
 export default function PerfilAluno() {
-  const { usuario, sair } = useUsuario();
+  const { usuario, token, sair } = useUsuario();
+
+  const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
+  const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
+
+  useEffect(() => {
+    if (!token) return;
+
+    buscarMinhasAvaliacoes(token)
+      .then((dados) => {
+        setAvaliacaoMedia(dados.media);
+        setTotalAvaliacoes(dados.total);
+      })
+      .catch((erro) => {
+        console.log("Erro ao buscar avaliações:", erro.message);
+      });
+  }, [token]);
 
   function handleVoltarLogin() {
     sair();
@@ -148,6 +164,19 @@ export default function PerfilAluno() {
 
           {/* Estatísticas */}
           <View style={styles.linhaEstatisticas}>
+            <View style={styles.cardEstatistica}>
+              <Text style={styles.iconeEstatistica}>⭐</Text>
+              <Text style={styles.numeroEstatistica}>
+                {avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "-"}
+              </Text>
+              <Text style={styles.labelEstatistica}>Avaliação Média</Text>
+              <Text style={styles.destaqueEstatistica}>
+                {totalAvaliacoes > 0
+                  ? `${totalAvaliacoes} avaliações`
+                  : "Você ainda não foi avaliado"}
+              </Text>
+            </View>
+
             {estatisticas.map((item) => (
               <View key={item.label} style={styles.cardEstatistica}>
                 <Text style={styles.iconeEstatistica}>{item.icone}</Text>
