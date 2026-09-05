@@ -31,3 +31,30 @@ export async function criarMatch(
 
   return dados.match;
 }
+export async function buscarProximasAulas(token: string) {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/proximos`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || dados.mensagem || "Erro ao buscar próximas aulas");
+  }
+
+  return dados;
+}
+useFocusEffect(
+  useCallback(() => {
+    if (!token) return;
+
+    buscarProximasAulas(token)
+      .then((dados) => {
+        console.log("DADOS PROXIMAS AULAS:", dados)
+        setProximasAulas(dados)
+      })
+      .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
+  }, [token])
+);
