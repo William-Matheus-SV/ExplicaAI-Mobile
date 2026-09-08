@@ -46,15 +46,3 @@ export async function buscarProximasAulas(token: string) {
 
   return dados;
 }
-useFocusEffect(
-  useCallback(() => {
-    if (!token) return;
-
-    buscarProximasAulas(token)
-      .then((dados) => {
-        console.log("DADOS PROXIMAS AULAS:", dados)
-        setProximasAulas(dados)
-      })
-      .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
-  }, [token])
-);
