@@ -16,5 +16,3 @@ export async function buscarMinhasAvaliacoes(token: string) {
 
     return dados
 }
-
-console.log("TIPO DA FUNCAO:", typeof buscarMinhasAvaliacoes)

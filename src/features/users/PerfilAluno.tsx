@@ -54,11 +54,11 @@ export default function PerfilAluno() {
     useCallback(() => {
       if (!token) return;
 
-      buscarProximasAulas(token)
-        .then((dados) => {
-          setProximasAulas(dados.matches);
-        })
-        .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
+     buscarProximasAulas(token)
+    .then((dados) => {
+        setProximasAulas(dados.matches)
+    })
+    .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
     }, [token])
   );
 
@@ -304,7 +304,7 @@ export default function PerfilAluno() {
     return (
         <View key={aula._id ?? index} style={styles.linhaAula}>
             <View style={styles.infoAula}>
-                <Text style={styles.nomeAula}>{aula.tutorId?.materiasLecionadas?.[0] ?? "Matéria"}</Text>
+               <Text style={styles.nomeAula}>{aula.materia ?? aula.tutorId?.materiasLecionadas?.[0] ?? "Matéria"}</Text>
                 <Text style={styles.nomeTutor}>com {aula.tutorId?.nome ?? "Tutor"}</Text>
             </View>
             <View style={styles.dataAula}>
