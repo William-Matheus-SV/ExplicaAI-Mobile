@@ -41,6 +41,7 @@ export default function BuscaAluno() {
   const [tutorSelecionado, setTutorSelecionado] = useState<Tutor | null>(null);
   const [slotsDoTutor, setSlotsDoTutor] = useState<SlotAgendaReal[]>([]);
   const [carregandoSlots, setCarregandoSlots] = useState(false);
+  const [materiaEscolhidaParaMatch, setMateriaEscolhidaParaMatch] = useState<string | null>(null);
   const { token } = useUsuario();
   const [agendando, setAgendando] = useState(false);
 
@@ -49,6 +50,7 @@ export default function BuscaAluno() {
     setTutorSelecionado(tutor);
     setCarregandoSlots(true);
     setSlotsDoTutor([]);
+    setMateriaEscolhidaParaMatch(null);
 
     try {
       const slots = await listarSlotsDoTutor(tutor._id);
@@ -87,9 +89,14 @@ export default function BuscaAluno() {
   async function selecionarHorario(slot: SlotAgendaReal) {
     if (!tutorSelecionado || !token) return;
 
+    if (!materiaEscolhidaParaMatch) {
+    Alert.alert("Selecione a matéria", "Escolha qual matéria você quer estudar nesta aula antes de agendar.");
+    return;
+   }
+
     setAgendando(true);
     try {
-      await criarMatch(tutorSelecionado._id, slot._id, token);
+      await criarMatch(tutorSelecionado._id, slot._id, materiaEscolhidaParaMatch!, token);
 
       Alert.alert("Tutoria agendada!", "Seu horário foi reservado com sucesso.");
 
@@ -242,6 +249,24 @@ export default function BuscaAluno() {
                 <Text style={styles.modalBio}>
                   {tutorSelecionado.bio || "Este tutor ainda não escreveu uma bio."}
                 </Text>
+                 
+                 <Text style={styles.modalSecaoTitulo}>Escolha a matéria</Text>
+                <View style={styles.chipsMaterias}>
+                  {tutorSelecionado.materiasLecionadas.map((materia) => {
+                    const ativa = materiaEscolhidaParaMatch === materia;
+                    return (
+                      <Pressable
+                        key={materia}
+                        style={[styles.chipMateria, ativa && styles.chipMateriaAtiva]}
+                        onPress={() => setMateriaEscolhidaParaMatch(materia)}
+                      >
+                        <Text style={[styles.chipMateriaTexto, ativa && styles.chipMateriaTextoAtivo]}>
+                          {materia}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
                 <Text style={styles.modalSecaoTitulo}>Horários disponíveis</Text>
 
@@ -362,4 +387,12 @@ const styles = StyleSheet.create({
   },
   modalHorarioDia: { fontSize: 13, fontWeight: "bold", color: themeAluno.primary },
   modalHorarioTexto: { fontSize: 13, color: themeAluno.text },
+  chipsMaterias: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16, width: "100%" },
+chipMateria: {
+  paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16,
+  borderWidth: 1, borderColor: themeAluno.primary,
+  },
+  chipMateriaAtiva: { backgroundColor: themeAluno.primary },
+  chipMateriaTexto: { fontSize: 12, color: themeAluno.primary, fontWeight: "600" },
+  chipMateriaTextoAtivo: { color: themeAluno.white },
 });
