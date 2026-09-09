@@ -35,18 +35,19 @@ export default function PerfilAluno() {
   const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
   const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
 
-useFocusEffect(
-    useCallback(() => {
-      if (!token) return;
+  useEffect(() => {
+    if (!token) return;
 
-      buscarProximasAulas(token)
-        .then((dados) => {
-          console.log("DADOS PROXIMAS AULAS:", dados);
-          setProximasAulas(dados);
-        })
-        .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
-    }, [token])
-);
+    buscarMinhasAvaliacoes(token)
+      .then((dados) => {
+        setAvaliacaoMedia(dados.media);
+        setTotalAvaliacoes(dados.total);
+      })
+      .catch((erro) => {
+        console.log("Erro ao buscar avaliações:", erro.message);
+      });
+  }, [token]);
+
   const [proximasAulas, setProximasAulas] = useState<any[]>([]);
 
   useFocusEffect(
@@ -54,7 +55,9 @@ useFocusEffect(
       if (!token) return;
 
       buscarProximasAulas(token)
-        .then((dados) => setProximasAulas(dados))
+        .then((dados) => {
+          setProximasAulas(dados.matches);
+        })
         .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
     }, [token])
   );
@@ -293,18 +296,24 @@ useFocusEffect(
             {proximasAulas.length === 0 ? (
               <Text style={styles.semInfo}>Nenhuma aula agendada ainda.</Text>
             ) : (
-              proximasAulas.map((aula, index) => (
-                <View key={aula.id ?? index} style={styles.linhaAula}>
-                  <View style={styles.infoAula}>
-                    <Text style={styles.nomeAula}>{aula.materia}</Text>
-                    <Text style={styles.nomeTutor}>com {aula.tutor}</Text>
-                  </View>
-                  <View style={styles.dataAula}>
-                    <Text style={styles.textoData}>{aula.data}</Text>
-                    <Text style={styles.textoHora}>{aula.hora}</Text>
-                  </View>
-                </View>
-              ))
+             proximasAulas.map((aula, index) => {
+    const dataHora = new Date(aula.dataHoraAgendada)
+    const dataFormatada = dataHora.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+    const horaFormatada = dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+
+    return (
+        <View key={aula._id ?? index} style={styles.linhaAula}>
+            <View style={styles.infoAula}>
+                <Text style={styles.nomeAula}>{aula.tutorId?.materiasLecionadas?.[0] ?? "Matéria"}</Text>
+                <Text style={styles.nomeTutor}>com {aula.tutorId?.nome ?? "Tutor"}</Text>
+            </View>
+            <View style={styles.dataAula}>
+                <Text style={styles.textoData}>{dataFormatada}</Text>
+                <Text style={styles.textoHora}>{horaFormatada}</Text>
+            </View>
+        </View>
+    )
+})
             )}
           </View>
 
