@@ -1,11 +1,14 @@
 import { Pressable, ScrollView, StyleSheet, Text, View, Modal, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes";
+import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
+import { buscarProximasAulas } from "../../shared/services/matchService";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -23,18 +26,41 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
   { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a aprender!" },
-  { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
   { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
 ];
 
-const proximasAulas = [
-  { id: "1", materia: "Matemática", tutor: "Thailanny Cristina", data: "27 Ago", hora: "15:00 - 17:00" },
-  { id: "2", materia: "Física", tutor: "Ricardo Sanchez", data: "28 Ago", hora: "10:00 - 12:00" },
-  { id: "3", materia: "Inglês", tutor: "Júlia Oliveira", data: "28 Ago", hora: "15:00 - 16:00" },
-];
-
 export default function PerfilAluno() {
-  const { usuario, sair } = useUsuario();
+  const { usuario, token, sair } = useUsuario();
+
+  const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
+  const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
+
+  useEffect(() => {
+    if (!token) return;
+
+    buscarMinhasAvaliacoes(token)
+      .then((dados) => {
+        setAvaliacaoMedia(dados.media);
+        setTotalAvaliacoes(dados.total);
+      })
+      .catch((erro) => {
+        console.log("Erro ao buscar avaliações:", erro.message);
+      });
+  }, [token]);
+
+  const [proximasAulas, setProximasAulas] = useState<any[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!token) return;
+
+     buscarProximasAulas(token)
+    .then((dados) => {
+        setProximasAulas(dados.matches)
+    })
+    .catch((erro) => console.log("Erro ao buscar próximas aulas:", erro.message));
+    }, [token])
+  );
 
   function handleVoltarLogin() {
     sair();
@@ -148,6 +174,19 @@ export default function PerfilAluno() {
 
           {/* Estatísticas */}
           <View style={styles.linhaEstatisticas}>
+            <View style={styles.cardEstatistica}>
+              <Text style={styles.iconeEstatistica}>⭐</Text>
+              <Text style={styles.numeroEstatistica}>
+                {avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "-"}
+              </Text>
+              <Text style={styles.labelEstatistica}>Avaliação Média</Text>
+              <Text style={styles.destaqueEstatistica}>
+                {totalAvaliacoes > 0
+                  ? `${totalAvaliacoes} avaliações`
+                  : "Você ainda não foi avaliado"}
+              </Text>
+            </View>
+
             {estatisticas.map((item) => (
               <View key={item.label} style={styles.cardEstatistica}>
                 <Text style={styles.iconeEstatistica}>{item.icone}</Text>
@@ -254,18 +293,28 @@ export default function PerfilAluno() {
               </Pressable>
             </View>
 
-            {proximasAulas.map((aula) => (
-              <View key={aula.id} style={styles.linhaAula}>
-                <View style={styles.infoAula}>
-                  <Text style={styles.nomeAula}>{aula.materia}</Text>
-                  <Text style={styles.nomeTutor}>com {aula.tutor}</Text>
-                </View>
-                <View style={styles.dataAula}>
-                  <Text style={styles.textoData}>{aula.data}</Text>
-                  <Text style={styles.textoHora}>{aula.hora}</Text>
-                </View>
-              </View>
-            ))}
+            {proximasAulas.length === 0 ? (
+              <Text style={styles.semInfo}>Nenhuma aula agendada ainda.</Text>
+            ) : (
+             proximasAulas.map((aula, index) => {
+    const dataHora = new Date(aula.dataHoraAgendada)
+    const dataFormatada = dataHora.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
+    const horaFormatada = dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+
+    return (
+        <View key={aula._id ?? index} style={styles.linhaAula}>
+            <View style={styles.infoAula}>
+               <Text style={styles.nomeAula}>{aula.materia ?? aula.tutorId?.materiasLecionadas?.[0] ?? "Matéria"}</Text>
+                <Text style={styles.nomeTutor}>com {aula.tutorId?.nome ?? "Tutor"}</Text>
+            </View>
+            <View style={styles.dataAula}>
+                <Text style={styles.textoData}>{dataFormatada}</Text>
+                <Text style={styles.textoHora}>{horaFormatada}</Text>
+            </View>
+        </View>
+    )
+})
+            )}
           </View>
 
           <SecaoAvaliacoes theme={themeAluno} />
