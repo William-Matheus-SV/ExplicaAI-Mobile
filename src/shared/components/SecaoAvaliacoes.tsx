@@ -1,19 +1,38 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { useUsuario } from "../contexts/UsuarioContext"
+import { buscarAvaliacoesPendentes, buscarAvaliacoesEnviadas } from "../services/avaliacaoService"
 
 interface SecaoAvaliacoesProps {
     theme: any
 }
 
 export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
+    const { token } = useUsuario()
+
     const [abaAtiva, setAbaAtiva] = useState<"pendentes" | "avaliadas">("pendentes")
+    const [pendentes, setPendentes] = useState<any[]>([])
+    const [avaliadas, setAvaliadas] = useState<any[]>([])
 
-    // TODO: substituir por dados reais da API quando as rotas forem definidas
-    const pendentes: { id: string; nome: string; materia: string; data: string; hora: string; fotoUrl: string }[] = []
+    useEffect(() => {
+        if (!token) return
 
-    const avaliadas: { id: string; nome: string; materia: string; nota: number; dataAvaliacao: string; fotoUrl: string }[] = []
+        buscarAvaliacoesPendentes(token)
+            .then((dados) => {
+                console.log("AVALIACOES PENDENTES:", JSON.stringify(dados, null, 2))
+                setPendentes(dados.pendentes ?? [])
+            })
+            .catch((erro) => console.log("Erro ao buscar pendentes:", erro.message))
 
-    const [itemParaAvaliar, setItemParaAvaliar] = useState<typeof pendentes[0] | null>(null)
+        buscarAvaliacoesEnviadas(token)
+            .then((dados) => {
+                console.log("AVALIACOES ENVIADAS:", JSON.stringify(dados, null, 2))
+                setAvaliadas(dados.avaliacoes ?? [])
+            })
+            .catch((erro) => console.log("Erro ao buscar enviadas:", erro.message))
+    }, [token])
+
+    const [itemParaAvaliar, setItemParaAvaliar] = useState<any | null>(null)
     const [notaEscolhida, setNotaEscolhida] = useState(0)
     const [observacao, setObservacao] = useState("")
 
@@ -54,13 +73,13 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                             <Text style={styles.vazioTexto}>Não há avaliações pendentes</Text>
                         </View>
                     ) : (
-                        pendentes.map((item) => (
-                            <View key={item.id} style={styles.itemPendente}>
+                        pendentes.map((item, index) => (
+                            <View key={item.matchId ?? index} style={styles.itemPendente}>
                                 <Image source={{ uri: item.fotoUrl }} style={styles.foto} />
                                 <View style={styles.infoItem}>
                                     <Text style={styles.nomeItem}>{item.nome}</Text>
                                     <Text style={styles.materiaItem}>{item.materia}</Text>
-                                    <Text style={styles.dataItem}>🗓️ Aula em {item.data} às {item.hora}</Text>
+                                    <Text style={styles.dataItem}>🗓️ {item.dataHoraAgendada}</Text>
                                 </View>
                                 <Pressable
                                     style={[styles.botaoAvaliar, { backgroundColor: theme.primary }]}
@@ -84,14 +103,14 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                             <Text style={styles.vazioTexto}>Você ainda não avaliou nenhum tutor</Text>
                         </View>
                     ) : (
-                        avaliadas.map((item) => (
-                            <View key={item.id} style={styles.itemAvaliado}>
+                        avaliadas.map((item, index) => (
+                            <View key={item.id ?? index} style={styles.itemAvaliado}>
                                 <Image source={{ uri: item.fotoUrl }} style={styles.foto} />
                                 <View style={styles.infoItem}>
                                     <Text style={styles.nomeItem}>{item.nome}</Text>
                                     <Text style={styles.materiaItem}>{item.materia}</Text>
                                     <Text style={styles.notaItem}>
-                                        {"⭐".repeat(item.nota)} {item.nota.toFixed(1)}
+                                        {"⭐".repeat(item.nota ?? 0)} {item.nota?.toFixed?.(1)}
                                     </Text>
                                     <Text style={styles.dataItem}>Avaliado em {item.dataAvaliacao}</Text>
                                 </View>
