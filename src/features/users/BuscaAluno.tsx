@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState, useCallback } from "react";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { ActivityIndicator,  Modal,  Pressable,  ScrollView,  StyleSheet,  Text,  View, Alert, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
@@ -29,7 +29,7 @@ interface Tutor {
 
 const materias = [
   "Matemática", "Física", "Química", "Português", "Lógica de Programação", "HTML, CSS e JavaScript", 
-  "Banco de Dados","Biologia", "História", "Geografia", "Inglês", "Espanhol", "Filosofia",
+  "Banco de Dados","Biologia", "História", "Geografia", "Inglês", "Espanhol", "Filosofia", "Sociologia",
 ];
 
 export default function BuscaAluno() {
@@ -90,15 +90,22 @@ export default function BuscaAluno() {
     if (!tutorSelecionado || !token) return;
 
     if (!materiaEscolhidaParaMatch) {
-    Alert.alert("Selecione a matéria", "Escolha qual matéria você quer estudar nesta aula antes de agendar.");
-    return;
-   }
+      Alert.alert("Selecione a matéria", "Escolha qual matéria você quer estudar nesta aula antes de agendar.");
+      return;
+    }
 
     setAgendando(true);
     try {
       await criarMatch(tutorSelecionado._id, slot._id, materiaEscolhidaParaMatch!, token);
 
-      Alert.alert("Tutoria agendada!", "Seu horário foi reservado com sucesso.");
+      Alert.alert(
+        "Tutoria agendada!",
+        "Seu horário foi reservado com sucesso.",
+        [
+          { text: "Continuar buscando", style: "cancel" },
+          { text: "Ver minha agenda", onPress: () => router.push("/agenda-aluno") },
+        ]
+      );
 
       // Remove o slot da lista local, já que ele acabou de ser reservado
       setSlotsDoTutor((atuais) => atuais.filter((s) => s._id !== slot._id));
@@ -108,7 +115,7 @@ export default function BuscaAluno() {
     } finally {
       setAgendando(false);
     }
-  }
+}
   return (
     <View style={styles.tela}>
       <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
