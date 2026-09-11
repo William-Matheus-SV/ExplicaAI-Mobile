@@ -62,6 +62,14 @@ export default function BuscaAluno() {
     }
   }
   
+  function handleVoltar() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/perfil-aluno");
+    }
+  }
+
   useFocusEffect(
   useCallback(() => {
     async function carregarTutores() {
@@ -119,6 +127,9 @@ export default function BuscaAluno() {
   return (
     <View style={styles.tela}>
       <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
+         <Pressable style={styles.botaoVoltar} onPress={handleVoltar}>
+          <Ionicons name="arrow-back" size={20} color={themeAluno.white} />
+        </Pressable>
         <View style={styles.iconeTitulo}>
           <Text style={styles.iconeTituloTexto}>🎓</Text>
         </View>
@@ -402,4 +413,9 @@ chipMateria: {
   chipMateriaAtiva: { backgroundColor: themeAluno.primary },
   chipMateriaTexto: { fontSize: 12, color: themeAluno.primary, fontWeight: "600" },
   chipMateriaTextoAtivo: { color: themeAluno.white },
+   botaoVoltar: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center", alignItems: "center",
+  },
 });
