@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View, Modal, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { router } from "expo-router";
@@ -9,6 +9,7 @@ import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes";
 import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
 import { buscarProximasAulas } from "../../shared/services/matchService";
+import { buscarEstatisticas } from "../../shared/services/matchService";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -25,6 +26,7 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
 
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
+   { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
   { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a aprender!" },
   { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
 ];
@@ -34,19 +36,29 @@ export default function PerfilAluno() {
 
   const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
   const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
+  const [aulasConcluidas, setAulasConcluidas] = useState(0);
+  const [aulasAgendadas, setAulasAgendadas] = useState(0);
 
-  useEffect(() => {
-    if (!token) return;
-
-    buscarMinhasAvaliacoes(token)
-      .then((dados) => {
-        setAvaliacaoMedia(dados.media);
-        setTotalAvaliacoes(dados.total);
-      })
-      .catch((erro) => {
-        console.log("Erro ao buscar avaliações:", erro.message);
-      });
-  }, [token]);
+  useFocusEffect(
+  useCallback(() => {
+    async function carregarDados() {
+      if (!token) return;
+      try {
+        const [avaliacoes, stats] = await Promise.all([
+          buscarMinhasAvaliacoes(token),
+          buscarEstatisticas(token),
+        ]);
+        setAvaliacaoMedia(avaliacoes.media);
+        setTotalAvaliacoes(avaliacoes.total);
+        setAulasConcluidas(stats.aulasConcluidas);
+        setAulasAgendadas(stats.aulasAgendadas);
+      } catch (e) {
+        // silencioso — mantém valores padrão se falhar
+      }
+    }
+    carregarDados();
+  }, [token])
+);
 
   const [proximasAulas, setProximasAulas] = useState<any[]>([]);
 
@@ -99,6 +111,33 @@ export default function PerfilAluno() {
     nome: itinerario.nome,
     materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
   })).filter((itinerario) => itinerario.materias.length > 0);
+
+  const estatisticasExibidas = estatisticas.map((item) => {
+  if (item.label === "Avaliação Média") {
+    return {
+      ...item,
+      numero: avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "0.0",
+      destaque: totalAvaliacoes > 0
+        ? `${totalAvaliacoes} avaliação${totalAvaliacoes !== 1 ? "ões" : ""}`
+        : "Você ainda não foi avaliado",
+    };
+  }
+  if (item.label === "Aulas Concluídas") {
+    return {
+      ...item,
+      numero: String(aulasConcluidas),
+      destaque: aulasConcluidas > 0 ? "Continue assim!" : "Comece a aprender!",
+    };
+  }
+  if (item.label === "Aulas Agendadas") {
+    return {
+      ...item,
+      numero: String(aulasAgendadas),
+      destaque: aulasAgendadas > 0 ? "Próximas aulas" : "Nenhuma agendada",
+    };
+  }
+  return item;
+});
 
   return (
     <View style={styles.container}>
@@ -174,20 +213,7 @@ export default function PerfilAluno() {
 
           {/* Estatísticas */}
           <View style={styles.linhaEstatisticas}>
-            <View style={styles.cardEstatistica}>
-              <Text style={styles.iconeEstatistica}>⭐</Text>
-              <Text style={styles.numeroEstatistica}>
-                {avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "-"}
-              </Text>
-              <Text style={styles.labelEstatistica}>Avaliação Média</Text>
-              <Text style={styles.destaqueEstatistica}>
-                {totalAvaliacoes > 0
-                  ? `${totalAvaliacoes} avaliações`
-                  : "Você ainda não foi avaliado"}
-              </Text>
-            </View>
-
-            {estatisticas.map((item) => (
+            {estatisticasExibidas.map((item) => (
               <View key={item.label} style={styles.cardEstatistica}>
                 <Text style={styles.iconeEstatistica}>{item.icone}</Text>
                 <Text style={styles.numeroEstatistica}>{item.numero}</Text>

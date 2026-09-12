@@ -74,3 +74,21 @@ export async function buscarProximasAulas(token: string) {
 
   return dados;
 }
+export interface Estatisticas {
+  aulasConcluidas: number;
+  aulasAgendadas: number;
+}
+
+export async function buscarEstatisticas(token: string): Promise<Estatisticas> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/estatisticas`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.error || dados.message || "Erro ao buscar estatísticas");
+  }
+
+  return dados;
+}

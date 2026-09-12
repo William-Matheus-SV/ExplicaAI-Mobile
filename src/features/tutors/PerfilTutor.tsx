@@ -7,6 +7,8 @@ import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
 import { listarMeusSlots, SlotAgendaReal } from "../../shared/services/agendaService";
+import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
+import { buscarEstatisticas } from "../../shared/services/matchService";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -22,8 +24,8 @@ const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
 ];
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
-  { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a ensinar!" },
   { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
+  { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a ensinar!" },
   { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
 ];
 // Seguem mockados os dados pois precisa do back-end
@@ -47,6 +49,10 @@ export default function PerfilTutor() {
   const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
   const [slotsReais, setSlotsReais] = useState<SlotAgendaReal[]>([]);
   const [carregandoAgenda, setCarregandoAgenda] = useState(true);
+  const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
+  const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
+  const [aulasConcluidas, setAulasConcluidas] = useState(0);
+  const [aulasAgendadas, setAulasAgendadas] = useState(0);
 
   useFocusEffect(
   useCallback(() => {
@@ -66,6 +72,26 @@ export default function PerfilTutor() {
     }
     carregarAgenda();
   }, [token])
+);
+  useFocusEffect(
+    useCallback(() => {
+      async function carregarEstatisticas() {
+        if (!token) return;
+        try {
+          const [avaliacoes, stats] = await Promise.all([
+            buscarMinhasAvaliacoes(token),
+            buscarEstatisticas(token),
+          ]);
+          setAvaliacaoMedia(avaliacoes.media);
+          setTotalAvaliacoes(avaliacoes.total);
+          setAulasConcluidas(stats.aulasConcluidas);
+          setAulasAgendadas(stats.aulasAgendadas);
+        } catch (e) {
+          // silencioso — mantém valores padrão se falhar
+        }
+      }
+      carregarEstatisticas();
+    }, [token])
 );
 
  const DIAS_LABEL: Record<number, "SEG" | "TER" | "QUA" | "QUI" | "SEX" | "SAB" | "DOM"> = {
@@ -120,6 +146,32 @@ const agenda = DIAS_ORDEM.map((dia) => ({
     materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
   })).filter((itinerario) => itinerario.materias.length > 0);
 
+  const estatisticasExibidas = estatisticas.map((item) => {
+  if (item.label === "Avaliação Média") {
+    return {
+      ...item,
+      numero: avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "0.0",
+      destaque: totalAvaliacoes > 0
+        ? `${totalAvaliacoes} avaliação${totalAvaliacoes !== 1 ? "ões" : ""}`
+        : "Você ainda não foi avaliado",
+    };
+  }
+  if (item.label === "Aulas Concluídas") {
+    return {
+      ...item,
+      numero: String(aulasConcluidas),
+      destaque: aulasConcluidas > 0 ? "Continue ensinando!" : "Comece a ensinar!",
+    };
+  }
+  if (item.label === "Aulas Agendadas") {
+    return {
+      ...item,
+      numero: String(aulasAgendadas),
+      destaque: aulasAgendadas > 0 ? "Próximas aulas" : "Nenhuma agendada",
+    };
+  }
+  return item;
+});
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -194,7 +246,7 @@ const agenda = DIAS_ORDEM.map((dia) => ({
           </View>
             {/* Estatísticas */}
           <View style={styles.linhaEstatisticas}>
-            {estatisticas.map((item) => (
+            {estatisticasExibidas.map((item) => (
               <View key={item.label} style={styles.cardEstatistica}>
                 <Text style={styles.iconeEstatistica}>{item.icone}</Text>
                 <Text style={styles.numeroEstatistica}>{item.numero}</Text>
