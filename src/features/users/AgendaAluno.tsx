@@ -1,12 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
-import { listarSemanaDoAluno, MatchSemana } from "../../shared/services/matchService";
+import { listarSemanaDoAluno, confirmarPresenca, MatchSemana } from "../../shared/services/matchService";
 
 
 const DIAS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
@@ -31,6 +31,7 @@ export default function AgendaAluno() {
   const [matches, setMatches] = useState<MatchSemana[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [confirmandoPresenca, setconfirmandoPresenca] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +61,22 @@ export default function AgendaAluno() {
       router.replace("/perfil-aluno");
     }
   }
+  async function handleConfirmarPresenca(match: MatchSemana) {
+  if (!token) return;
 
+  setconfirmandoPresenca(match._id);
+  try {
+    await confirmarPresenca(match._id, token);
+    setMatches((atuais) =>
+      atuais.map((m) => (m._id === match._id ? { ...m, status: "realizado" } : m))
+    );
+    Alert.alert("Presença confirmada!", "Obrigado por confirmar.");
+  } catch (e: any) {
+    Alert.alert("Não foi possível confirmar", e.message || "Tente novamente.");
+  } finally {
+    setconfirmandoPresenca(null);
+  }
+}
   const aulasPorDia: Record<string, MatchSemana[]> = { Segunda: [], Terça: [], Quarta: [], Quinta: [], Sexta: [] };
   matches.forEach((match) => {
     const data = new Date(match.dataHoraAgendada);
@@ -106,9 +122,21 @@ export default function AgendaAluno() {
           <Text style={styles.materiaTexto}>{match.materia}</Text>
           <Text style={styles.professorTexto}>Prof. {match.tutorId.nome}</Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: status.corFundo }]}>
-          <Text style={[styles.statusTexto, { color: status.corTexto }]}>{status.label}</Text>
-        </View>
+            {match.status === "confirmado" && new Date(match.dataHoraAgendada) <= new Date() ? (
+      <Pressable
+        style={styles.botaoConfirmar}
+        onPress={() => handleConfirmarPresenca(match)}
+        disabled={confirmandoPresenca === match._id}
+      >
+        <Text style={styles.botaoConfirmarTexto}>
+          {confirmandoPresenca === match._id ? "..." : "Confirmar presença"}
+        </Text>
+      </Pressable>
+    ) : (
+      <View style={[styles.statusBadge, { backgroundColor: status.corFundo }]}>
+        <Text style={[styles.statusTexto, { color: status.corTexto }]}>{status.label}</Text>
+      </View>
+    )}
       </View>
     );
   }
@@ -273,5 +301,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12, alignItems: "center", backgroundColor: themeAluno.primaryLight,
   },
   botaoAgendarTexto: { color: themeAluno.primary, fontWeight: "bold", fontSize: 14 },
-  mensagemVazia: { fontSize: 13, color: themeAluno.textSecondary, textAlign: "center", paddingVertical: 24 },
+  mensagemVazia: { fontSize: 13, color: themeAluno.textSecondary, textAlign: "center", paddingVertical: 24 
+  },
+  botaoConfirmar: {  backgroundColor: themeAluno.primary,  borderRadius: 8,  paddingVertical: 6,  paddingHorizontal: 12,},
+  botaoConfirmarTexto: {color: "white",  fontSize: 11,  fontWeight: "600",},
 });

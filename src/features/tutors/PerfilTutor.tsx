@@ -379,7 +379,7 @@ const agenda = DIAS_ORDEM.map((dia) => ({
                 style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
                 onPress={() => router.push("/editar-agenda-tutor")}
               >
-                <Text style={styles.CardLink}>Ver agenda completa</Text>
+                <Text style={styles.CardLink}>Editar agenda</Text>
                 <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
               </Pressable>
             </View>
