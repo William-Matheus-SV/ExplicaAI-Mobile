@@ -59,6 +59,20 @@ export async function criarMatch(
 
   return dados.match;
 }
+export async function confirmarPresenca(matchId: string, token: string): Promise<void> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/${matchId}/confirm`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || "Erro ao confirmar presença");
+  }
+}
 export async function buscarProximasAulas(token: string) {
   const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/proximos`, {
     headers: {
@@ -70,6 +84,24 @@ export async function buscarProximasAulas(token: string) {
 
   if (!resposta.ok) {
     throw new Error(dados.message || dados.mensagem || "Erro ao buscar próximas aulas");
+  }
+
+  return dados;
+}
+export interface Estatisticas {
+  aulasConcluidas: number;
+  aulasAgendadas: number;
+}
+
+export async function buscarEstatisticas(token: string): Promise<Estatisticas> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/estatisticas`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.error || dados.message || "Erro ao buscar estatísticas");
   }
 
   return dados;
