@@ -7,7 +7,7 @@ import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import { listarSemanaDoAluno, confirmarPresenca, cancelarMatch, MatchSemana } from "../../shared/services/matchService";
-
+import ModalConfirmacao from "../../shared/components/ModalConfirmacao";
 
 const DIAS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 
@@ -24,7 +24,7 @@ const STATUS_INFO: Record<
   realizado: { label: "Realizado", corTexto: "#1976D2", corFundo: "#E3F2FD" },
   cancelado: { label: "Cancelado", corTexto: "#F57C00", corFundo: "#FFF3E0" },
 };
- 
+
 export default function AgendaAluno() {
   const { token } = useUsuario();
   const [diaSelecionado, setDiaSelecionado] = useState("Segunda");
@@ -32,6 +32,8 @@ export default function AgendaAluno() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [confirmandoPresenca, setConfirmandoPresenca] = useState<string | null>(null);
+  const [matchParaCancelar, setMatchParaCancelar] = useState<MatchSemana | null>(null);
+  const [matchParaConfirmar, setMatchParaConfirmar] = useState<MatchSemana | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,60 +63,68 @@ export default function AgendaAluno() {
       router.replace("/perfil-aluno");
     }
   }
+// ===================================================================
+// [Clicou no botão "Confirmar" de um card] 
+// Mesma ideia: só abre o modal, ainda não confirma nada
+// ===================================================================
   function handleConfirmarPresenca(match: MatchSemana) {
-  Alert.alert(
-    "Confirmar presença",
-    "Tem certeza que quer confirmar presença nesta aula?",
-    [
-      { text: "Voltar", style: "cancel" },
-      {
-        text: "Confirmar",
-        onPress: async () => {
-          if (!token) return;
-          setConfirmandoPresenca(match._id);
-          try {
-            await confirmarPresenca(match._id, token);
-            setMatches((atuais) =>
-              atuais.map((m) => (m._id === match._id ? { ...m, status: "realizado" } : m))
-            );
-          } catch (e: any) {
-            Alert.alert("Não foi possível confirmar", e.message || "Tente novamente.");
-          } finally {
-            setConfirmandoPresenca(null);
-          }
-        },
-      },
-    ]
-  );
+    setMatchParaConfirmar(match);
+}
+// ===================================================================
+// [Clicou no botão "Cancelar" de um card] 
+// Não cancela nada ainda — só guarda QUAL aula é, o que faz o modal aparecer
+// ===================================================================
+function handleCancelarAula(match: MatchSemana) {
+  setMatchParaCancelar(match);
+}
+// ===================================================================
+// [Executa o cancelamento de verdade] 
+// Só é chamada quando o usuário clica "Cancelar aula" DENTRO do modal
+// ===================================================================
+async function executarCancelamento() {
+  if (!matchParaCancelar || !token) return;
+
+  const match = matchParaCancelar;
+  setMatchParaCancelar(null); // fecha o modal já
+  setConfirmandoPresenca(match._id);
+
+  try {
+    await cancelarMatch(match._id, token);
+    setMatches((atuais) =>
+      atuais.map((m) => (m._id === match._id ? { ...m, status: "cancelado" } : m))
+    );
+  } catch (e: any) {
+    Alert.alert("Não foi possível cancelar", e.message || "Tente novamente.");
+    // esse Alert aqui é OK manter — é só 1 botão "OK", esse tipo funciona no navegador
+  } finally {
+    setConfirmandoPresenca(null);
+  }
 }
 
-function handleCancelarAula(match: MatchSemana) {
-  Alert.alert(
-    "Cancelar aula",
-    "Tem certeza que quer cancelar esta aula? Essa ação não pode ser desfeita.",
-    [
-      { text: "Voltar", style: "cancel" },
-      {
-        text: "Cancelar aula",
-        style: "destructive",
-        onPress: async () => {
-          if (!token) return;
-          setConfirmandoPresenca(match._id);
-          try {
-            await cancelarMatch(match._id, token);
-            setMatches((atuais) =>
-              atuais.map((m) => (m._id === match._id ? { ...m, status: "cancelado" } : m))
-            );
-          } catch (e: any) {
-            Alert.alert("Não foi possível cancelar", e.message || "Tente novamente.");
-          } finally {
-            setConfirmandoPresenca(null);
-          }
-        },
-      },
-    ]
-  );
+// ===================================================================
+// [Executa a confirmação de presença de verdade] 
+// Só é chamada quando o usuário clica "Confirmar" DENTRO do modal
+// ===================================================================
+async function executarConfirmacaoPresenca() {
+  if (!matchParaConfirmar || !token) return;
+
+  const match = matchParaConfirmar;
+  setMatchParaConfirmar(null);
+  setConfirmandoPresenca(match._id);
+
+  try {
+    await confirmarPresenca(match._id, token);
+    setMatches((atuais) =>
+      atuais.map((m) => (m._id === match._id ? { ...m, status: "realizado" } : m))
+    );
+  } catch (e: any) {
+    Alert.alert("Não foi possível confirmar", e.message || "Tente novamente.");
+  } finally {
+    setConfirmandoPresenca(null);
+  }
 }
+
+
   const aulasPorDia: Record<string, MatchSemana[]> = { Segunda: [], Terça: [], Quarta: [], Quinta: [], Sexta: [] };
   matches.forEach((match) => {
     const data = new Date(match.dataHoraAgendada);
@@ -311,7 +321,36 @@ function handleCancelarAula(match: MatchSemana) {
           </>
         )}
       </ScrollView>
- 
+        
+        {/* ===================================================================
+    [MODAL: Cancelar aula]
+    Só aparece na tela quando matchParaCancelar NÃO for null
+=================================================================== */}
+<ModalConfirmacao
+  visivel={matchParaCancelar !== null}
+  titulo="Cancelar aula"
+  mensagem="Tem certeza que quer cancelar esta aula? Essa ação não pode ser desfeita."
+  textoBotaoSecundario="Voltar"
+  textoBotaoPrimario="Cancelar aula"
+  corPrimaria={themeAluno.primary}
+  destrutivo={true}
+  aoFechar={() => setMatchParaCancelar(null)}
+  aoConfirmar={executarCancelamento}
+/>
+
+{/* ===================================================================
+    [MODAL: Confirmar presença]
+=================================================================== */}
+<ModalConfirmacao
+  visivel={matchParaConfirmar !== null}
+  titulo="Confirmar presença"
+  mensagem="Tem certeza que quer confirmar presença nesta aula?"
+  textoBotaoSecundario="Voltar"
+  textoBotaoPrimario="Confirmar"
+  corPrimaria={themeAluno.primary}
+  aoFechar={() => setMatchParaConfirmar(null)}
+  aoConfirmar={executarConfirmacaoPresenca}
+/>
       <BottomNavBar theme={themeAluno} perfil="aluno" />
     </View>
   );
