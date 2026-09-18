@@ -6,8 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
-import { listarSemanaDoAluno, confirmarPresenca, MatchSemana } from "../../shared/services/matchService";
-
+import { listarSemanaDoAluno, confirmarPresenca, cancelarMatch, MatchSemana } from "../../shared/services/matchService";
+import ModalConfirmacao from "../../shared/components/ModalConfirmacao";
 
 const DIAS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 
@@ -24,14 +24,16 @@ const STATUS_INFO: Record<
   realizado: { label: "Realizado", corTexto: "#1976D2", corFundo: "#E3F2FD" },
   cancelado: { label: "Cancelado", corTexto: "#F57C00", corFundo: "#FFF3E0" },
 };
- 
+
 export default function AgendaAluno() {
   const { token } = useUsuario();
   const [diaSelecionado, setDiaSelecionado] = useState("Segunda");
   const [matches, setMatches] = useState<MatchSemana[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [confirmandoPresenca, setconfirmandoPresenca] = useState<string | null>(null);
+  const [confirmandoPresenca, setConfirmandoPresenca] = useState<string | null>(null);
+  const [matchParaCancelar, setMatchParaCancelar] = useState<MatchSemana | null>(null);
+  const [matchParaConfirmar, setMatchParaConfirmar] = useState<MatchSemana | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,22 +63,68 @@ export default function AgendaAluno() {
       router.replace("/perfil-aluno");
     }
   }
-  async function handleConfirmarPresenca(match: MatchSemana) {
-  if (!token) return;
+// ===================================================================
+// [Clicou no botão "Confirmar" de um card] 
+// Mesma ideia: só abre o modal, ainda não confirma nada
+// ===================================================================
+  function handleConfirmarPresenca(match: MatchSemana) {
+    setMatchParaConfirmar(match);
+}
+// ===================================================================
+// [Clicou no botão "Cancelar" de um card] 
+// Não cancela nada ainda — só guarda QUAL aula é, o que faz o modal aparecer
+// ===================================================================
+function handleCancelarAula(match: MatchSemana) {
+  setMatchParaCancelar(match);
+}
+// ===================================================================
+// [Executa o cancelamento de verdade] 
+// Só é chamada quando o usuário clica "Cancelar aula" DENTRO do modal
+// ===================================================================
+async function executarCancelamento() {
+  if (!matchParaCancelar || !token) return;
 
-  setconfirmandoPresenca(match._id);
+  const match = matchParaCancelar;
+  setMatchParaCancelar(null); // fecha o modal já
+  setConfirmandoPresenca(match._id);
+
+  try {
+    await cancelarMatch(match._id, token);
+    setMatches((atuais) =>
+      atuais.map((m) => (m._id === match._id ? { ...m, status: "cancelado" } : m))
+    );
+  } catch (e: any) {
+    Alert.alert("Não foi possível cancelar", e.message || "Tente novamente.");
+    // esse Alert aqui é OK manter — é só 1 botão "OK", esse tipo funciona no navegador
+  } finally {
+    setConfirmandoPresenca(null);
+  }
+}
+
+// ===================================================================
+// [Executa a confirmação de presença de verdade] 
+// Só é chamada quando o usuário clica "Confirmar" DENTRO do modal
+// ===================================================================
+async function executarConfirmacaoPresenca() {
+  if (!matchParaConfirmar || !token) return;
+
+  const match = matchParaConfirmar;
+  setMatchParaConfirmar(null);
+  setConfirmandoPresenca(match._id);
+
   try {
     await confirmarPresenca(match._id, token);
     setMatches((atuais) =>
       atuais.map((m) => (m._id === match._id ? { ...m, status: "realizado" } : m))
     );
-    Alert.alert("Presença confirmada!", "Obrigado por confirmar.");
   } catch (e: any) {
     Alert.alert("Não foi possível confirmar", e.message || "Tente novamente.");
   } finally {
-    setconfirmandoPresenca(null);
+    setConfirmandoPresenca(null);
   }
 }
+
+
   const aulasPorDia: Record<string, MatchSemana[]> = { Segunda: [], Terça: [], Quarta: [], Quinta: [], Sexta: [] };
   matches.forEach((match) => {
     const data = new Date(match.dataHoraAgendada);
@@ -122,21 +170,55 @@ export default function AgendaAluno() {
           <Text style={styles.materiaTexto}>{match.materia}</Text>
           <Text style={styles.professorTexto}>Prof. {match.tutorId.nome}</Text>
         </View>
-            {match.status === "confirmado" && new Date(match.dataHoraAgendada) <= new Date() ? (
+       {match.status === "confirmado" ? (
+
+  // ===================================================================
+  // [Aula confirmada — Cancelar sempre visível; Confirmar só depois da hora]
+  // ===================================================================
+  <View style={styles.botoesAcao}>
+
+    {/* ===================================================================
+        [Botão CANCELAR]
+        Sempre visível quando confirmado. O backend decide se pode ou não
+        (regra das 2h) e explica no Alert de erro se recusar.
+    =================================================================== */}
+    <Pressable
+      style={[styles.botaoCancelar, confirmandoPresenca === match._id && styles.botaoDesabilitado]}
+      onPress={() => handleCancelarAula(match)}
+      disabled={confirmandoPresenca === match._id}
+    >
+      <Text style={styles.botaoCancelarTexto}>Cancelar</Text>
+    </Pressable>
+
+    {/* ===================================================================
+        [Botão CONFIRMAR PRESENÇA]
+        Só aparece depois que o horário da aula já passou — não faz sentido
+        confirmar presença de uma aula que ainda nem começou.
+    =================================================================== */}
+    {new Date(match.dataHoraAgendada) <= new Date() && (
       <Pressable
-        style={styles.botaoConfirmar}
+        style={[styles.botaoConfirmar, confirmandoPresenca === match._id && styles.botaoDesabilitado]}
         onPress={() => handleConfirmarPresenca(match)}
         disabled={confirmandoPresenca === match._id}
       >
         <Text style={styles.botaoConfirmarTexto}>
-          {confirmandoPresenca === match._id ? "..." : "Confirmar presença"}
+          {confirmandoPresenca === match._id ? "..." : "Confirmar"}
         </Text>
       </Pressable>
-    ) : (
-      <View style={[styles.statusBadge, { backgroundColor: status.corFundo }]}>
-        <Text style={[styles.statusTexto, { color: status.corTexto }]}>{status.label}</Text>
-      </View>
     )}
+
+  </View>
+
+) : (
+
+  // ===================================================================
+  // [Aula já Realizada ou Cancelada — só mostra o badge, sem botão]
+  // ===================================================================
+  <View style={[styles.statusBadge, { backgroundColor: status.corFundo }]}>
+    <Text style={[styles.statusTexto, { color: status.corTexto }]}>{status.label}</Text>
+  </View>
+
+)} 
       </View>
     );
   }
@@ -239,7 +321,36 @@ export default function AgendaAluno() {
           </>
         )}
       </ScrollView>
- 
+        
+        {/* ===================================================================
+    [MODAL: Cancelar aula]
+    Só aparece na tela quando matchParaCancelar NÃO for null
+=================================================================== */}
+<ModalConfirmacao
+  visivel={matchParaCancelar !== null}
+  titulo="Cancelar aula"
+  mensagem="Tem certeza que quer cancelar esta aula? Essa ação não pode ser desfeita."
+  textoBotaoSecundario="Voltar"
+  textoBotaoPrimario="Cancelar aula"
+  corPrimaria={themeAluno.primary}
+  destrutivo={true}
+  aoFechar={() => setMatchParaCancelar(null)}
+  aoConfirmar={executarCancelamento}
+/>
+
+{/* ===================================================================
+    [MODAL: Confirmar presença]
+=================================================================== */}
+<ModalConfirmacao
+  visivel={matchParaConfirmar !== null}
+  titulo="Confirmar presença"
+  mensagem="Tem certeza que quer confirmar presença nesta aula?"
+  textoBotaoSecundario="Voltar"
+  textoBotaoPrimario="Confirmar"
+  corPrimaria={themeAluno.primary}
+  aoFechar={() => setMatchParaConfirmar(null)}
+  aoConfirmar={executarConfirmacaoPresenca}
+/>
       <BottomNavBar theme={themeAluno} perfil="aluno" />
     </View>
   );
@@ -305,4 +416,29 @@ const styles = StyleSheet.create({
   },
   botaoConfirmar: {  backgroundColor: themeAluno.primary,  borderRadius: 8,  paddingVertical: 6,  paddingHorizontal: 12,},
   botaoConfirmarTexto: {color: "white",  fontSize: 11,  fontWeight: "600",},
+  // ===================================================================
+  // [Container que agrupa os 2 botões lado a lado — Cancelar e Confirmar]
+  // ===================================================================
+botoesAcao: {  flexDirection: "row",  gap: 6,},
+// ===================================================================
+// [Botão CANCELAR — fundo laranja claro, texto laranja escuro]
+// ===================================================================
+botaoCancelar: {
+  backgroundColor: "#FFF3E0",
+  borderRadius: 8,
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+},
+botaoCancelarTexto: {
+  color: "#F57C00",
+  fontSize: 11,
+  fontWeight: "600",
+},
+// ===================================================================
+// [Estado desabilitado — deixa o botão "apagado" enquanto uma ação
+// já está em andamento, pra evitar clique duplo]
+// ===================================================================
+botaoDesabilitado: {
+  opacity: 0.5,
+},
 });

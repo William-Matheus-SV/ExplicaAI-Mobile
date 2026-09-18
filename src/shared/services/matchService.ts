@@ -9,7 +9,9 @@ export interface MatchSemana {
   dataHoraAgendada: string;
   status: "confirmado" | "realizado" | "cancelado";
 }
-
+// ===================================================================
+// LISTAR SEMANA — Aluno ou Tutor
+// ===================================================================
 export async function listarSemanaDoAluno(token: string): Promise<MatchSemana[]> {
   const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/semana`, {
     headers: {
@@ -59,6 +61,9 @@ export async function criarMatch(
 
   return dados.match;
 }
+// ===================================================================
+// CONFIRMAR PRESENÇA — Aluno ou Tutor
+// ===================================================================
 export async function confirmarPresenca(matchId: string, token: string): Promise<void> {
   const resposta = await fetch(`${API_BASE_URL}/api/matches/${matchId}/confirm`, {
     method: "PATCH",
@@ -73,6 +78,9 @@ export async function confirmarPresenca(matchId: string, token: string): Promise
     throw new Error(dados.message || "Erro ao confirmar presença");
   }
 }
+// ===================================================================
+// BUSCAR PRÓXIMAS AULAS — Aluno ou Tutor
+// ===================================================================
 export async function buscarProximasAulas(token: string) {
   const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/proximos`, {
     headers: {
@@ -92,7 +100,9 @@ export interface Estatisticas {
   aulasConcluidas: number;
   aulasAgendadas: number;
 }
-
+// ===================================================================
+// BUSCAR ESTATÍSTICAS — Aluno ou Tutor
+// ===================================================================
 export async function buscarEstatisticas(token: string): Promise<Estatisticas> {
   const resposta = await fetch(`${API_BASE_URL}/api/matches/estatisticas`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -105,4 +115,21 @@ export async function buscarEstatisticas(token: string): Promise<Estatisticas> {
   }
 
   return dados;
+}
+// ===================================================================
+// CANCELAR MATCH — Aluno ou Tutor
+// ===================================================================
+export async function cancelarMatch(matchId: string, token: string): Promise<void> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/${matchId}/cancel`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || "Erro ao cancelar aula");
+  }
 }
