@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { router, useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import { themeAluno } from "../../shared/styles/themeAluno";
 import { listarTutores } from "../../shared/services/tutorService";
@@ -22,6 +23,7 @@ import {
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import { criarMatch } from "../../shared/services/matchService";
 import ModalConfirmacao from "../../shared/components/ModalConfirmacao";
+
 interface SlotAgenda {
   dia: string;
   horario: string;
@@ -58,20 +60,27 @@ const materias = [
 
 export default function BuscaAluno() {
   const [materiaSelecionada, setMateriaSelecionada] = useState<string | null>(
-    null,
+    null
   );
+
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [tutores, setTutores] = useState<Tutor[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [tutorSelecionado, setTutorSelecionado] = useState<Tutor | null>(null);
+  const [tutorSelecionado, setTutorSelecionado] = useState<Tutor | null>(
+    null
+  );
   const [slotsDoTutor, setSlotsDoTutor] = useState<SlotAgendaReal[]>([]);
   const [carregandoSlots, setCarregandoSlots] = useState(false);
+
   const [materiaEscolhidaParaMatch, setMateriaEscolhidaParaMatch] = useState<
     string | null
   >(null);
+
   const { token } = useUsuario();
+
   const [agendando, setAgendando] = useState(false);
+
   const [agendamentoConcluido, setAgendamentoConcluido] = useState<{
     materia: string;
     tutor: string;
@@ -94,14 +103,25 @@ export default function BuscaAluno() {
     }
   }
 
+  function handleVoltar() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/perfil-aluno");
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       async function carregarTutores() {
         try {
           const dados = await listarTutores();
+
           const tutoresAprovados = dados.filter(
-            (t: Tutor) => t.status_aprovacao === "aprovado" && t.ativo === true,
+            (t: Tutor) =>
+              t.status_aprovacao === "aprovado" && t.ativo === true
           );
+
           setTutores(tutoresAprovados);
         } catch (e: any) {
           setErro(e.message || "Não foi possível carregar os tutores.");
@@ -111,12 +131,12 @@ export default function BuscaAluno() {
       }
 
       carregarTutores();
-    }, []),
+    }, [])
   );
 
   const tutoresFiltrados = materiaSelecionada
     ? tutores.filter((tutor) =>
-        tutor.materiasLecionadas?.includes(materiaSelecionada),
+        tutor.materiasLecionadas?.includes(materiaSelecionada)
       )
     : [];
 
@@ -126,46 +146,73 @@ export default function BuscaAluno() {
     if (!materiaEscolhidaParaMatch) {
       Alert.alert(
         "Selecione a matéria",
-        "Escolha qual matéria você quer estudar nesta aula antes de agendar.",
+        "Escolha qual matéria você quer estudar nesta aula antes de agendar."
       );
       return;
     }
 
     setAgendando(true);
+
     try {
       await criarMatch(
         tutorSelecionado._id,
         slot._id,
         materiaEscolhidaParaMatch!,
-        token,
+        token
       );
 
-      //Formata a data/hora pro modal mostrar
+      // Formata a data/hora pro modal mostrar
       const data = new Date(slot.dataHorarioInicio);
-      const dataHoraFormatada = `${data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-      //Guarda o resultado - o modal aparece sozinho
+
+      const dataHoraFormatada = `${data.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+      })} às ${data.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+
+      // Guarda o resultado - o modal aparece sozinho
       setAgendamentoConcluido({
         materia: materiaEscolhidaParaMatch!,
         tutor: tutorSelecionado.nome,
         dataHora: dataHoraFormatada,
       });
+
       // Remove o slot da lista local, já que ele acabou de ser reservado
-      setSlotsDoTutor((atuais) => atuais.filter((s) => s._id !== slot._id));
+      setSlotsDoTutor((atuais) =>
+        atuais.filter((s) => s._id !== slot._id)
+      );
+
       setTutorSelecionado(null);
     } catch (e: any) {
-      Alert.alert("Não foi possível agendar", e.message || "Tente novamente.");
+      Alert.alert(
+        "Não foi possível agendar",
+        e.message || "Tente novamente."
+      );
     } finally {
       setAgendando(false);
     }
   }
+
   return (
     <View style={styles.tela}>
       <LinearGradient colors={themeAluno.gradient} style={styles.cabecalho}>
+        <Pressable style={styles.botaoVoltar} onPress={handleVoltar}>
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            color={themeAluno.white}
+          />
+        </Pressable>
+
         <View style={styles.iconeTitulo}>
           <Text style={styles.iconeTituloTexto}>🎓</Text>
         </View>
+
         <View>
           <Text style={styles.tituloCabecalho}>Buscar Tutor</Text>
+
           <Text style={styles.subtituloCabecalho}>
             Encontre o tutor ideal para te ajudar!
           </Text>
@@ -174,9 +221,13 @@ export default function BuscaAluno() {
 
       <ScrollView contentContainerStyle={styles.conteudo}>
         <View style={styles.card}>
-          <Text style={styles.cardTitulo}>Buscar Tutor por Matéria</Text>
+          <Text style={styles.cardTitulo}>
+            Buscar Tutor por Matéria
+          </Text>
+
           <Text style={styles.cardDescricao}>
-            Selecione a matéria que você precisa e encontre tutores disponíveis.
+            Selecione a matéria que você precisa e encontre tutores
+            disponíveis.
           </Text>
 
           <Pressable
@@ -186,6 +237,7 @@ export default function BuscaAluno() {
             <Text style={styles.dropdownTexto}>
               {materiaSelecionada || "Selecione uma matéria"}
             </Text>
+
             <Text style={styles.dropdownSeta}>
               {dropdownAberto ? "▲" : "▼"}
             </Text>
@@ -202,7 +254,9 @@ export default function BuscaAluno() {
                     setDropdownAberto(false);
                   }}
                 >
-                  <Text style={styles.opcaoMateriaTexto}>{materia}</Text>
+                  <Text style={styles.opcaoMateriaTexto}>
+                    {materia}
+                  </Text>
                 </Pressable>
               ))}
             </View>
@@ -211,7 +265,10 @@ export default function BuscaAluno() {
 
         <View style={styles.card}>
           <View style={styles.cabecalhoTutores}>
-            <Text style={styles.cardTitulo}>Tutores disponíveis</Text>
+            <Text style={styles.cardTitulo}>
+              Tutores disponíveis
+            </Text>
+
             {materiaSelecionada && !carregando && (
               <Text style={styles.contagemTutores}>
                 {tutoresFiltrados.length} tutores encontrados
@@ -238,11 +295,18 @@ export default function BuscaAluno() {
             tutoresFiltrados.map((tutor) => (
               <View key={tutor._id} style={styles.cardTutor}>
                 <View style={styles.avatarPlaceholder}>
-                  <Ionicons name="person" size={32} color="#d9d9e8" />
+                  <Ionicons
+                    name="person"
+                    size={32}
+                    color="#d9d9e8"
+                  />
                 </View>
 
                 <View style={styles.infoTutor}>
-                  <Text style={styles.nomeTutor}>{tutor.nome}</Text>
+                  <Text style={styles.nomeTutor}>
+                    {tutor.nome}
+                  </Text>
+
                   <Text style={styles.materiaTutor}>
                     {tutor.materiasLecionadas.join(", ")}
                   </Text>
@@ -251,7 +315,9 @@ export default function BuscaAluno() {
                     style={styles.botaoVerPerfil}
                     onPress={() => abrirPerfilTutor(tutor)}
                   >
-                    <Text style={styles.botaoVerPerfilTexto}>Ver perfil</Text>
+                    <Text style={styles.botaoVerPerfilTexto}>
+                      Ver perfil
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -263,8 +329,12 @@ export default function BuscaAluno() {
           <View style={styles.bannerIcone}>
             <Text style={styles.bannerIconeTexto}>🛡️</Text>
           </View>
+
           <View style={styles.bannerTextos}>
-            <Text style={styles.bannerTitulo}>Ambiente seguro e confiável</Text>
+            <Text style={styles.bannerTitulo}>
+              Ambiente seguro e confiável
+            </Text>
+
             <Text style={styles.bannerDescricao}>
               Todos os tutores são verificados e avaliados por alunos reais.
             </Text>
@@ -298,10 +368,17 @@ export default function BuscaAluno() {
                 </Pressable>
 
                 <View style={styles.modalAvatarPlaceholder}>
-                  <Ionicons name="person" size={40} color="#d9d9e8" />
+                  <Ionicons
+                    name="person"
+                    size={40}
+                    color="#d9d9e8"
+                  />
                 </View>
 
-                <Text style={styles.modalNome}>{tutorSelecionado.nome}</Text>
+                <Text style={styles.modalNome}>
+                  {tutorSelecionado.nome}
+                </Text>
+
                 <Text style={styles.modalMateria}>
                   {tutorSelecionado.materiasLecionadas.join(", ")}
                 </Text>
@@ -311,10 +388,15 @@ export default function BuscaAluno() {
                     "Este tutor ainda não escreveu uma bio."}
                 </Text>
 
-                <Text style={styles.modalSecaoTitulo}>Escolha a matéria</Text>
+                <Text style={styles.modalSecaoTitulo}>
+                  Escolha a matéria
+                </Text>
+
                 <View style={styles.chipsMaterias}>
                   {tutorSelecionado.materiasLecionadas.map((materia) => {
-                    const ativa = materiaEscolhidaParaMatch === materia;
+                    const ativa =
+                      materiaEscolhidaParaMatch === materia;
+
                     return (
                       <Pressable
                         key={materia}
@@ -322,12 +404,15 @@ export default function BuscaAluno() {
                           styles.chipMateria,
                           ativa && styles.chipMateriaAtiva,
                         ]}
-                        onPress={() => setMateriaEscolhidaParaMatch(materia)}
+                        onPress={() =>
+                          setMateriaEscolhidaParaMatch(materia)
+                        }
                       >
                         <Text
                           style={[
                             styles.chipMateriaTexto,
-                            ativa && styles.chipMateriaTextoAtivo,
+                            ativa &&
+                              styles.chipMateriaTextoAtivo,
                           ]}
                         >
                           {materia}
@@ -346,21 +431,31 @@ export default function BuscaAluno() {
                     <ActivityIndicator color={themeAluno.primary} />
                   ) : slotsDoTutor.length === 0 ? (
                     <Text
-                      style={{ color: themeAluno.textSecondary, fontSize: 13 }}
+                      style={{
+                        color: themeAluno.textSecondary,
+                        fontSize: 13,
+                      }}
                     >
                       Este tutor não possui horários disponíveis no momento.
                     </Text>
                   ) : (
                     slotsDoTutor.map((slot) => {
-                      const data = new Date(slot.dataHorarioInicio);
-                      const dataFormatada = data.toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                      });
-                      const horaFormatada = data.toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      });
+                      const data = new Date(
+                        slot.dataHorarioInicio
+                      );
+
+                      const dataFormatada =
+                        data.toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        });
+
+                      const horaFormatada =
+                        data.toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+
                       return (
                         <Pressable
                           key={slot._id}
@@ -371,6 +466,7 @@ export default function BuscaAluno() {
                           <Text style={styles.modalHorarioDia}>
                             {dataFormatada}
                           </Text>
+
                           <Text style={styles.modalHorarioTexto}>
                             {horaFormatada} ({slot.duracao}h)
                           </Text>
@@ -384,12 +480,7 @@ export default function BuscaAluno() {
           </Pressable>
         </Pressable>
       </Modal>
-      {/* ===================================================================
-    [MODAL: Agendamento concluído com sucesso]
-    Diferente dos modais de confirmação do AgendaAluno, esse aqui NÃO
-    executa nenhuma ação — a ação (criarMatch) já rodou antes. Os dois
-    botões só fecham o modal e, opcionalmente, navegam.
-=================================================================== */}
+
       <ModalConfirmacao
         visivel={agendamentoConcluido !== null}
         titulo="Tutoria agendada! 🎉"
@@ -413,7 +504,11 @@ export default function BuscaAluno() {
 }
 
 const styles = StyleSheet.create({
-  tela: { flex: 1, backgroundColor: themeAluno.background },
+  tela: {
+    flex: 1,
+    backgroundColor: themeAluno.background,
+  },
+
   cabecalho: {
     paddingTop: 48,
     paddingBottom: 24,
@@ -422,6 +517,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
   },
+
   iconeTitulo: {
     width: 56,
     height: 56,
@@ -430,30 +526,48 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  iconeTituloTexto: { fontSize: 26 },
+
+  iconeTituloTexto: {
+    fontSize: 26,
+  },
+
   tituloCabecalho: {
     color: themeAluno.white,
     fontSize: 24,
     fontWeight: "bold",
   },
+
   subtituloCabecalho: {
     color: "rgba(255,255,255,0.9)",
     fontSize: 13,
     marginTop: 2,
   },
-  conteudo: { padding: 16, gap: 16, paddingBottom: 32 },
+
+  conteudo: {
+    padding: 16,
+    gap: 16,
+    paddingBottom: 32,
+  },
+
   card: {
     backgroundColor: themeAluno.white,
     borderRadius: 16,
     padding: 16,
     gap: 8,
   },
-  cardTitulo: { fontSize: 18, fontWeight: "bold", color: themeAluno.primary },
+
+  cardTitulo: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: themeAluno.primary,
+  },
+
   cardDescricao: {
     fontSize: 13,
     color: themeAluno.textSecondary,
     marginBottom: 4,
   },
+
   dropdown: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -463,33 +577,54 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 14,
   },
-  dropdownTexto: { fontSize: 14, color: themeAluno.text },
-  dropdownSeta: { fontSize: 12, color: themeAluno.primary },
+
+  dropdownTexto: {
+    fontSize: 14,
+    color: themeAluno.text,
+  },
+
+  dropdownSeta: {
+    fontSize: 12,
+    color: themeAluno.primary,
+  },
+
   listaMaterias: {
     borderWidth: 1,
     borderColor: themeAluno.border,
     borderRadius: 8,
     overflow: "hidden",
   },
+
   opcaoMateria: {
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
   },
-  opcaoMateriaTexto: { fontSize: 14, color: themeAluno.text },
+
+  opcaoMateriaTexto: {
+    fontSize: 14,
+    color: themeAluno.text,
+  },
+
   cabecalhoTutores: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 4,
   },
-  contagemTutores: { fontSize: 12, color: themeAluno.textSecondary },
+
+  contagemTutores: {
+    fontSize: 12,
+    color: themeAluno.textSecondary,
+  },
+
   mensagemVazia: {
     fontSize: 13,
     color: themeAluno.textSecondary,
     textAlign: "center",
     paddingVertical: 16,
   },
+
   cardTutor: {
     flexDirection: "row",
     gap: 12,
@@ -497,6 +632,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#EEE",
   },
+
   avatarPlaceholder: {
     width: 64,
     height: 64,
@@ -505,13 +641,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  infoTutor: { flex: 1, gap: 3 },
-  nomeTutor: { fontSize: 16, fontWeight: "bold", color: themeAluno.text },
+
+  infoTutor: {
+    flex: 1,
+    gap: 3,
+  },
+
+  nomeTutor: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+
   materiaTutor: {
     fontSize: 13,
     color: themeAluno.textSecondary,
     marginBottom: 6,
   },
+
   botaoVerPerfil: {
     backgroundColor: themeAluno.primary,
     borderRadius: 8,
@@ -520,11 +667,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     paddingHorizontal: 20,
   },
+
   botaoVerPerfilTexto: {
     color: themeAluno.white,
     fontWeight: "bold",
     fontSize: 13,
   },
+
   banner: {
     flexDirection: "row",
     alignItems: "center",
@@ -533,6 +682,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
   },
+
   bannerIcone: {
     width: 48,
     height: 48,
@@ -541,16 +691,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  bannerIconeTexto: { fontSize: 22 },
-  bannerTextos: { flex: 1, gap: 2 },
-  bannerTitulo: { fontSize: 14, fontWeight: "bold", color: themeAluno.primary },
-  bannerDescricao: { fontSize: 12, color: themeAluno.textSecondary },
+
+  bannerIconeTexto: {
+    fontSize: 22,
+  },
+
+  bannerTextos: {
+    flex: 1,
+    gap: 2,
+  },
+
+  bannerTitulo: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: themeAluno.primary,
+  },
+
+  bannerDescricao: {
+    fontSize: 12,
+    color: themeAluno.textSecondary,
+  },
+
   modalFundo: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
+
   modalConteudo: {
     width: "88%",
     maxHeight: "75%",
@@ -559,6 +727,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
   },
+
   modalFechar: {
     position: "absolute",
     top: 12,
@@ -571,7 +740,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 1,
   },
-  modalFecharTexto: { fontSize: 14, color: themeAluno.text },
+
+  modalFecharTexto: {
+    fontSize: 14,
+    color: themeAluno.text,
+  },
+
   modalAvatarPlaceholder: {
     width: 88,
     height: 88,
@@ -582,18 +756,26 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 8,
   },
-  modalNome: { fontSize: 18, fontWeight: "bold", color: themeAluno.text },
+
+  modalNome: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: themeAluno.text,
+  },
+
   modalMateria: {
     fontSize: 13,
     color: themeAluno.textSecondary,
     marginBottom: 12,
   },
+
   modalBio: {
     fontSize: 13,
     color: themeAluno.text,
     textAlign: "center",
     marginBottom: 16,
   },
+
   modalSecaoTitulo: {
     fontSize: 14,
     fontWeight: "bold",
@@ -601,7 +783,12 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 8,
   },
-  modalHorariosLista: { width: "100%", maxHeight: 150 },
+
+  modalHorariosLista: {
+    width: "100%",
+    maxHeight: 150,
+  },
+
   modalHorarioItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -611,12 +798,18 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
   },
+
   modalHorarioDia: {
     fontSize: 13,
     fontWeight: "bold",
     color: themeAluno.primary,
   },
-  modalHorarioTexto: { fontSize: 13, color: themeAluno.text },
+
+  modalHorarioTexto: {
+    fontSize: 13,
+    color: themeAluno.text,
+  },
+
   chipsMaterias: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -624,6 +817,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     width: "100%",
   },
+
   chipMateria: {
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -631,11 +825,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: themeAluno.primary,
   },
-  chipMateriaAtiva: { backgroundColor: themeAluno.primary },
+
+  chipMateriaAtiva: {
+    backgroundColor: themeAluno.primary,
+  },
+
   chipMateriaTexto: {
     fontSize: 12,
     color: themeAluno.primary,
     fontWeight: "600",
   },
-  chipMateriaTextoAtivo: { color: themeAluno.white },
+
+  chipMateriaTextoAtivo: {
+    color: themeAluno.white,
+  },
+
+  botaoVoltar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
