@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
 import { useUsuario } from "../contexts/UsuarioContext"
-import { buscarAvaliacoesPendentes, buscarAvaliacoesEnviadas } from "../services/avaliacaoService"
+import { buscarAvaliacoesPendentes, buscarAvaliacoesEnviadas,enviarAvaliacao} from "../services/avaliacaoService"
 
 interface SecaoAvaliacoesProps {
     theme: any
@@ -14,23 +14,21 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
     const [pendentes, setPendentes] = useState<any[]>([])
     const [avaliadas, setAvaliadas] = useState<any[]>([])
 
-    useEffect(() => {
-        if (!token) return
+   function carregarAvaliacoes() {
+    if (!token) return
 
-        buscarAvaliacoesPendentes(token)
-            .then((dados) => {
-                console.log("AVALIACOES PENDENTES:", JSON.stringify(dados, null, 2))
-                setPendentes(dados.pendentes ?? [])
-            })
-            .catch((erro) => console.log("Erro ao buscar pendentes:", erro.message))
+    buscarAvaliacoesPendentes(token)
+        .then((dados) => setPendentes(dados.pendentes ?? []))
+        .catch((erro) => console.log("Erro ao buscar pendentes:", erro.message))
 
-        buscarAvaliacoesEnviadas(token)
-            .then((dados) => {
-                console.log("AVALIACOES ENVIADAS:", JSON.stringify(dados, null, 2))
-                setAvaliadas(dados.avaliacoes ?? [])
-            })
-            .catch((erro) => console.log("Erro ao buscar enviadas:", erro.message))
-    }, [token])
+    buscarAvaliacoesEnviadas(token)
+        .then((dados) => setAvaliadas(dados.avaliacoes ?? []))
+        .catch((erro) => console.log("Erro ao buscar enviadas:", erro.message))  
+  }
+
+   useEffect(() => {
+    carregarAvaliacoes()
+     }, [token])
 
     const [itemParaAvaliar, setItemParaAvaliar] = useState<any | null>(null)
     const [notaEscolhida, setNotaEscolhida] = useState(0)
@@ -157,18 +155,24 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
                                 />
 
                                 <Pressable
-                                    style={[
-                                        styles.botaoEnviar,
-                                        { backgroundColor: notaEscolhida > 0 ? theme.primary : "#CCC" },
-                                    ]}
-                                    disabled={notaEscolhida === 0}
-                                    onPress={() => {
-                                        console.log("Avaliação enviada:", itemParaAvaliar.nome, notaEscolhida, observacao)
-                                        setItemParaAvaliar(null)
-                                    }}
-                                >
-                                    <Text style={styles.botaoEnviarTexto}>Enviar avaliação</Text>
-                                </Pressable>
+    style={[
+        styles.botaoEnviar,
+        { backgroundColor: notaEscolhida > 0 ? theme.primary : "#CCC" },
+    ]}
+    disabled={notaEscolhida === 0}
+   onPress={() => {
+    if (!token) return
+
+    enviarAvaliacao(token, itemParaAvaliar.matchId, notaEscolhida, observacao)
+        .then(() => {
+            setItemParaAvaliar(null)
+            carregarAvaliacoes()
+        })
+        .catch((erro) => console.log("Erro ao enviar avaliação:", erro.message))
+}}
+>
+    <Text style={styles.botaoEnviarTexto}>Enviar avaliação</Text>
+</Pressable>
                             </>
                         )}
                     </Pressable>
