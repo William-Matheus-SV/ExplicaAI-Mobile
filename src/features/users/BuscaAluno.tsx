@@ -22,6 +22,7 @@ import {
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import { criarMatch } from "../../shared/services/matchService";
 import ModalConfirmacao from "../../shared/components/ModalConfirmacao";
+
 interface SlotAgenda {
   dia: string;
   horario: string;
@@ -72,6 +73,7 @@ export default function BuscaAluno() {
   >(null);
   const { token } = useUsuario();
   const [agendando, setAgendando] = useState(false);
+  const [modalSucessoVisivel, setModalSucessoVisivel] = useState(false);
   const [agendamentoConcluido, setAgendamentoConcluido] = useState<{
     materia: string;
     tutor: string;
@@ -139,17 +141,30 @@ export default function BuscaAluno() {
         materiaEscolhidaParaMatch!,
         token,
       );
+      // ===================================================================
+      // [Monta os dados que o modal de sucesso vai mostrar]
+      // ===================================================================
+      const dataFormatada = new Date(slot.dataHorarioInicio).toLocaleDateString(
+        "pt-BR",
+        {
+          day: "2-digit",
+          month: "2-digit",
+        },
+      );
+      const horaFormatada = new Date(slot.dataHorarioInicio).toLocaleTimeString(
+        "pt-BR",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        },
+      );
 
-      //Formata a data/hora pro modal mostrar
-      const data = new Date(slot.dataHorarioInicio);
-      const dataHoraFormatada = `${data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-      //Guarda o resultado - o modal aparece sozinho
       setAgendamentoConcluido({
-        materia: materiaEscolhidaParaMatch!,
+        materia: materiaEscolhidaParaMatch,
         tutor: tutorSelecionado.nome,
-        dataHora: dataHoraFormatada,
+        dataHora: `${dataFormatada} às ${horaFormatada}`,
       });
-      // Remove o slot da lista local, já que ele acabou de ser reservado
+
       setSlotsDoTutor((atuais) => atuais.filter((s) => s._id !== slot._id));
       setTutorSelecionado(null);
     } catch (e: any) {
@@ -157,6 +172,20 @@ export default function BuscaAluno() {
     } finally {
       setAgendando(false);
     }
+  }
+  // ===================================================================
+  // [Clicou "Continuar buscando"] Só fecha o modal, sem navegar pra lugar nenhum
+  // ===================================================================
+  function handleContinuarBuscando() {
+    setModalSucessoVisivel(false);
+  }
+
+  // ===================================================================
+  // [Clicou "Ver minha agenda"] Fecha o modal E navega pra tela de agenda
+  // ===================================================================
+  function handleVerAgenda() {
+    setModalSucessoVisivel(false);
+    router.push("/agenda-aluno");
   }
   return (
     <View style={styles.tela}>
@@ -385,11 +414,11 @@ export default function BuscaAluno() {
         </Pressable>
       </Modal>
       {/* ===================================================================
-    [MODAL: Agendamento concluído com sucesso]
-    Diferente dos modais de confirmação do AgendaAluno, esse aqui NÃO
-    executa nenhuma ação — a ação (criarMatch) já rodou antes. Os dois
-    botões só fecham o modal e, opcionalmente, navegam.
-=================================================================== */}
+          [MODAL: Agendamento concluído com sucesso]
+          Diferente dos modais de confirmação do AgendaAluno, esse aqui NÃO
+          executa nenhuma ação — a ação (criarMatch) já rodou antes. Os dois
+          botões só fecham o modal e, opcionalmente, navegam.
+      =================================================================== */}
       <ModalConfirmacao
         visivel={agendamentoConcluido !== null}
         titulo="Tutoria agendada! 🎉"
