@@ -44,3 +44,21 @@ export async function buscarAvaliacoesEnviadas(token: string) {
 
     return dados
 }
+
+export async function enviarAvaliacao(token: string, matchId: string, nota: number, comentario: string) {
+    const resposta = await fetch(`${API_BASE_URL}/api/avaliacoes`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ matchId, nota, comentario }),
+    })
+    const dados = await resposta.json()
+
+    if (!resposta.ok) {
+        throw new Error(dados.mensagem || dados.message || "Erro ao enviar avaliação")
+    }
+
+    return dados
+}
