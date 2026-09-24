@@ -21,10 +21,9 @@ export default function SecaoAvaliacoes({ theme }: SecaoAvaliacoesProps) {
         .then((dados) => setPendentes(dados.pendentes ?? []))
         .catch((erro) => console.log("Erro ao buscar pendentes:", erro.message))
 
-    buscarAvaliacoesEnviadas(token)
-        .then((dados) => setAvaliadas(dados.avaliacoes ?? []))
-        .catch((erro) => console.log("Erro ao buscar enviadas:", erro.message))  
-  }
+   buscarAvaliacoesEnviadas(token)
+    .then((dados) =>  setAvaliadas(dados.avaliacoes ?? []))
+    .catch((erro) => console.log("Erro ao buscar enviadas:", erro.message))}
 
    useEffect(() => {
     carregarAvaliacoes()
