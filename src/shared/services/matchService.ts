@@ -1,10 +1,39 @@
 import { API_BASE_URL } from "../../config/api";
 
+export interface MatchSemana {
+  _id: string;
+  alunoId: string;
+  tutorId: { _id: string; nome: string };
+  agendaSlotId: { _id: string; duracao: number };
+  materia: string;
+  dataHoraAgendada: string;
+  status: "confirmado" | "realizado" | "cancelado";
+}
+// ===================================================================
+// LISTAR SEMANA — Aluno ou Tutor
+// ===================================================================
+export async function listarSemanaDoAluno(token: string): Promise<MatchSemana[]> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/semana`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.error || dados.message || "Erro ao buscar sua agenda");
+  }
+
+  return dados.matches;
+}
+
 export interface MatchCriado {
   id: string;
   alunoId: string;
   tutorId: string;
   agendaSlotId: string;
+  materia: string;
   dataHoraAgendada: string;
   status: string;
 }
@@ -12,6 +41,7 @@ export interface MatchCriado {
 export async function criarMatch(
   tutorId: string,
   agendaSlotId: string,
+  materia: string,
   token: string
 ): Promise<MatchCriado> {
   const resposta = await fetch(`${API_BASE_URL}/api/matches`, {
@@ -20,7 +50,7 @@ export async function criarMatch(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ tutorId, agendaSlotId }),
+    body: JSON.stringify({ tutorId, agendaSlotId, materia }),
   });
 
   const dados = await resposta.json();
@@ -30,4 +60,76 @@ export async function criarMatch(
   }
 
   return dados.match;
+}
+// ===================================================================
+// CONFIRMAR PRESENÇA — Aluno ou Tutor
+// ===================================================================
+export async function confirmarPresenca(matchId: string, token: string): Promise<void> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/${matchId}/confirm`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || "Erro ao confirmar presença");
+  }
+}
+// ===================================================================
+// BUSCAR PRÓXIMAS AULAS — Aluno ou Tutor
+// ===================================================================
+export async function buscarProximasAulas(token: string) {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/meus/proximos`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || dados.mensagem || "Erro ao buscar próximas aulas");
+  }
+
+  return dados;
+}
+export interface Estatisticas {
+  aulasConcluidas: number;
+  aulasAgendadas: number;
+}
+// ===================================================================
+// BUSCAR ESTATÍSTICAS — Aluno ou Tutor
+// ===================================================================
+export async function buscarEstatisticas(token: string): Promise<Estatisticas> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/estatisticas`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.error || dados.message || "Erro ao buscar estatísticas");
+  }
+
+  return dados;
+}
+// ===================================================================
+// CANCELAR MATCH — Aluno ou Tutor
+// ===================================================================
+export async function cancelarMatch(matchId: string, token: string): Promise<void> {
+  const resposta = await fetch(`${API_BASE_URL}/api/matches/${matchId}/cancel`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.message || "Erro ao cancelar aula");
+  }
 }
