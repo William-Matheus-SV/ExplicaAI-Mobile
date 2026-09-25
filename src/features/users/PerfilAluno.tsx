@@ -7,6 +7,7 @@ import BottomNavBar from "../../shared/components/BottomNavBar";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes";
 import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
+import FotoPerfil from "../../shared/components/FotoPerfil";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -104,13 +105,11 @@ export default function PerfilAluno() {
         </View>
 
         <View style={styles.AvatarWrapper}>
-          <View style={styles.Avatar}>
-            <Ionicons name="person" size={70} color="#d9d9e8" />
-            <View style={styles.CameraBadge}>
-              <Ionicons name="camera" size={16} color="white" />
-            </View>
-          </View>
-        </View>
+  <FotoPerfil
+    theme={themeAluno}
+    tipo="aluno"
+  />
+</View>
 
         <View style={styles.Conteudo}>
           <Text style={styles.Nome}>{aluno.nome}</Text>
@@ -322,16 +321,6 @@ const styles = StyleSheet.create({
   },
   HeaderTitulo: { fontSize: 18, color: "white", fontWeight: "600" },
   AvatarWrapper: { alignItems: "center", marginTop: -65, zIndex: 2 },
-  Avatar: {
-    width: 130, height: 130, borderRadius: 65, backgroundColor: "white",
-    justifyContent: "center", alignItems: "center",
-    shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5,
-  },
-  CameraBadge: {
-    position: "absolute", right: 0, bottom: 0, width: 36, height: 36, borderRadius: 36,
-    backgroundColor: themeAluno.primary, justifyContent: "center", alignItems: "center",
-    borderWidth: 3, borderColor: "white",
-  },
   Nome: { fontSize: 22, fontWeight: "bold", color: "#2b2b2b", marginTop: 12, marginBottom: 5, textAlign: "center" },
   SobreMim: { justifyContent: "center", alignItems: "center", gap: 5, width: "100%", marginBottom: 5, flexDirection: "row" },
   Bio: {
