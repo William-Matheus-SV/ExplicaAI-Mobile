@@ -1,14 +1,28 @@
-import { View, Text, ScrollView, Pressable, StyleSheet, StatusBar, TextInput, Modal } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  StatusBar,
+  TextInput,
+  Modal,
+} from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useState, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useUsuario } from "../../shared/contexts/UsuarioContext";
 import BottomNavBar from "../../shared/components/BottomNavBar";
-import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes"
-import { listarMeusSlots, SlotAgendaReal } from "../../shared/services/agendaService";
+import SecaoAvaliacoes from "../../shared/components/SecaoAvaliacoes";
+import {
+  listarMeusSlots,
+  SlotAgendaReal,
+} from "../../shared/services/agendaService";
 import { buscarMinhasAvaliacoes } from "../../shared/services/avaliacaoService";
 import { buscarEstatisticas } from "../../shared/services/matchService";
+import FotoPerfil from "../../shared/components/FotoPerfil";
 
 interface ItinerarioComMaterias {
   nome: string;
@@ -16,18 +30,50 @@ interface ItinerarioComMaterias {
 }
 
 const ITINERARIOS_CATALOGO: ItinerarioComMaterias[] = [
-  { nome: "Linguagens, Códigos e suas Tecnologias", materias: ["Português", "Inglês", "Espanhol"] },
-  { nome: "Matemática e suas Tecnologias", materias: ["Matemática", "Estatística", "Geometria"] },
-  { nome: "Ciências da Natureza e suas Tecnologias", materias: ["Física", "Química", "Biologia"] },
-  { nome: "Ciências Humanas e Sociais Aplicadas", materias: ["História", "Geografia", "Filosofia", "Sociologia"] },
-  { nome: "Formação Técnica e Profissional", materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"] },
+  {
+    nome: "Linguagens, Códigos e suas Tecnologias",
+    materias: ["Português", "Inglês", "Espanhol"],
+  },
+  {
+    nome: "Matemática e suas Tecnologias",
+    materias: ["Matemática", "Estatística", "Geometria"],
+  },
+  {
+    nome: "Ciências da Natureza e suas Tecnologias",
+    materias: ["Física", "Química", "Biologia"],
+  },
+  {
+    nome: "Ciências Humanas e Sociais Aplicadas",
+    materias: ["História", "Geografia", "Filosofia", "Sociologia"],
+  },
+  {
+    nome: "Formação Técnica e Profissional",
+    materias: ["Lógica de Programação", "HTML, CSS e JS", "Banco de Dados"],
+  },
 ];
+
 // Seguem mockados os dados pois precisa do back-end
 const estatisticas = [
-  { icone: "⭐", numero: "0.0", label: "Avaliação Média", destaque: "Você ainda não foi avaliado" },
-  { icone: "🎓", numero: "0", label: "Aulas Concluídas", destaque: "Comece a ensinar!" },
-  { icone: "📅", numero: "0", label: "Aulas Agendadas", destaque: "Próximas aulas" },
+  {
+    icone: "⭐",
+    numero: "0.0",
+    label: "Avaliação Média",
+    destaque: "Você ainda não foi avaliado",
+  },
+  {
+    icone: "🎓",
+    numero: "0",
+    label: "Aulas Concluídas",
+    destaque: "Comece a ensinar!",
+  },
+  {
+    icone: "📅",
+    numero: "0",
+    label: "Aulas Agendadas",
+    destaque: "Próximas aulas",
+  },
 ];
+
 // Seguem mockados os dados pois precisa do back-end
 const MATCHES = [
   { nome: "Aryelle Oliveira", materia: "Matemática" },
@@ -40,48 +86,56 @@ export default function PerfilTutor() {
   const { usuario, sair, token } = useUsuario();
 
   const tutor = {
-    nome: usuario?.tipo === 'tutor' ? usuario.nome : "Tutor",
-    matricula: usuario?.tipo === 'tutor' ? usuario.matricula : "-",
-    idade: usuario?.tipo === 'tutor' ? usuario.idade : "-",
-    bio: usuario?.tipo === 'tutor' ? usuario.bio : "",
+    nome: usuario?.tipo === "tutor" ? usuario.nome : "Tutor",
+    matricula: usuario?.tipo === "tutor" ? usuario.matricula : "-",
+    idade: usuario?.tipo === "tutor" ? usuario.idade : "-",
+    bio: usuario?.tipo === "tutor" ? usuario.bio : "",
   };
 
-  const materiasLecionadas = usuario?.tipo === 'tutor' ? usuario.materiasLecionadas : [];
+  const materiasLecionadas =
+    usuario?.tipo === "tutor" ? usuario.materiasLecionadas : [];
+
   const [slotsReais, setSlotsReais] = useState<SlotAgendaReal[]>([]);
   const [carregandoAgenda, setCarregandoAgenda] = useState(true);
+
   const [avaliacaoMedia, setAvaliacaoMedia] = useState<number | null>(null);
   const [totalAvaliacoes, setTotalAvaliacoes] = useState(0);
   const [aulasConcluidas, setAulasConcluidas] = useState(0);
   const [aulasAgendadas, setAulasAgendadas] = useState(0);
 
   useFocusEffect(
-  useCallback(() => {
-    async function carregarAgenda() {
-      if (!token) {
-        setCarregandoAgenda(false);
-        return;
+    useCallback(() => {
+      async function carregarAgenda() {
+        if (!token) {
+          setCarregandoAgenda(false);
+          return;
+        }
+
+        try {
+          const slots = await listarMeusSlots(token);
+          setSlotsReais(slots);
+        } catch (e) {
+          setSlotsReais([]);
+        } finally {
+          setCarregandoAgenda(false);
+        }
       }
-      try {
-        const slots = await listarMeusSlots(token);
-        setSlotsReais(slots);
-      } catch (e) {
-        setSlotsReais([]);
-      } finally {
-        setCarregandoAgenda(false);
-      }
-    }
-    carregarAgenda();
-  }, [token])
-);
+
+      carregarAgenda();
+    }, [token])
+  );
+
   useFocusEffect(
     useCallback(() => {
       async function carregarEstatisticas() {
         if (!token) return;
+
         try {
           const [avaliacoes, stats] = await Promise.all([
             buscarMinhasAvaliacoes(token),
             buscarEstatisticas(token),
           ]);
+
           setAvaliacaoMedia(avaliacoes.media);
           setTotalAvaliacoes(avaliacoes.total);
           setAulasConcluidas(stats.aulasConcluidas);
@@ -90,38 +144,63 @@ export default function PerfilTutor() {
           // silencioso — mantém valores padrão se falhar
         }
       }
+
       carregarEstatisticas();
     }, [token])
-);
+  );
 
- const DIAS_LABEL: Record<number, "SEG" | "TER" | "QUA" | "QUI" | "SEX" | "SAB" | "DOM"> = {
-  0: "DOM", 1: "SEG", 2: "TER", 3: "QUA", 4: "QUI", 5: "SEX", 6: "SAB",
-};
+  const DIAS_LABEL: Record<
+    number,
+    "SEG" | "TER" | "QUA" | "QUI" | "SEX" | "SAB" | "DOM"
+  > = {
+    0: "DOM",
+    1: "SEG",
+    2: "TER",
+    3: "QUA",
+    4: "QUI",
+    5: "SEX",
+    6: "SAB",
+  };
 
-const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
+  const DIAS_ORDEM = ["SEG", "TER", "QUA", "QUI", "SEX"] as const;
 
-const agenda = DIAS_ORDEM.map((dia) => ({
-  dia,
-  horario: slotsReais
-    .filter((slot) => DIAS_LABEL[new Date(slot.dataHorarioInicio).getDay()] === dia)
-    .map((slot) =>
-      new Date(slot.dataHorarioInicio).toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    ),
-})).filter((item) => item.horario.length > 0);
+  const agenda = DIAS_ORDEM.map((dia) => ({
+    dia,
 
-  const [bioTexto, setBioTexto] = useState(tutor.bio || "Toque para adicionar uma bio");
+    horario: slotsReais
+      .filter(
+        (slot) =>
+          DIAS_LABEL[new Date(slot.dataHorarioInicio).getDay()] === dia
+      )
+      .map((slot) =>
+        new Date(slot.dataHorarioInicio).toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      ),
+  })).filter((item) => item.horario.length > 0);
+
+  const [bioTexto, setBioTexto] = useState(
+    tutor.bio || "Toque para adicionar uma bio"
+  );
+
   const [editando, setEditando] = useState(false);
 
   const [modalMateriasVisivel, setModalMateriasVisivel] = useState(false);
-  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(null);
-  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(materiasLecionadas);
+
+  const [itinerarioAberto, setItinerarioAberto] = useState<string | null>(
+    null
+  );
+
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState<string[]>(
+    materiasLecionadas
+  );
 
   function toggleMateria(materia: string) {
     if (materiasSelecionadas.includes(materia)) {
-      setMateriasSelecionadas(materiasSelecionadas.filter((item) => item !== materia));
+      setMateriasSelecionadas(
+        materiasSelecionadas.filter((item) => item !== materia)
+      );
     } else {
       setMateriasSelecionadas([...materiasSelecionadas, materia]);
     }
@@ -132,8 +211,8 @@ const agenda = DIAS_ORDEM.map((dia) => ({
   }
 
   function handleVoltarLogin() {
-  sair(); 
-  router.replace("/login");
+    sair();
+    router.replace("/login");
   }
 
   function handleSair() {
@@ -143,63 +222,89 @@ const agenda = DIAS_ORDEM.map((dia) => ({
 
   const materiasAgrupadas = ITINERARIOS_CATALOGO.map((itinerario) => ({
     nome: itinerario.nome,
-    materias: itinerario.materias.filter((m) => materiasSelecionadas.includes(m)),
+    materias: itinerario.materias.filter((m) =>
+      materiasSelecionadas.includes(m)
+    ),
   })).filter((itinerario) => itinerario.materias.length > 0);
 
   const estatisticasExibidas = estatisticas.map((item) => {
-  if (item.label === "Avaliação Média") {
-    return {
-      ...item,
-      numero: avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "0.0",
-      destaque: totalAvaliacoes > 0
-        ? `${totalAvaliacoes} avaliação${totalAvaliacoes !== 1 ? "ões" : ""}`
-        : "Você ainda não foi avaliado",
-    };
-  }
-  if (item.label === "Aulas Concluídas") {
-    return {
-      ...item,
-      numero: String(aulasConcluidas),
-      destaque: aulasConcluidas > 0 ? "Continue ensinando!" : "Comece a ensinar!",
-    };
-  }
-  if (item.label === "Aulas Agendadas") {
-    return {
-      ...item,
-      numero: String(aulasAgendadas),
-      destaque: aulasAgendadas > 0 ? "Próximas aulas" : "Nenhuma agendada",
-    };
-  }
-  return item;
-});
+    if (item.label === "Avaliação Média") {
+      return {
+        ...item,
+        numero:
+          avaliacaoMedia !== null ? avaliacaoMedia.toFixed(1) : "0.0",
+        destaque:
+          totalAvaliacoes > 0
+            ? `${totalAvaliacoes} avaliação${
+                totalAvaliacoes !== 1 ? "ões" : ""
+              }`
+            : "Você ainda não foi avaliado",
+      };
+    }
+
+    if (item.label === "Aulas Concluídas") {
+      return {
+        ...item,
+        numero: String(aulasConcluidas),
+        destaque:
+          aulasConcluidas > 0 ? "Continue ensinando!" : "Comece a ensinar!",
+      };
+    }
+
+    if (item.label === "Aulas Agendadas") {
+      return {
+        ...item,
+        numero: String(aulasAgendadas),
+        destaque:
+          aulasAgendadas > 0 ? "Próximas aulas" : "Nenhuma agendada",
+      };
+    }
+
+    return item;
+  });
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.Header}>
           <View style={styles.HeaderContent}>
-            <Pressable style={styles.BotaoVoltar} onPress={handleVoltarLogin}>
+            <Pressable
+              style={styles.BotaoVoltar}
+              onPress={handleVoltarLogin}
+            >
               <Ionicons name="arrow-back" size={22} color="white" />
             </Pressable>
+
             <Text style={styles.HeaderTitulo}>Perfil Tutor</Text>
+
             <View style={styles.AcoesHeader}>
-              <Ionicons name="notifications-outline" size={22} color="white" />
+              <Ionicons
+                name="notifications-outline"
+                size={22}
+                color="white"
+              />
             </View>
           </View>
         </View>
 
+        {/* FOTO DE PERFIL */}
         <View style={styles.AvatarWrapper}>
-          <View style={styles.Avatar}>
-            <Ionicons name="person" size={70} color="#d9d9e8" />
-            <View style={styles.CameraBadge}>
-              <Ionicons name="camera" size={16} color="white" />
-            </View>
-          </View>
+          <FotoPerfil
+            theme={themeTutor}
+            tipo="tutor"
+          />
         </View>
 
         <View style={styles.Conteudo}>
           <Text style={styles.Nome}>{tutor.nome}</Text>
+
           <View style={styles.SobreMim}>
-            <Ionicons name="person-circle-outline" size={22} color={themeTutor.primary} />
+            <Ionicons
+              name="person-circle-outline"
+              size={22}
+              color={themeTutor.primary}
+            />
+
             <Text>Sobre mim:</Text>
           </View>
 
@@ -218,61 +323,127 @@ const agenda = DIAS_ORDEM.map((dia) => ({
             )}
           </View>
 
+          {/* INFORMAÇÕES PESSOAIS */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
-                <Ionicons name="person-outline" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Informações pessoais</Text>
+                <Ionicons
+                  name="person-outline"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
+                <Text style={styles.CardTitulo}>
+                  Informações pessoais
+                </Text>
               </View>
             </View>
 
             <View style={styles.InfoBox}>
               <View style={styles.InfoItem}>
-                <Ionicons name="card-outline" size={20} color={themeTutor.primary} />
+                <Ionicons
+                  name="card-outline"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
                 <View style={styles.InfoTextos}>
                   <Text style={styles.InfoLabel}>Matrícula</Text>
-                  <Text style={styles.InfoValor}>{tutor.matricula}</Text>
+
+                  <Text style={styles.InfoValor}>
+                    {tutor.matricula}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.InfoItem}>
-                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
                 <View style={styles.InfoTextos}>
                   <Text style={styles.InfoLabel}>Idade</Text>
-                  <Text style={styles.InfoValor}>{tutor.idade} anos</Text>
+
+                  <Text style={styles.InfoValor}>
+                    {tutor.idade} anos
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
-            {/* Estatísticas */}
+
+          {/* ESTATÍSTICAS */}
           <View style={styles.linhaEstatisticas}>
             {estatisticasExibidas.map((item) => (
-              <View key={item.label} style={styles.cardEstatistica}>
-                <Text style={styles.iconeEstatistica}>{item.icone}</Text>
-                <Text style={styles.numeroEstatistica}>{item.numero}</Text>
-                <Text style={styles.labelEstatistica}>{item.label}</Text>
-                <Text style={styles.destaqueEstatistica}>{item.destaque}</Text>
+              <View
+                key={item.label}
+                style={styles.cardEstatistica}
+              >
+                <Text style={styles.iconeEstatistica}>
+                  {item.icone}
+                </Text>
+
+                <Text style={styles.numeroEstatistica}>
+                  {item.numero}
+                </Text>
+
+                <Text style={styles.labelEstatistica}>
+                  {item.label}
+                </Text>
+
+                <Text style={styles.destaqueEstatistica}>
+                  {item.destaque}
+                </Text>
               </View>
             ))}
           </View>
+
+          {/* MATÉRIAS */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
-                <Ionicons name="book-outline" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Matérias que leciona</Text>
+                <Ionicons
+                  name="book-outline"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
+                <Text style={styles.CardTitulo}>
+                  Matérias que leciona
+                </Text>
               </View>
-              <Pressable onPress={() => setModalMateriasVisivel(true)}>
-                <Ionicons name="add-circle-outline" size={24} color={themeTutor.primary} />
+
+              <Pressable
+                onPress={() => setModalMateriasVisivel(true)}
+              >
+                <Ionicons
+                  name="add-circle-outline"
+                  size={24}
+                  color={themeTutor.primary}
+                />
               </Pressable>
             </View>
 
             {materiasAgrupadas.map((itinerario) => (
-              <View key={itinerario.nome} style={styles.ItinerarioSecao}>
-                <Text style={styles.ItinerarioNome}>{itinerario.nome}</Text>
+              <View
+                key={itinerario.nome}
+                style={styles.ItinerarioSecao}
+              >
+                <Text style={styles.ItinerarioNome}>
+                  {itinerario.nome}
+                </Text>
+
                 <View style={styles.Materias}>
                   {itinerario.materias.map((materia) => (
-                    <View key={materia} style={styles.MateriaChip}>
-                      <Text style={styles.MateriaTexto}>{materia}</Text>
+                    <View
+                      key={materia}
+                      style={styles.MateriaChip}
+                    >
+                      <Text style={styles.MateriaTexto}>
+                        {materia}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -280,48 +451,89 @@ const agenda = DIAS_ORDEM.map((dia) => ({
             ))}
           </View>
 
-          <Modal visible={modalMateriasVisivel} animationType="slide" transparent>
+          {/* MODAL DE MATÉRIAS */}
+          <Modal
+            visible={modalMateriasVisivel}
+            animationType="slide"
+            transparent
+          >
             <View style={styles.ModalFundo}>
               <View style={styles.ModalConteudo}>
-                <Text style={styles.CardTitulo}>Editar matérias</Text>
+                <Text style={styles.CardTitulo}>
+                  Editar matérias
+                </Text>
 
-                <ScrollView style={{ maxHeight: 400, marginTop: 12 }}>
+                <ScrollView
+                  style={{
+                    maxHeight: 400,
+                    marginTop: 12,
+                  }}
+                >
                   {ITINERARIOS_CATALOGO.map((itinerario) => {
-                    const aberto = itinerarioAberto === itinerario.nome;
+                    const aberto =
+                      itinerarioAberto === itinerario.nome;
+
                     return (
-                      <View key={itinerario.nome} style={styles.itinerarioBloco}>
+                      <View
+                        key={itinerario.nome}
+                        style={styles.itinerarioBloco}
+                      >
                         <Pressable
                           style={styles.itinerarioCabecalho}
-                          onPress={() => toggleItinerario(itinerario.nome)}
+                          onPress={() =>
+                            toggleItinerario(itinerario.nome)
+                          }
                         >
-                          <Text style={styles.itinerarioTexto}>{itinerario.nome}</Text>
-                          <Text>{aberto ? "▲" : "▼"}</Text>
+                          <Text
+                            style={styles.itinerarioTexto}
+                          >
+                            {itinerario.nome}
+                          </Text>
+
+                          <Text>
+                            {aberto ? "▲" : "▼"}
+                          </Text>
                         </Pressable>
 
                         {aberto && (
-                          <View style={styles.itinerarioMaterias}>
-                            {itinerario.materias.map((materia) => {
-                              const selecionada = materiasSelecionadas.includes(materia);
-                              return (
-                                <Pressable
-                                  key={materia}
-                                  style={[
-                                    styles.MateriaChip,
-                                    selecionada && { backgroundColor: themeTutor.primary },
-                                  ]}
-                                  onPress={() => toggleMateria(materia)}
-                                >
-                                  <Text
+                          <View
+                            style={styles.itinerarioMaterias}
+                          >
+                            {itinerario.materias.map(
+                              (materia) => {
+                                const selecionada =
+                                  materiasSelecionadas.includes(
+                                    materia
+                                  );
+
+                                return (
+                                  <Pressable
+                                    key={materia}
                                     style={[
-                                      styles.MateriaTexto,
-                                      selecionada && { color: "#fff" },
+                                      styles.MateriaChip,
+                                      selecionada && {
+                                        backgroundColor:
+                                          themeTutor.primary,
+                                      },
                                     ]}
+                                    onPress={() =>
+                                      toggleMateria(materia)
+                                    }
                                   >
-                                    {materia}
-                                  </Text>
-                                </Pressable>
-                              );
-                            })}
+                                    <Text
+                                      style={[
+                                        styles.MateriaTexto,
+                                        selecionada && {
+                                          color: "#fff",
+                                        },
+                                      ]}
+                                    >
+                                      {materia}
+                                    </Text>
+                                  </Pressable>
+                                );
+                              }
+                            )}
                           </View>
                         )}
                       </View>
@@ -332,90 +544,204 @@ const agenda = DIAS_ORDEM.map((dia) => ({
                 <View style={styles.linhaBotoesModal}>
                   <Pressable
                     style={styles.botaoSecundario}
-                    onPress={() => setModalMateriasVisivel(false)}
+                    onPress={() =>
+                      setModalMateriasVisivel(false)
+                    }
                   >
-                    <Text style={styles.textoBotaoSecundario}>Cancelar</Text>
+                    <Text
+                      style={styles.textoBotaoSecundario}
+                    >
+                      Cancelar
+                    </Text>
                   </Pressable>
+
                   <Pressable
                     style={styles.botaoPrimario}
-                    onPress={() => setModalMateriasVisivel(false)}
+                    onPress={() =>
+                      setModalMateriasVisivel(false)
+                    }
                   >
-                    <Text style={styles.textoBotaoPrimario}>Salvar</Text>
+                    <Text
+                      style={styles.textoBotaoPrimario}
+                    >
+                      Salvar
+                    </Text>
                   </Pressable>
                 </View>
               </View>
             </View>
           </Modal>
 
+          {/* TUTORIAS REALIZADAS */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
-                <Ionicons name="school-sharp" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Tutorias Realizadas</Text>
+                <Ionicons
+                  name="school-sharp"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
+                <Text style={styles.CardTitulo}>
+                  Tutorias Realizadas
+                </Text>
               </View>
-              <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-                <Text style={styles.CardLink}>Ver todos</Text>
-                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+
+              <Pressable
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Text style={styles.CardLink}>
+                  Ver todos
+                </Text>
+
+                <Ionicons
+                  name="chevron-forward"
+                  size={14}
+                  color={themeTutor.primary}
+                />
               </Pressable>
             </View>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.MatchesLista}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.MatchesLista}
+            >
               {MATCHES.map((match) => (
-                <View key={match.nome} style={styles.MatchCard}>
-                  <Text style={styles.MatchNome}>{match.nome}</Text>
-                  <Text style={styles.MatchMateria}>{match.materia}</Text>
+                <View
+                  key={match.nome}
+                  style={styles.MatchCard}
+                >
+                  <Text style={styles.MatchNome}>
+                    {match.nome}
+                  </Text>
+
+                  <Text style={styles.MatchMateria}>
+                    {match.materia}
+                  </Text>
                 </View>
               ))}
             </ScrollView>
           </View>
 
+          {/* AGENDA */}
           <View style={styles.Card}>
             <View style={styles.CardHeader}>
               <View style={styles.CardHeaderEsquerda}>
-                <Ionicons name="calendar-outline" size={20} color={themeTutor.primary} />
-                <Text style={styles.CardTitulo}>Minha agenda</Text>
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={themeTutor.primary}
+                />
+
+                <Text style={styles.CardTitulo}>
+                  Minha agenda
+                </Text>
               </View>
+
               <Pressable
-                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-                onPress={() => router.push("/editar-agenda-tutor")}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+                onPress={() =>
+                  router.push("/editar-agenda-tutor")
+                }
               >
-                <Text style={styles.CardLink}>Editar agenda</Text>
-                <Ionicons name="chevron-forward" size={14} color={themeTutor.primary} />
+                <Text style={styles.CardLink}>
+                  Editar agenda
+                </Text>
+
+                <Ionicons
+                  name="chevron-forward"
+                  size={14}
+                  color={themeTutor.primary}
+                />
               </Pressable>
             </View>
 
             {carregandoAgenda ? (
-              <Text style={{ color: "#7a7a7a", fontSize: 13 }}> Carregando horários...</Text>
+              <Text
+                style={{
+                  color: "#7a7a7a",
+                  fontSize: 13,
+                }}
+              >
+                Carregando horários...
+              </Text>
             ) : agenda.length === 0 ? (
-              <Text style={{ color: "#7a7a7a", fontSize: 13 }}> Nenhum horário cadastrado ainda.</Text>
+              <Text
+                style={{
+                  color: "#7a7a7a",
+                  fontSize: 13,
+                }}
+              >
+                Nenhum horário cadastrado ainda.
+              </Text>
             ) : (
-              <ScrollView horizontal style={styles.Agenda}>
+              <ScrollView
+                horizontal
+                style={styles.Agenda}
+              >
                 {agenda.map((item) => {
-                  const horariosVisiveis = item.horario.slice(0, 3);
-                  const temMais = item.horario.length > 3;
+                  const horariosVisiveis =
+                    item.horario.slice(0, 3);
+
+                  const temMais =
+                    item.horario.length > 3;
 
                   return (
-                    <View key={item.dia} style={styles.DiaCard}>
-                      <Text style={styles.DiaSemana}>{item.dia}</Text>
-                      {horariosVisiveis.map((hora, index) => (
-                        <Text key={index} style={styles.DiaHora}>{hora}</Text>
-                      ))}
-                      {temMais && <Text style={styles.DiaHora}>...</Text>}
+                    <View
+                      key={item.dia}
+                      style={styles.DiaCard}
+                    >
+                      <Text style={styles.DiaSemana}>
+                        {item.dia}
+                      </Text>
+
+                      {horariosVisiveis.map(
+                        (hora, index) => (
+                          <Text
+                            key={index}
+                            style={styles.DiaHora}
+                          >
+                            {hora}
+                          </Text>
+                        )
+                      )}
+
+                      {temMais && (
+                        <Text style={styles.DiaHora}>
+                          ...
+                        </Text>
+                      )}
                     </View>
                   );
                 })}
               </ScrollView>
             )}
           </View>
+
           <SecaoAvaliacoes theme={themeTutor} />
         </View>
       </ScrollView>
-      <BottomNavBar theme={themeTutor} perfil="tutor" />
+
+      <BottomNavBar
+        theme={themeTutor}
+        perfil="tutor"
+      />
     </View>
   );
 }
 
-const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64;
+const statusBarHeight = StatusBar.currentHeight
+  ? StatusBar.currentHeight + 22
+  : 64;
 
 const styles = StyleSheet.create({
   container: {
@@ -460,39 +786,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // o avatar agora fica FORA do Header, sobrepondo ele
+  // Avatar agora fica FORA do Header,
+  // sobrepondo a parte inferior dele.
   AvatarWrapper: {
     alignItems: "center",
-    marginTop: -65, // metade da altura do Avatar, pra "cortar" a curva do header
+    marginTop: -65,
     zIndex: 2,
-  },
-
-  Avatar: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 5,
-  },
-
-  CameraBadge: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    width: 36,
-    height: 36,
-    borderRadius: 36,
-    backgroundColor: "#764ba2",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "white",
   },
 
   Nome: {
@@ -520,7 +819,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingTop: 10,
     paddingBottom: 10,
-    // ou so padding:10
     marginLeft: 10,
     marginRight: 10,
     marginBottom: 16,
@@ -528,12 +826,11 @@ const styles = StyleSheet.create({
 
   Conteudo: {
     paddingHorizontal: 16,
-    paddingBottom: 90, // espaço pro botão fixo não cobrir o último card
+    paddingBottom: 90,
   },
 
-  /* fim de bio */
-
   /* CARDS */
+
   Card: {
     backgroundColor: "white",
     borderRadius: 16,
@@ -542,7 +839,10 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     elevation: 2,
   },
 
@@ -552,11 +852,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
+
   linhaEstatisticas: {
     flexDirection: "row",
     gap: 12,
     marginBottom: 16,
   },
+
   cardEstatistica: {
     flex: 1,
     borderRadius: 16,
@@ -564,23 +866,28 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: "white",
   },
+
   iconeEstatistica: {
     fontSize: 20,
   },
+
   numeroEstatistica: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#2b2b2b",
   },
+
   labelEstatistica: {
     fontSize: 12,
     color: "#2b2b2b",
   },
+
   destaqueEstatistica: {
     fontSize: 11,
     color: themeTutor.primary,
     fontWeight: "600",
   },
+
   CardHeaderEsquerda: {
     flexDirection: "row",
     alignItems: "center",
@@ -599,7 +906,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  /* Informaçoes pessoais */
+  /* INFORMAÇÕES PESSOAIS */
+
   InfoBox: {
     flexDirection: "row",
     backgroundColor: "#f3eefc",
@@ -629,7 +937,8 @@ const styles = StyleSheet.create({
     color: "#2b2b2b",
   },
 
-  /* materias */
+  /* MATÉRIAS */
+
   Materias: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -667,7 +976,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 
-  /* modal de edição de matérias */
+  /* MODAL */
+
   ModalFundo: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -747,7 +1057,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  /* ------- */
   /* MATCHES */
 
   MatchesLista: {
@@ -790,7 +1099,6 @@ const styles = StyleSheet.create({
     color: "#2b2b2b",
   },
 
-  /* AGENDAAA */
   Agenda: {
     flexDirection: "row",
     gap: 10,

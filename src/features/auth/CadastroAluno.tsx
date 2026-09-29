@@ -129,7 +129,7 @@ export default function CadastroAluno() {
         </Pressable>
 
         <Image
-          source={require("../../../assets/logo-alunoCadastro.png")}
+          source={require("../../../assets/logo.png")}
           style={styles.logoCabecalho}
         />
         <Text style={styles.tituloCabecalho}>Cadastro de Aluno</Text>
