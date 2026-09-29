@@ -13,8 +13,6 @@ export async function buscarMinhasAvaliacoes(token: string) {
     }
 
     return dados
-<<<<<<< HEAD
-=======
 }
 
 export async function buscarAvaliacoesPendentes(token: string) {
@@ -63,5 +61,4 @@ export async function enviarAvaliacao(token: string, matchId: string, nota: numb
     }
 
     return dados
->>>>>>> d535f3287a52031a54be87c202037e04aa027ae0
 }
