@@ -8,7 +8,7 @@ import {
   TextInput,
   Modal,
 } from "react-native";
-
+import NotificacoesSino from "../../shared/components/NotificacoesSino"
 import { Ionicons } from "@expo/vector-icons";
 import { themeTutor } from "../../shared/styles/themeTutor";
 import { useState, useCallback } from "react";
@@ -278,11 +278,7 @@ export default function PerfilTutor() {
             <Text style={styles.HeaderTitulo}>Perfil Tutor</Text>
 
             <View style={styles.AcoesHeader}>
-              <Ionicons
-                name="notifications-outline"
-                size={22}
-                color="white"
-              />
+              <NotificacoesSino theme={themeTutor} />
             </View>
           </View>
         </View>

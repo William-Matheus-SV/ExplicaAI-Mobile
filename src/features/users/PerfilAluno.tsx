@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-
+import NotificacoesSino from "../../shared/components/NotificacoesSino"
 import { themeAluno } from "../../shared/styles/themeAluno";
 import BottomNavBar from "../../shared/components/BottomNavBar";
 import FotoPerfil from "../../shared/components/FotoPerfil";
@@ -345,11 +345,7 @@ export default function PerfilAluno() {
               Perfil Aluno
             </Text>
 
-            <Ionicons
-              name="notifications-outline"
-              size={22}
-              color="white"
-            />
+            <NotificacoesSino theme={themeAluno} />
           </View>
         </View>
 
